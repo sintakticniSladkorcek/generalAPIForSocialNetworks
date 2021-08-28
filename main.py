@@ -16,7 +16,7 @@
 # https://www.youtube.com/watch?v=kCggyi_7pHg
 # https://www.jcchouinard.com/authenticate-to-linkedin-api-using-oauth2/
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import facebook
 import json
 import requests
@@ -115,18 +115,41 @@ def map_fields(requested_social_media, fields):
 
 def merge_responses(fields, responses):
     merged_response = {}
+    merged_response['errors'] = {} # TODO: check if it's better to include 'errors' field only if errors are present
+    error_responses, non_error_responses = error_response(responses)
+
     for field in fields:
         merged_response[field] = []
         for platform in responses:
             temp_dict = {}
-            temp_dict['provider'] = data_ditionary[platform]['name']
-            specific_field_name = data_ditionary[platform]['field_mapping'][field]
-            # TODO: handle error responses
-            temp_dict[specific_field_name] = responses[platform][specific_field_name]
-            merged_response[field].append(temp_dict)
+            platform_name = data_ditionary[platform]['name']
+            temp_dict['provider'] = platform_name
+            if platform in non_error_responses:
+                specific_field_name = data_ditionary[platform]['field_mapping'][field]
+                temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
+                merged_response[field].append(temp_dict)
+            else:
+                merged_response['errors'][platform_name] = {}
+                merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
+                merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
+                # TODO: check if it's better to include 'errors' field only if errors are present
 
     response = json.dumps(merged_response, indent=2)
     return response
+
+
+def error_response(responses):
+    error_responses = {}
+    non_error_responses = {}
+    
+    # separate error and non error responses
+    for platform in responses:
+        if responses[platform].status_code >= 400:
+            error_responses[platform] = responses[platform]
+        else:
+            non_error_responses[platform] = responses[platform]
+        
+    return error_responses, non_error_responses
 
 
 ###########################################
@@ -138,9 +161,9 @@ def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unif
     responses = {}
 
     if 'fb' in requested_social_media:
-        fb_response = call_facebook(data_ditionary['fb']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access_token) # json response
+        fb_response = call_facebook(data_ditionary['fb']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access_token)
         responses['fb'] = fb_response
-        print(json.dumps(fb_response, indent=2))
+        print(fb_response.json())
     
     if 'ig' in requested_social_media:
         ig_response = call_instagram(data_ditionary['ig']['endpoint_mapping'][endpoint], '', ig_token)
@@ -150,7 +173,7 @@ def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unif
         ln_headers = create_ln_header(ln_access_token) # Prepare headers to attach to request
         ln_response = call_linkedin(data_ditionary['ln']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
         responses['ln'] = ln_response
-        print(json.dumps(ln_response, indent=2))
+        print(ln_response.json())
 
     if 'tw' in requested_social_media:
         tw_response = call_twitter(data_ditionary['tw']['endpoint_mapping'][endpoint], '', tw_token)
@@ -166,7 +189,7 @@ def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, m
     if 'fb' in requested_social_media:
         fb_response = call_facebook(data_ditionary['fb']['endpoint_mapping'][endpoint] + id, 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access_token) # json response
         responses['fb'] = fb_response
-        print(json.dumps(fb_response, indent=2))
+        print(fb_response.json())
     
     if 'ig' in requested_social_media:
         ig_response = call_instagram(data_ditionary['ig']['endpoint_mapping'][endpoint] + id, '', ig_token)
@@ -176,7 +199,7 @@ def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, m
         ln_headers = headers(ln_access_token) # Prepare headers to attach to request
         ln_response = call_linkedin(data_ditionary['ln']['endpoint_mapping'][endpoint] + id, 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
         responses['ln'] = ln_response
-        print(json.dumps(ln_response, indent=2))
+        print(ln_response.json())
 
     if 'tw' in requested_social_media:
         tw_response = call_twitter(data_ditionary['tw']['endpoint_mapping'][endpoint] + id, '', tw_token)
@@ -191,8 +214,7 @@ def call_facebook(endpoint, parameters, fb_token):
         response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?&access_token={fb_token}')
     else:
         response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?{parameters}&access_token={fb_token}')
-    print(response)
-    return response.json()
+    return response
 
     # Nested call https://graph.facebook.com/10215963448399509?fields=albums.limit(2){photos.limit(3)}
     # https://graph.facebook.com/NODE?fields=FIRSTLEVEL{SECOND LEVEL} can have even more levels
@@ -204,41 +226,19 @@ def call_facebook(endpoint, parameters, fb_token):
 
 def call_instagram(endpoint, parameters, ig_token):
     response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?{parameters}&access_token={ig_token}')
-    return response.json()
+    return response
 
 def call_linkedin(endpoint, parameters, headers):
     if parameters == '':
         response = requests.get(f'https://api.linkedin.com/v2/{endpoint}', headers = headers)
     else:
         response = requests.get(f'https://api.linkedin.com/v2/{endpoint}?{parameters}', headers = headers)
-    print(response)
-    return response.json()
+    return response
 
 def call_twitter(endpoint, parameters, tw_token):
     response = requests.get(f'https://graph.facebook.com/{endpoint}?{parameters}&access_token={tw_token}')
-    return response.json()
+    return response
 
-
-'''
-FB error message
-<Response [400]>
-{
-  "error": {
-    "message": "Unsupported get request. Object with ID 'mekk' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
-    "type": "GraphMethodException",
-    "code": 100,
-    "error_subcode": 33,
-    "fbtrace_id": "AxYUhDHjmfsd6haVQz_FSSy"
-  }
-}
-LN error message
-<Response [403]>
-{
-  "serviceErrorCode": 100,
-  "message": "not enough permissions to access field localizedLastNamekkk for GET /me",
-  "status": 403
-}
-'''
 
 
 ########################
@@ -273,14 +273,14 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
     endpoint = 'user/'
     requested_social_media = sm.split(',')
     if len(requested_social_media) > 1:
-        response = {
-                        'Error': {
-                            'status': 400,
-                            'error_code': 1,
-                            'message': 'Too many requested social media plaforms. To get elements by id, specify only one social media platform at the time in the parameter \'sm\'.'
-                        }
+        error = {
+                    'Error': {
+                        'HTTPstatus': 400,
+                        'error_code': 1,
+                        'message': 'Too many requested social media plaforms. To get elements by id, specify only one social media platform at the time in the parameter \'sm\'.'
                     }
-        return json.dumps(response, indent=2)
+                }
+        raise HTTPException(status_code=400, detail=error)
     fields = fields.split(',')
 
     # map fields
@@ -292,7 +292,6 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 
 
 
-# TODO: error handling
 # TODO: twitter authentication
 # TODO: ln authentication
 # TODO: fb authentication
