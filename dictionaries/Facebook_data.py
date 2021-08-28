@@ -44,7 +44,7 @@ class Facebook_data():
             'permissions':'permissions',
             'personal_ad_accounts':'personal_ad_accounts',
             'photos':'photos',
-            'picture':'picture',
+            'profile_picture':'picture',
             'posts':'posts',
             'quotes':'quotes',
             'rich_media_documents':'rich_media_documents',
@@ -55,5 +55,9 @@ class Facebook_data():
             'supports_donate_button_in_live_video':'supports_donate_button_in_live_video',
             'video_upload_limits':'video_upload_limits',
             'videos':'videos'
+        },
+        'endpoint_mapping': {
+            'me': 'me',
+            'user/': ''
         }
     }
