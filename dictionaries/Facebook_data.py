@@ -58,6 +58,8 @@ class Facebook_data():
         },
         'endpoint_mapping': {
             'me': 'me',
-            'user/': ''
+            'user': '',
+            'post': '',
+            'comment': ''
         }
     }

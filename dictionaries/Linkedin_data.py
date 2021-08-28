@@ -11,6 +11,9 @@ class Linkedin_data():
             'name': 'firstName'
         },
         'endpoint_mapping': {
-            'me': 'me'
+            'me': 'me',
+            'user': '',
+            'post': '',
+            'comment': ''
         }
     }
