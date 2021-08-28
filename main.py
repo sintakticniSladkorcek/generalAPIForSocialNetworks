@@ -206,7 +206,7 @@ def call_twitter(endpoint, parameters, tw_token):
 ########################
 
 '''
-Returns data about the user specified by parameter fields
+Returns data about the logged-in user specified by parameter 'fields'
 '''
 
 @app.get('/me')
@@ -223,7 +223,9 @@ def get_data_about_me(sm: str = 'fb,ln,tw', fields: str = ''):
     response = call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unified_fields)
     return response
 
-
+'''
+Returns data about the user with given user_id specified by parameter 'fields'
+'''
 
 @app.get('/user/{user_id}')
 def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
