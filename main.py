@@ -1,7 +1,18 @@
 # LEGAL
-# https://legal.linkedin.com/api-terms-of-use
+# Facebook: https://developers.facebook.com/devpolicy/
+#           https://developers.facebook.com/terms/dfc_platform_terms/
+#           https://www.facebook.com/policies_center
+# LinkedIn: https://legal.linkedin.com/api-terms-of-use
+#           https://www.linkedin.com/legal/user-agreement
+# Twitter:  https://developer.twitter.com/en/developer-terms
+#           https://twitter.com/en/tos
 
-# Non-official sources I used:
+# OFFICIAL SOCIAL MEDIA APIs DOCUMENTATION
+# Facebook: https://developers.facebook.com/docs/graph-api/reference
+# LinkedIn: https://docs.microsoft.com/en-us/linkedin/
+# Twitter: https://developer.twitter.com/en/docs
+
+# Non-official sources that helped in writing this code:
 # https://www.youtube.com/watch?v=kCggyi_7pHg
 # https://www.jcchouinard.com/authenticate-to-linkedin-api-using-oauth2/
 
@@ -17,7 +28,7 @@ from dictionaries.Instagram_data import Instagram_data as igd
 from dictionaries.Linkedin_data import Linkedin_data as lnd
 from dictionaries.Twitter_data import Twitter_data as twd
 
-from authentication.ln_authentication import headers
+from authentication.ln_authentication import create_header as create_ln_header
 from authentication.ln_authentication import auth as ln_auth
 from authentication.fb_authentication import auth as fb_auth
 
@@ -26,9 +37,9 @@ from authentication.fb_authentication import auth as fb_auth
 # Or you can go to index endpoint and add /redoc, which gives you another documentation for your API
 # Error messages are also automatically generated
 
-app = FastAPI() # Instantiate an app object. Now we can start writing the endpoints.
+app = FastAPI() # Instantiate an app object.
 
-# Create a list of all static data for social media platforms.
+# Create a list of all static data and mappings for social media platforms.
 data_ditionary = {
     'fb': fbd.dict,
     'ig': igd.dict,
@@ -36,12 +47,14 @@ data_ditionary = {
     'tw': twd.dict
 }
 
+# Specify documents with credentials
 file_with_fb_credentials = 'fb_credentials.json'
 file_with_ln_credentials = 'ln_credentials.json'
 file_with_tw_credentials = 'tw_credentials.json'
 
-fb_access_token = fb_auth(file_with_fb_credentials) # Authenticate FB API
-ln_access_token = ln_auth(file_with_ln_credentials) # Authenticate the LinkedIn API
+# Authenticate
+fb_access_token = fb_auth(file_with_fb_credentials)
+ln_access_token = ln_auth(file_with_ln_credentials)
 
 
 
@@ -50,8 +63,10 @@ These are endpoints with "instructions", there is only text explaining what can 
 '''
 @app.get('/') 
 def home():
-    return ('To so navodila, kako uporabljat api.')
+    return ('Welcome to General API for Social Media! + list of endpoints and link to readme')
 
+
+# TODO: evaluate if we need these
 @app.get('/facebook')
 def facebook_home():
     return('fb placeholder')
@@ -70,16 +85,17 @@ def linkedin_home():
 
 
 
+# TODO: Add method descriptions
 
 def map_fields(requested_social_media, fields):
-    #  see which platforms need to be queried based on parameter 'social'
+    # check which platforms need to be queried based on parameter 'social'
     requested_social_media_data = [] # contains data dictionaries of selected social media platforms
     for social_media in requested_social_media:
         requested_social_media_data.append(data_ditionary[social_media])
 
     # map fields for similar parameter for each platform
-    mapped_fields = [] # contains string of selected fields corresponding to platforms from selected_social_media
-    unified_fields = []
+    mapped_fields = [] # contains list of selected fields corresponding to platforms from selected_social_media
+    unified_fields = [] # contains list of selected fields (not mapped)
     for social_media in requested_social_media_data:
         temp_fields = ''
 
@@ -106,7 +122,7 @@ def merge_responses(fields, responses):
             temp_dict['provider'] = data_ditionary[platform]['name']
             specific_field_name = data_ditionary[platform]['field_mapping'][field]
             # TODO: handle error responses
-            temp_dict[specific_field_name] = responses[platform][specific_field_name] # error if we got error response from a platform
+            temp_dict[specific_field_name] = responses[platform][specific_field_name]
             merged_response[field].append(temp_dict)
 
     response = json.dumps(merged_response, indent=2)
@@ -131,7 +147,7 @@ def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unif
         responses['ig'] = ig_response
     
     if 'ln' in requested_social_media:
-        ln_headers = headers(ln_access_token) # Prepare headers to attach to request
+        ln_headers = create_ln_header(ln_access_token) # Prepare headers to attach to request
         ln_response = call_linkedin(data_ditionary['ln']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
         responses['ln'] = ln_response
         print(json.dumps(ln_response, indent=2))
@@ -175,6 +191,7 @@ def call_facebook(endpoint, parameters, fb_token):
         response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?&access_token={fb_token}')
     else:
         response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?{parameters}&access_token={fb_token}')
+    print(response)
     return response.json()
 
     # Nested call https://graph.facebook.com/10215963448399509?fields=albums.limit(2){photos.limit(3)}
@@ -194,11 +211,34 @@ def call_linkedin(endpoint, parameters, headers):
         response = requests.get(f'https://api.linkedin.com/v2/{endpoint}', headers = headers)
     else:
         response = requests.get(f'https://api.linkedin.com/v2/{endpoint}?{parameters}', headers = headers)
+    print(response)
     return response.json()
 
 def call_twitter(endpoint, parameters, tw_token):
     response = requests.get(f'https://graph.facebook.com/{endpoint}?{parameters}&access_token={tw_token}')
     return response.json()
+
+
+'''
+FB error message
+<Response [400]>
+{
+  "error": {
+    "message": "Unsupported get request. Object with ID 'mekk' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+    "type": "GraphMethodException",
+    "code": 100,
+    "error_subcode": 33,
+    "fbtrace_id": "AxYUhDHjmfsd6haVQz_FSSy"
+  }
+}
+LN error message
+<Response [403]>
+{
+  "serviceErrorCode": 100,
+  "message": "not enough permissions to access field localizedLastNamekkk for GET /me",
+  "status": 403
+}
+'''
 
 
 ########################
@@ -232,6 +272,15 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 
     endpoint = 'user/'
     requested_social_media = sm.split(',')
+    if len(requested_social_media) > 1:
+        response = {
+                        'Error': {
+                            'status': 400,
+                            'error_code': 1,
+                            'message': 'Too many requested social media plaforms. To get elements by id, specify only one social media platform at the time in the parameter \'sm\'.'
+                        }
+                    }
+        return json.dumps(response, indent=2)
     fields = fields.split(',')
 
     # map fields
@@ -243,9 +292,8 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 
 
 
-
-# TODO: twitter authentication
 # TODO: error handling
+# TODO: twitter authentication
 # TODO: ln authentication
 # TODO: fb authentication
 # TODO: check if already authenticated
@@ -257,7 +305,7 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 # FB CALL EXAMPLES
 
 # graph = facebook.GraphAPI(access_token=token, version = 3.1)
-# # events = graph.request('/masa.smajila?metadata=1&access_token='+token)
+# # events = graph.request('/vanity.name?metadata=1&access_token='+token)
 # # print (events)
 
 # page = graph.get_object("Recipes", fields='name,about')
@@ -266,5 +314,5 @@ def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 
 
 
-# print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name'))
-print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name'))
+#print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))

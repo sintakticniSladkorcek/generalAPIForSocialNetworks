@@ -1,27 +1,24 @@
 #!/usr/bin/env python
     
 '''
-Simple Authentication script to log-on the Linkedin API
-
-@author:    Jean-Christophe Chouinard. 
-@role:      Sr. SEO Specialist at SEEK.com.au
+This is modified code from
+Simple Authentication script to log-on the Linkedin API by Jean-Christophe Chouinard. 
 @website:   jcchouinard.com
-@LinkedIn:  linkedin.com/in/jeanchristophechouinard/ 
-@Twitter:   twitter.com/@ChouinardJC
 '''
 import json
 import random
 import requests
 import string
+from .utility import Utility as ut
 
-def auth(credentials):
+def auth(file_with_credentials):
     '''
     Run the Authentication.
     If the access token exists, it will use it to skip browser auth.
     If not, it will open the browser for you to authenticate.
     You will have to manually paste the redirect URI in the prompt.
     '''
-    creds = read_creds(credentials)
+    creds = ut.read_credentials(file_with_credentials)
     client_id, client_secret = creds['client_id'], creds['client_secret']
     redirect_uri = creds['redirect_uri']
     api_url = 'https://www.linkedin.com/oauth/v2' 
@@ -31,12 +28,12 @@ def auth(credentials):
         auth_code = authorize(api_url,*args)
         access_token = refresh_token(auth_code,*args)
         creds.update({'access_token':access_token})
-        save_token(credentials,creds)
+        save_token(file_with_credentials,creds)
     else: 
         access_token = creds['access_token']
     return access_token
 
-def headers(access_token):
+def create_header(access_token):
     '''
     Make the headers to attach to the API call.
     '''
@@ -46,15 +43,6 @@ def headers(access_token):
     'X-Restli-Protocol-Version': '2.0.0'
     }
     return headers
-
-def read_creds(filename):
-    '''
-    Store API credentials in a safe place.
-    If you use Git, make sure to add the file to .gitignore
-    '''
-    with open(filename) as f:
-        credentials = json.load(f)
-    return credentials
 
 def save_token(filename,data):
     '''
