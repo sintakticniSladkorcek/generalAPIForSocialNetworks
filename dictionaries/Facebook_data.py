@@ -1,6 +1,13 @@
 class Facebook_data():
     dict = {
         'name': 'Facebook',
+        'base_url': 'https://graph.facebook.com/v11.0/',
+        'endpoint_mapping': {
+            'me': 'me',
+            'user': '',
+            'post': '',
+            'comment': ''
+        },
         'field_mapping': {
             'accounts':'accounts',
             'ad_studies':'ad_studies',
@@ -10,7 +17,7 @@ class Facebook_data():
             'apprequestformerrecipients':'apprequestformerrecipients',
             'apprequests':'apprequests',
             'assigned_business_asset_groups':'assigned_business_asset_groups',
-            'birthday':'birthday',
+            'birthday':'',
             'business_users':'business_users',
             'businesses':'businesses',
             'email':'email',
@@ -55,11 +62,5 @@ class Facebook_data():
             'supports_donate_button_in_live_video':'supports_donate_button_in_live_video',
             'video_upload_limits':'video_upload_limits',
             'videos':'videos'
-        },
-        'endpoint_mapping': {
-            'me': 'me',
-            'user': '',
-            'post': '',
-            'comment': ''
         }
     }

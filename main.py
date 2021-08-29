@@ -214,10 +214,11 @@ def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, m
     return response
 
 def call_facebook(endpoint, parameters, fb_token):
+    base_url = data_dictionary['fb']['base_url']
     if parameters == '':
-        response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?&access_token={fb_token}')
+        response = requests.get(f'{base_url}{endpoint}?&access_token={fb_token}')
     else:
-        response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?{parameters}&access_token={fb_token}')
+        response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={fb_token}')
     return response
 
     # Nested call https://graph.facebook.com/10215963448399509?fields=albums.limit(2){photos.limit(3)}
@@ -229,18 +230,21 @@ def call_facebook(endpoint, parameters, fb_token):
     
 
 def call_instagram(endpoint, parameters, ig_token):
-    response = requests.get(f'https://graph.facebook.com/v11.0/{endpoint}?{parameters}&access_token={ig_token}')
+    base_url = data_dictionary['ig']['base_url']
+    response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={ig_token}')
     return response
 
 def call_linkedin(endpoint, parameters, headers):
+    base_url = data_dictionary['ln']['base_url']
     if parameters == '':
-        response = requests.get(f'https://api.linkedin.com/v2/{endpoint}', headers = headers)
+        response = requests.get(f'{base_url}{endpoint}', headers = headers)
     else:
-        response = requests.get(f'https://api.linkedin.com/v2/{endpoint}?{parameters}', headers = headers)
+        response = requests.get(f'{base_url}{endpoint}?{parameters}', headers = headers)
     return response
 
 def call_twitter(endpoint, parameters, tw_token):
-    response = requests.get(f'https://graph.facebook.com/{endpoint}?{parameters}&access_token={tw_token}')
+    base_url = data_dictionary['tw']['base_url']
+    response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={tw_token}')
     return response
 
 def check_if_too_many_requested_platforms(requested_social_media):
@@ -327,7 +331,6 @@ def get_data_about_post(comment_id: str, sm: str = 'fb,ln,tw', fields: str = '')
     return response
 
 
-# TODO: move also base urls to data files as they may change and are social media spe
 # TODO: twitter authentication
 # TODO: ln authentication
 # TODO: fb authentication
