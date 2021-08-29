@@ -24,11 +24,11 @@ def auth(file_with_credentials):
     api_url = 'https://www.linkedin.com/oauth/v2' 
         
     if 'access_token' not in creds.keys(): 
-        args = client_id,client_secret,redirect_uri
-        auth_code = authorize(api_url,*args)
-        access_token = refresh_token(auth_code,*args)
+        args = client_id, client_secret, redirect_uri
+        auth_code = authorize(api_url, *args)
+        access_token = refresh_token(auth_code, *args)
         creds.update({'access_token':access_token})
-        save_token(file_with_credentials,creds)
+        ut.save_token(file_with_credentials, creds)
     else: 
         access_token = creds['access_token']
     return access_token
@@ -43,14 +43,6 @@ def create_header(access_token):
     'X-Restli-Protocol-Version': '2.0.0'
     }
     return headers
-
-def save_token(filename,data):
-    '''
-    Write token to credentials file.
-    '''
-    data = json.dumps(data, indent = 4) 
-    with open(filename, 'w') as f: 
-        f.write(data)
 
 def create_CSRF_token():
     '''
