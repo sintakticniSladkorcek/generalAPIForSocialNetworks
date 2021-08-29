@@ -17,7 +17,7 @@
 # https://www.jcchouinard.com/authenticate-to-linkedin-api-using-oauth2/
 
 from fastapi import FastAPI, HTTPException
-import facebook
+import facebook # TODO: Do we need this library?
 import json
 import requests
 import random
@@ -99,12 +99,16 @@ def map_fields(requested_social_media, fields):
     for social_media in requested_social_media_data:
         temp_fields = ''
 
+        # TODO: Ignore fields that map to empty
+
         if fields == []: # If no fields are selected, return all possible data
             for field in social_media['field_mapping']:
+                #if social_media['field_mapping'][field] != '':
                 temp_fields += social_media['field_mapping'][field] + ','
-                unified_fields.append(social_media['field_mapping'].keys())
+            unified_fields.append(social_media['field_mapping'].keys())
         else:
             for field in fields:
+                #if social_media['field_mapping'][field] != '':
                 temp_fields += social_media['field_mapping'][field] + ','
             unified_fields = fields
         
@@ -296,7 +300,7 @@ Returns data about the user with given user_id specified by parameter 'fields'
 @app.get('/user/{user_id}')
 def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
 
-    endpoint = 'user/'
+    endpoint = 'user'
     response = get_data_with_id(endpoint, user_id, sm, fields)
     return response
 
@@ -307,7 +311,7 @@ Returns data about the post with given post_id specified by parameter 'fields'
 
 @app.get('/post/{post_id}')
 def get_data_about_post(post_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
-    endpoint = 'post/'
+    endpoint = 'post'
     response = get_data_with_id(endpoint, post_id, sm, fields)
     return response
 
@@ -318,12 +322,12 @@ Returns data about the comment with given comment_id specified by parameter 'fie
 
 @app.get('/comment/{comment_id}')
 def get_data_about_post(comment_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
-    endpoint = 'comment/'
+    endpoint = 'comment'
     response = get_data_with_id(endpoint, comment_id, sm, fields)
     return response
 
 
-
+# TODO: move also base urls to data files as they may change and are social media spe
 # TODO: twitter authentication
 # TODO: ln authentication
 # TODO: fb authentication
