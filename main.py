@@ -120,13 +120,13 @@ def map_fields(requested_social_media, fields):
 
         if fields == []: # If no fields are selected, return all possible data
             for field in social_media['field_mapping']:
-                #if social_media['field_mapping'][field] != '':
-                temp_fields += social_media['field_mapping'][field] + ','
+                if social_media['field_mapping'][field] != None:
+                    temp_fields += social_media['field_mapping'][field] + ','
             unified_fields.append(social_media['field_mapping'].keys())
         else:
             for field in fields:
-                #if social_media['field_mapping'][field] != '':
-                temp_fields += social_media['field_mapping'][field] + ','
+                if social_media['field_mapping'][field] != None:
+                    temp_fields += social_media['field_mapping'][field] + ','
             unified_fields = fields
         
         mapped_fields.append(temp_fields[:-1])
@@ -136,7 +136,7 @@ def map_fields(requested_social_media, fields):
 
 def merge_responses(fields, responses):
     merged_response = {}
-    merged_response['errors'] = {} # TODO: check if it's better to include 'errors' field only if errors are present
+    merged_response['errors'] = {}
     error_responses, non_error_responses = error_response(responses)
 
     for field in fields:
@@ -144,16 +144,19 @@ def merge_responses(fields, responses):
         for platform in responses:
             temp_dict = {}
             platform_name = data_dictionary[platform]['name']
-            temp_dict['provider'] = platform_name
+            
             if platform in non_error_responses:
                 specific_field_name = data_dictionary[platform]['field_mapping'][field]
+                if specific_field_name == None:
+                    continue
+                temp_dict['provider'] = platform_name
                 temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
                 merged_response[field].append(temp_dict)
             else:
                 merged_response['errors'][platform_name] = {}
                 merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
                 merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
-                # TODO: check if it's better to include 'errors' field only if errors are present
+                # If there are no errors, field 'errors' will have empty value
 
     response = json.dumps(merged_response, indent=2)
     return response
@@ -262,12 +265,13 @@ def call_linkedin(endpoint, parameters, headers):
 def call_twitter(endpoint, parameters, tw_token):
     base_url = data_dictionary['tw']['base_url']
     if parameters == '':
-        request = requests.Request(
-        'POST', 'https://poloniex.com/tradingApi',
-        data=payload, headers=headers)
+        headers = ''
+        # request = requests.Request(
+        # 'POST', 'https://poloniex.com/tradingApi',
+        # data=payload, headers=headers)
 
-        with requests.Session() as session:
-        response = session.send(prepped)
+        # with requests.Session() as session:
+        #     response = session.send(prepped)
 
         response = requests.get(f'{base_url}{endpoint}', headers = headers)
     else:
@@ -379,5 +383,5 @@ def get_data_about_post(comment_id: str, sm: str = 'fb,ln,tw', fields: str = '')
 
 
 
-# print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name'))
+print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
