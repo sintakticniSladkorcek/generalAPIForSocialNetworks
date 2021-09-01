@@ -18,6 +18,7 @@
 
 from fastapi import FastAPI, HTTPException
 import facebook # TODO: Do we need this library?
+import tweepy # TODO: Do we need this library?
 import json
 import requests
 import random
@@ -31,6 +32,7 @@ from dictionaries.Twitter_data import Twitter_data as twd
 from authentication.ln_authentication import create_header as create_ln_header
 from authentication.ln_authentication import auth as ln_auth
 from authentication.fb_authentication import auth as fb_auth
+from authentication.tw_authentication import auth as tw_auth
 
 
 # If you go to index endpoint and add /docs, you get Swagger and it automatically generates the documentation
@@ -53,9 +55,24 @@ file_with_ln_credentials = 'ln_credentials.json'
 file_with_tw_credentials = 'tw_credentials.json'
 
 # Authenticate
-fb_access_token = fb_auth(file_with_fb_credentials)
-ln_access_token = ln_auth(file_with_ln_credentials)
+fb_access = fb_auth(file_with_fb_credentials)
 
+ln_access = ln_auth(file_with_ln_credentials)
+
+tw_creds, tw_error = tw_auth(file_with_tw_credentials)
+if tw_error != None:
+    tw_access = tw_creds
+    print(tw_error, tw_error.json)
+    # TODO: raise Exception or somehow include tw_error in a merged response
+
+tw_access = tw_creds
+
+# fb_api = facebook.GraphAPI(access_token=fb_access, version = 3.1)
+# tw_api = tweepy.API(tw_access)
+# me = tw_api.me()
+# print(me._json) # returns json
+# timeline = tw_api.user_timeline(user_id=me.id, count=200)
+# print(timeline)
 
 
 '''
@@ -63,7 +80,7 @@ These are endpoints with "instructions", there is only text explaining what can 
 '''
 @app.get('/') 
 def home():
-    return ('Welcome to General API for Social Media! + list of endpoints and link to readme')
+    return ('Welcome to General API for Social Media! + list of endpoints and link to readme') # TODO
 
 
 # TODO: evaluate if we need these
@@ -165,7 +182,7 @@ def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unif
     responses = {}
 
     if 'fb' in requested_social_media:
-        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access_token)
+        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access)
         responses['fb'] = fb_response
         print(fb_response.json())
     
@@ -174,7 +191,7 @@ def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unif
         responses['ig'] = ig_response
     
     if 'ln' in requested_social_media:
-        ln_headers = create_ln_header(ln_access_token) # Prepare headers to attach to request
+        ln_headers = create_ln_header(ln_access) # Prepare headers to attach to request
         ln_response = call_linkedin(data_dictionary['ln']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
         responses['ln'] = ln_response
         print(ln_response.json())
@@ -191,7 +208,7 @@ def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, m
     responses = {}
 
     if 'fb' in requested_social_media:
-        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint] + '/' + id, 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access_token) # json response
+        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint] + '/' + id, 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access) # json response
         responses['fb'] = fb_response
         print(fb_response.json())
     
@@ -200,7 +217,7 @@ def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, m
         responses['ig'] = ig_response
     
     if 'ln' in requested_social_media:
-        ln_headers = headers(ln_access_token) # Prepare headers to attach to request
+        ln_headers = headers(ln_access) # Prepare headers to attach to request
         ln_response = call_linkedin(data_dictionary['ln']['endpoint_mapping'][endpoint] + '/' + id, 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
         responses['ln'] = ln_response
         print(ln_response.json())
@@ -244,7 +261,17 @@ def call_linkedin(endpoint, parameters, headers):
 
 def call_twitter(endpoint, parameters, tw_token):
     base_url = data_dictionary['tw']['base_url']
-    response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={tw_token}')
+    if parameters == '':
+        request = requests.Request(
+        'POST', 'https://poloniex.com/tradingApi',
+        data=payload, headers=headers)
+
+        with requests.Session() as session:
+        response = session.send(prepped)
+
+        response = requests.get(f'{base_url}{endpoint}', headers = headers)
+    else:
+        response = requests.get(f'{base_url}{endpoint}?{parameters}', headers = headers)
     return response
 
 def check_if_too_many_requested_platforms(requested_social_media):
@@ -258,7 +285,6 @@ def check_if_too_many_requested_platforms(requested_social_media):
                 }
         raise HTTPException(status_code=400, detail=error)
     return
-
 
 def get_data_with_id(endpoint, id, sm, fields):
     requested_social_media = sm.split(',')
@@ -353,5 +379,5 @@ def get_data_about_post(comment_id: str, sm: str = 'fb,ln,tw', fields: str = '')
 
 
 
-print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name'))
-print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+# print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name'))
+# print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
