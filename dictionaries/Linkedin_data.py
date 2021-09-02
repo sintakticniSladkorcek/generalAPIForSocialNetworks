@@ -16,6 +16,6 @@ class Linkedin_data():
             'last_name': 'localizedLastName',
             'profile_picture': 'profilePicture',
             'name': 'firstName',
-            'birthday': ''
+            'birthday': None
         }
     }
