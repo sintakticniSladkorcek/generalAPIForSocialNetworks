@@ -17,7 +17,7 @@ class Facebook_data():
             'apprequestformerrecipients':'apprequestformerrecipients',
             'apprequests':'apprequests',
             'assigned_business_asset_groups':'assigned_business_asset_groups',
-            'birthday':'',
+            'birthday':'birthday',
             'business_users':'business_users',
             'businesses':'businesses',
             'email':'email',
