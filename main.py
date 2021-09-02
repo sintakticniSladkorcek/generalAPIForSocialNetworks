@@ -24,10 +24,10 @@ import requests
 import random
 import string
 
-from dictionaries.Facebook_data import Facebook_data as fbd
-from dictionaries.Instagram_data import Instagram_data as igd
-from dictionaries.Linkedin_data import Linkedin_data as lnd
-from dictionaries.Twitter_data import Twitter_data as twd
+from data_dictionaries.Facebook_data import Facebook_data as fbd
+from data_dictionaries.Instagram_data import Instagram_data as igd
+from data_dictionaries.Linkedin_data import Linkedin_data as lnd
+from data_dictionaries.Twitter_data import Twitter_data as twd
 
 from authentication.fb_authentication import auth as fb_auth
 from authentication.ig_authentication import auth as ig_auth
