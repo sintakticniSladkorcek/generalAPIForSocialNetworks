@@ -7,7 +7,7 @@
 # Twitter:  https://developer.twitter.com/en/developer-terms
 #           https://twitter.com/en/tos
 
-# OFFICIAL SOCIAL MEDIA APIs DOCUMENTATION
+# OFFICIAL DOCUMENTATION FOR SOCIAL MEDIA APIs
 # Facebook: https://developers.facebook.com/docs/graph-api/reference
 # LinkedIn: https://docs.microsoft.com/en-us/linkedin/
 # Twitter: https://developer.twitter.com/en/docs
@@ -21,8 +21,6 @@ import facebook # TODO: Do we need this library?
 import tweepy # TODO: Do we need this library?
 import json
 import requests
-import random
-import string
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -40,10 +38,10 @@ from social_media_api_calls.linkedin_api_calls import call_api as call_ln_api
 from social_media_api_calls.twitter_api_calls import call_api as call_tw_api
 
 
-# Instantiate an app object
+# Instantiate a FastAPI app object
 app = FastAPI()
 
-# Create a list of data_dictionaries for social media platforms.
+# Create a list of data_dictionaries for social media platforms
 data_dictionary = {
     'fb': fbd.dict,
     'ig': igd.dict,
@@ -352,6 +350,8 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 # TODO: limit parameter (how many items do you want returned)
 # TODO: check error handling of the "too many requested social media platforms" error
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
+# TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
+# TODO: write welcome message and quick how to for the homepage on index
 
 # TODO: add empty files for credentials to github
 
