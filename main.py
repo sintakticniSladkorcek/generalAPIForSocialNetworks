@@ -29,19 +29,21 @@ from dictionaries.Instagram_data import Instagram_data as igd
 from dictionaries.Linkedin_data import Linkedin_data as lnd
 from dictionaries.Twitter_data import Twitter_data as twd
 
-from authentication.ln_authentication import create_header as create_ln_header
-from authentication.ln_authentication import auth as ln_auth
 from authentication.fb_authentication import auth as fb_auth
+from authentication.ig_authentication import auth as ig_auth
+from authentication.ln_authentication import auth as ln_auth
 from authentication.tw_authentication import auth as tw_auth
 
+from social_media_api_calls.facebook_api_calls import call_api as call_fb_api
+from social_media_api_calls.instagram_api_calls import call_api as call_ig_api
+from social_media_api_calls.linkedin_api_calls import call_api as call_ln_api
+from social_media_api_calls.twitter_api_calls import call_api as call_tw_api
 
-# If you go to index endpoint and add /docs, you get Swagger and it automatically generates the documentation
-# Or you can go to index endpoint and add /redoc, which gives you another documentation for your API
-# Error messages are also automatically generated
 
-app = FastAPI() # Instantiate an app object.
+# Instantiate an app object
+app = FastAPI()
 
-# Create a list of all static data and mappings for social media platforms.
+# Create a list of data_dictionaries for social media platforms.
 data_dictionary = {
     'fb': fbd.dict,
     'ig': igd.dict,
@@ -51,11 +53,14 @@ data_dictionary = {
 
 # Specify documents with credentials
 file_with_fb_credentials = 'fb_credentials.json'
+file_with_ig_credentials = 'ig_credentials.json'
 file_with_ln_credentials = 'ln_credentials.json'
 file_with_tw_credentials = 'tw_credentials.json'
 
 # Authenticate
 fb_access = fb_auth(file_with_fb_credentials)
+
+ig_access = ig_auth(file_with_ig_credentials)
 
 ln_access = ln_auth(file_with_ln_credentials)
 
@@ -67,79 +72,60 @@ if tw_error != None:
 
 tw_access = tw_creds
 
-# fb_api = facebook.GraphAPI(access_token=fb_access, version = 3.1)
-# tw_api = tweepy.API(tw_access)
-# me = tw_api.me()
-# print(me._json) # returns json
-# timeline = tw_api.user_timeline(user_id=me.id, count=200)
-# print(timeline)
 
 
-'''
-These are endpoints with "instructions", there is only text explaining what can you query for each social media
-'''
-@app.get('/') 
-def home():
-    return ('Welcome to General API for Social Media! + list of endpoints and link to readme') # TODO
+def error_response(responses):
+    ''' Checks if any of responses are error responses and if so, separates them from the others. 
+    
+    Parameters
+    -----
+    responses: dict
+        Dictionary of responses from all social media APIs that were called.
 
+    Returns
+    -----
+    dict, dict
+        Returns two dictionaries (`error_responses`, `non_error_responses`) with the following format: 
+        {'short name of social media platform (string)': requests.Response object}
+    '''
 
-# TODO: evaluate if we need these
-@app.get('/facebook')
-def facebook_home():
-    return('fb placeholder')
-
-@app.get('/instagram')
-def instagram_home():
-    return('ig placeholder')
-
-@app.get('/twitter')
-def twitter_home():
-    return('tw placeholder')
-
-@app.get('/linkedin')
-def linkedin_home():
-    return('ln placeholder')
-
-
-
-# TODO: Add method descriptions
-
-def map_fields(requested_social_media, fields):
-    # check which platforms need to be queried based on parameter 'social'
-    requested_social_media_data = [] # contains data dictionaries of selected social media platforms
-    for social_media in requested_social_media:
-        requested_social_media_data.append(data_dictionary[social_media])
-
-    # map fields for similar parameter for each platform
-    mapped_fields = [] # contains list of selected fields corresponding to platforms from selected_social_media
-    unified_fields = [] # contains list of selected fields (not mapped)
-    for social_media in requested_social_media_data:
-        temp_fields = ''
-
-        # TODO: Ignore fields that map to empty
-
-        if fields == []: # If no fields are selected, return all possible data
-            for field in social_media['field_mapping']:
-                if social_media['field_mapping'][field] != None:
-                    temp_fields += social_media['field_mapping'][field] + ','
-            unified_fields.append(social_media['field_mapping'].keys())
+    error_responses = {}
+    non_error_responses = {}
+    
+    # separate error and non error responses
+    for platform in responses:
+        if responses[platform].status_code >= 400:
+            error_responses[platform] = responses[platform]
         else:
-            for field in fields:
-                if social_media['field_mapping'][field] != None:
-                    temp_fields += social_media['field_mapping'][field] + ','
-            unified_fields = fields
+            non_error_responses[platform] = responses[platform]
         
-        mapped_fields.append(temp_fields[:-1])
-
-    return unified_fields, mapped_fields
+    return error_responses, non_error_responses
 
 
-def merge_responses(fields, responses):
+def merge_responses(unified_fields, responses):
+    ''' Compiles responses of social media APIs into one json response. 
+    
+    Parameters
+    -----
+    unified_fields: list
+        List of all fields that were requested or are default.
+    responses: dict
+        Dictionary of responses from all social media APIs that were called.
+
+    Returns
+    -----
+    string
+        Returns json string with a compiled response.
+    '''
+
     merged_response = {}
     merged_response['errors'] = {}
+
+    # Separate error and non error responses
     error_responses, non_error_responses = error_response(responses)
 
-    for field in fields:
+    # Merge responses
+    for field in unified_fields:
         merged_response[field] = []
         for platform in responses:
             temp_dict = {}
@@ -156,129 +142,121 @@ def merge_responses(fields, responses):
                 merged_response['errors'][platform_name] = {}
                 merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
                 merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
-                # If there are no errors, field 'errors' will have empty value
-
+                
+    # Convert dictionary merged_responses to json string
     response = json.dumps(merged_response, indent=2)
     return response
 
 
-def error_response(responses):
-    error_responses = {}
-    non_error_responses = {}
+def map_fields(requested_social_media, fields):
+    ''' Compiles responses of social media APIs into one json response. 
     
-    # separate error and non error responses
-    for platform in responses:
-        if responses[platform].status_code >= 400:
-            error_responses[platform] = responses[platform]
+    Parameters
+    -----
+    requested_social_media: list
+        List of short names for social media platforms that were requested via parameter 'sm'. Assumes that there is at least 1 element in the list.
+    fields: list
+        List of all fields that were requested.
+
+    Returns
+    -----
+    list, list
+        Returns two lists: `mapped_fields` and `unified_fields`. `mapped_fields` contains list of selected fields corresponding to requested social media platforms from `selected_social_media`. `unified_fields` contains list of selected fields (not mapped). If parameter `fields` is empty, `unified_fields` contains all possible fields.
+    '''
+
+    # contains data dictionaries of selected social media platforms
+    requested_social_media_data = [] 
+
+    # check which platforms need to be queried based on parameter 'social'
+    for social_media in requested_social_media:
+        requested_social_media_data.append(data_dictionary[social_media])
+
+    # contains list of selected fields corresponding to platforms from selected_social_media
+    mapped_fields = []
+
+    # contains list of selected fields (not mapped)
+    unified_fields = fields
+
+    # If no fields are selected, return all possible data
+    if fields == []: 
+        unified_fields = requested_social_media_data.keys()[0]['field_mapping'].keys()
+
+    # Map fields for similar parameter for each platform
+    for social_media in requested_social_media_data:
+        temp_fields = ''
+
+        if fields == []: 
+            # Collate all possible fields
+            for field in social_media['field_mapping']:
+                if social_media['field_mapping'][field] != None:
+                    temp_fields += social_media['field_mapping'][field] + ','
         else:
-            non_error_responses[platform] = responses[platform]
-        
-    return error_responses, non_error_responses
+            # Collate requested fields
+            for field in fields:
+                if social_media['field_mapping'][field] != None:
+                    temp_fields += social_media['field_mapping'][field] + ','
+            
+        # Add mapped fields to the list
+        mapped_fields.append(temp_fields[:-1])
+
+    return unified_fields, mapped_fields
 
 
-###########################################
-# Functions for calling social media apis #
-###########################################
+def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
+    ''' Calls socaila media APIs. 
+    
+    Parameters
+    -----
+    requested_social_media: list
+        List of short names for social media platforms that were requested via parameter 'sm'. Assumes that there is at least 1 element in the list.
+    endpoint: string
+        String containing the endpoint that was called.
+    fields: list
+        List of all fields that were requested.
+    id: string
+        Optional parameter with default value of `None`. If provided, it is a string identifying a certain object from a social media platform. If this parameter is provided, there will be exactly 1 element in the `requested_social_media` list.
 
-def call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unified_fields):
+    Returns
+    -----
+    string
+        Returns json string with a single response that consists of merged responses of social media APIs. 
+    '''
 
     responses = {}
 
+    # map fields
+    fields = fields.split(',')
+    unified_fields, mapped_fields = map_fields(requested_social_media, fields)
+
+    # call social media APIs
     if 'fb' in requested_social_media:
-        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access)
-        responses['fb'] = fb_response
-        print(fb_response.json())
+        responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], endpoint, mapped_fields[requested_social_media.index('fb')], id) # fb_api or fb_access
     
     if 'ig' in requested_social_media:
-        ig_response = call_instagram(data_dictionary['ig']['endpoint_mapping'][endpoint], '', ig_token)
-        responses['ig'] = ig_response
+        responses['ig'] = call_ig_api(ig_api, data_dictionary['ig'], endpoint, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
     
     if 'ln' in requested_social_media:
-        ln_headers = create_ln_header(ln_access) # Prepare headers to attach to request
-        ln_response = call_linkedin(data_dictionary['ln']['endpoint_mapping'][endpoint], 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
-        responses['ln'] = ln_response
-        print(ln_response.json())
+        responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], endpoint, mapped_fields[requested_social_media.index('ln')], id)
 
     if 'tw' in requested_social_media:
-        tw_response = call_twitter(data_dictionary['tw']['endpoint_mapping'][endpoint], '', tw_token)
-        responses['tw'] = tw_response
+        responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], endpoint, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
     response = merge_responses(unified_fields, responses)
     return response
 
-def call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, mapped_fields, unified_fields):
-    responses = {}
-
-    if 'fb' in requested_social_media:
-        fb_response = call_facebook(data_dictionary['fb']['endpoint_mapping'][endpoint] + '/' + id, 'fields=' + mapped_fields[requested_social_media.index('fb')], fb_access) # json response
-        responses['fb'] = fb_response
-        print(fb_response.json())
-    
-    if 'ig' in requested_social_media:
-        ig_response = call_instagram(data_dictionary['ig']['endpoint_mapping'][endpoint] + '/' + id, '', ig_token)
-        responses['ig'] = ig_response
-    
-    if 'ln' in requested_social_media:
-        ln_headers = headers(ln_access) # Prepare headers to attach to request
-        ln_response = call_linkedin(data_dictionary['ln']['endpoint_mapping'][endpoint] + '/' + id, 'fields=' + mapped_fields[requested_social_media.index('ln')], ln_headers)
-        responses['ln'] = ln_response
-        print(ln_response.json())
-
-    if 'tw' in requested_social_media:
-        tw_response = call_twitter(data_dictionary['tw']['endpoint_mapping'][endpoint] + '/' + id, '', tw_token)
-        responses['tw'] = tw_response
-
-    # merge responses into one json object
-    response = merge_responses(unified_fields, responses)
-    return response
-
-def call_facebook(endpoint, parameters, fb_token):
-    base_url = data_dictionary['fb']['base_url']
-    if parameters == '':
-        response = requests.get(f'{base_url}{endpoint}?&access_token={fb_token}')
-    else:
-        response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={fb_token}')
-    return response
-
-    # Nested call https://graph.facebook.com/10215963448399509?fields=albums.limit(2){photos.limit(3)}
-    # https://graph.facebook.com/NODE?fields=FIRSTLEVEL{SECOND LEVEL} can have even more levels
-    # .limit limits the number of returned results
-
-    # graph.facebook.com/me?fields=posts.limit(5){message,privacy{value}}
-    # graph.facebook.com/me?fields=albums.limit(5){name,privacy,photos.limit(2){picture}},posts.limit(5){message, privacy}
-    
-
-def call_instagram(endpoint, parameters, ig_token):
-    base_url = data_dictionary['ig']['base_url']
-    response = requests.get(f'{base_url}{endpoint}?{parameters}&access_token={ig_token}')
-    return response
-
-def call_linkedin(endpoint, parameters, headers):
-    base_url = data_dictionary['ln']['base_url']
-    if parameters == '':
-        response = requests.get(f'{base_url}{endpoint}', headers = headers)
-    else:
-        response = requests.get(f'{base_url}{endpoint}?{parameters}', headers = headers)
-    return response
-
-def call_twitter(endpoint, parameters, tw_token):
-    base_url = data_dictionary['tw']['base_url']
-    if parameters == '':
-        headers = ''
-        # request = requests.Request(
-        # 'POST', 'https://poloniex.com/tradingApi',
-        # data=payload, headers=headers)
-
-        # with requests.Session() as session:
-        #     response = session.send(prepped)
-
-        response = requests.get(f'{base_url}{endpoint}', headers = headers)
-    else:
-        response = requests.get(f'{base_url}{endpoint}?{parameters}', headers = headers)
-    return response
 
 def check_if_too_many_requested_platforms(requested_social_media):
+    ''' Checks if there is more than 1 requested social media platform in the request. 
+    
+    Parameters
+    -----
+    requested_social_media: list
+        List of short names for social media platforms that were requested via parameter 'sm'. Assumes that there is at least 1 element in the list.
+
+    Raises HTTPexception if there is more than 1 requested social media.
+    '''
+
     if len(requested_social_media) > 1:
         error = {
                     'Error': {
@@ -290,98 +268,97 @@ def check_if_too_many_requested_platforms(requested_social_media):
         raise HTTPException(status_code=400, detail=error)
     return
 
-def get_data_with_id(endpoint, id, sm, fields):
+
+def call_social_media_APIs_with_id(sm, endpoint, fields, id):
+    ''' Calls socaila media APIs. 
+    
+    Parameters
+    -----
+    sm: string
+        String containing value of `sm` parameter form the request.
+    endpoint: string
+        String containing the endpoint that was called.
+    fields:
+        List of all fields that were requested.
+    id: string
+        String identifying a certain object from a social media platform.
+
+    Returns
+    -----
+    string
+        Returns json string with a single response that consists of merged responses of social media APIs. 
+    '''
+
     requested_social_media = sm.split(',')
     check_if_too_many_requested_platforms(requested_social_media)
-    fields = fields.split(',')
 
-    # map fields
-    unified_fields, mapped_fields = map_fields(requested_social_media, fields)
-
-    # perform calls to social media APIs
-    response = call_social_media_APIs_with_given_id(requested_social_media, endpoint, id, mapped_fields, unified_fields)
+    response = call_social_media_APIs(requested_social_media, endpoint, fields, id=id)
     return response
-
 
 
 ########################
 # Endpoint definitions #
 ########################
 
-'''
-Returns data about the logged-in user specified by parameter 'fields'
-'''
+@app.get('/') 
+def home():
+    
+    return ('Welcome to General API for Social Media! + list of endpoints and link to readme') # TODO
+
 
 @app.get('/me')
-def get_data_about_me(sm: str = 'fb,ln,tw', fields: str = ''):
-    
+def get_data_about_me(sm: str, fields: str = ''):
+    '''Returns data about the logged-in user specified by parameter `fields`'''
+
     endpoint = 'me'
     requested_social_media = sm.split(',')
-    fields = fields.split(',')
-
-    # map fields
-    unified_fields, mapped_fields = map_fields(requested_social_media, fields)
-
-    # perform calls to social media APIs
-    response = call_social_media_APIs(requested_social_media, endpoint, mapped_fields, unified_fields)
+    response = call_social_media_APIs(requested_social_media, endpoint, fields)
     return response
 
-
-'''
-Returns data about the user with given user_id specified by parameter 'fields'
-'''
 
 @app.get('/user/{user_id}')
-def get_data_about_user(user_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
+def get_data_about_user(user_id: str, sm: str, fields: str = ''):
+    '''Returns data about the user with given user_id specified by parameter `fields`'''
 
     endpoint = 'user'
-    response = get_data_with_id(endpoint, user_id, sm, fields)
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, user_id)
     return response
 
-
-'''
-Returns data about the post with given post_id specified by parameter 'fields'
-'''
 
 @app.get('/post/{post_id}')
-def get_data_about_post(post_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
+def get_data_about_post(post_id: str, sm: str, fields: str = ''):
+    '''Returns data about the post with given user_id specified by parameter `fields`'''
+
     endpoint = 'post'
-    response = get_data_with_id(endpoint, post_id, sm, fields)
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, post_id)
     return response
 
 
-'''
-Returns data about the comment with given comment_id specified by parameter 'fields'
-'''
-
 @app.get('/comment/{comment_id}')
-def get_data_about_post(comment_id: str, sm: str = 'fb,ln,tw', fields: str = ''):
+def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
+    '''Returns data about the comment with given user_id specified by parameter `fields`'''
+
     endpoint = 'comment'
-    response = get_data_with_id(endpoint, comment_id, sm, fields)
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, comment_id)
     return response
 
 
 # TODO: twitter authentication
 # TODO: ln authentication
 # TODO: fb authentication
-# TODO: unified list of fields (map to empty if field doesn't exist)
 # TODO: check if already authenticated
-    
-    # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
-    # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
+# TODO: error handling if no social media is selected
+# TODO: iclude HTTP status codes in merged response
+# TODO: limit parameter (how many items do you want returned)
+# TODO: check error handling of the "too many requested social media platforms" error
+# TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
+
+# TODO: add empty files for credentials to github
+
+# FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
+# FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
 
 
-# FB CALL EXAMPLES
-
-# graph = facebook.GraphAPI(access_token=token, version = 3.1)
-# # events = graph.request('/vanity.name?metadata=1&access_token='+token)
-# # print (events)
-
-# page = graph.get_object("Recipes", fields='name,about')
-# print (json.dumps(page))
-
-
-
-
+# QUICK TEST
 print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
-# print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
