@@ -1,6 +1,24 @@
 # generalAPIForSocialNetworks
 
-By using this API you accept the Terms and Conditions af all of the included social media APIs:
+General API for social networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developers the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one.
+
+Currently supported APIs:
+
+- Facebook Graph API v11.0
+- Instagram Basic Display API v11.0
+- LinkedIn Consumer Solutions Platform v2
+- Twitter API v2
+
+Functionality:
+
+- retrieve data about the user who is logged in
+- TODO
+
+## Requirements
+
+### Legal
+
+By using this API you accept the Terms and Conditions of all of the included social media APIs:
 
 - Facebook:
     - https://developers.facebook.com/devpolicy/
@@ -13,17 +31,14 @@ By using this API you accept the Terms and Conditions af all of the included soc
     - https://developer.twitter.com/en/developer-terms
     - https://twitter.com/en/tos
 
-## Requirements
+### Technical
 
-<!-- TODO add requirements and check compatibility -->
 - python 3.7.4 or higher (might work for lower python 3 versions as well but hasn't been tested yet)
-- Facebook account
-- Instagram account connected to your Facebook account (you can connect them following the steps published here: TODO)
-- LinkedIn account
-- Twitter developer account (you can apply for it here: https://developer.twitter.com/en/apply-for-access)
-    - You need a verified (connected to a phone number) Twitter account
-    - Note from Twitter: When applying, you will have to submit detailed use case information about your intended use of Twitter APIs. To get through the application process as quickly as possible, please make sure to be specific about what you are building. Be sure to confirm your email address at the end of the application flow, and check that email in case our team has additional questions about your application before we can approve it.
-    - Since this is just an API, it won't suffice to write "using this API" as a use case, you need to specify whyt you will be using this API for. Depending on your description, the process of getting a developer account may take a few ours or up to a few days, so be specific.
+- Facebook user account
+- Instagram user account
+- LinkedIn user account
+- LinkedIn page for your application (can be added in the process of acquiring the credentials)
+- verified Twitter account
 
 ## Setup
 
@@ -53,37 +68,58 @@ Install all required packages by running the following command.
 ```cmd
 pip install -r requirements.txt
 ```
-
 <!-- TODO: pip freeze > requirements.txt -->
-Get all the credentials you'll need.
-<!-- People will be building an app to use this api, so it's ok to require them to make an app on social media sites as well in order to get access tokens. -->
 
-#### Facebook
+## Prepare credentials
 
-1) Go to https://developers.facebook.com/tools/explorer/
-2) Log in to your Facebook account
-3) Create an app ... TO BE CONTINUED
+In order to use this API you'll need to provide the same credentials as you would have to if you just used any of the social media APIs on their own. Save credentials in the appropriate json file (`{social_media_short_name}_credentials.json`). Remember that credentials are just like a username and password and should not be shared with anyone.
+<!-- People will be building an app to use this api, so it's ok to require them to make an app on social media sites as well in order to get access tokens. Otherwise my app's tokens are exposed -->
+
+### Facebook credentials
+
+You will need an `app token` and a `user token` for Facebook API. To be able to get them, you'll need a Facebook account first, then Facebook Developer account and finnaly an app on Facebook for Developers platform. 
+<!-- TODO: Do we also need the app token? -->
+
+1) To create Facebook developer account, follow [this guide from Facebook](https://developers.facebook.com/docs/development/register/).
+2) To create an app, follow [this guide from Facebook](https://developers.facebook.com/docs/development/create-an-app).
+3) Go to https://developers.facebook.com/tools/explorer, login to your Facebook account if prompted and choose your app in the *Facebook App* dropdown.
+4) To get an `app token`, choose *Get App Token* in *User or Page* dropdown. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
+5) To get a `user token`, choose *Get User Token* in *User or Page* dropdown. In the dropdown at the bottom, choose which permissions do you want to grant. You can read more abour permissions in `TODO` chapter. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
+
+The *app token* does not expire. The *user token*, howewer, expires in 2 hours. 
+<!-- TODO extend and change or does our API refresh? Finish the text above based on the answer. -->
+
+### Instagram
+
 <!-- TODO -->
 
-#### Instagram
+### LinkedIn
 
-#### LinkedIn
+For LinkedIn authentication we will be using [3-legged OAuth authorization code flow](https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?context=linkedin%2Fcontext&tabs=HTTPS) for which you will need `client ID` and `client secret`. You also have to set the `redirect uri`, that has to match the one set in your LinkedIn application.
 
-1) Create a new LinkedIn application. Go to https://www.linkedin.com/developers/apps/new and fill in the required fields.
-2) On `Settings` tab verify your app.
-3) On `Auth` tab find your credentials: `Client ID` and `Client Secret`. Set `Redirect URL` to `TODO: ADD URL`
-4) On `Products` tab select `Sign in with LinkedIn`.
-5) Enter your `Client ID`, `Client Secret` and `Redirect URL` into file `ln_credentials.json`
+1) Create a new LinkedIn application by going to https://www.linkedin.com/developers/apps/new and filling in the required fields.
+2) Verify your app in the *Settings* tab by clicking the blue *Verify* button.
+3) Head over to *Auth* tab and copy your credentials: `client ID` and `client secret`. Paste them into file `ln_credentials.json`.
+4) In the *Products* tab, enable *Sign in with LinkedIn* by clicking the blue *Select* button next to it.
+5) Go back to the *Auth* tab to the *OAuth 2.0 settings* section and add a redirect url under *Authorized redirect URLs for your app*. Copy this url and paste it into file `ln_credentials.json` as it has to match in both locations in order for authentication to go through.
+<!-- oob isn't allowed, test localhost link (http://127.0.0.1:8000) -->
 
-#### Twitter
+### Twitter
 
-1) Log into your Twitter developer account.
-2) Name your application.
-3) Enter your `API_key`, `API_secret_key`, `Bearer_token` into file `tw_credentials.json`.
+For Twitter authentication you will need `consumer key`, `consumer secret key` and a `redirect uri`. We will be using [OAuth 1.0a](https://developer.twitter.com/en/docs/authentication/oauth-1-0a) with the help of the [tweepy](https://www.tweepy.org/) Twitter API wrapper.
 
-## APIs
+1) Apply for your Twitter developer account here: https://developer.twitter.com/en/apply-for-access. It may take some time to get the approval. Note from Twitter: *When applying, you will have to submit detailed use case information about your intended use of Twitter APIs. To get through the application process as quickly as possible, please make sure to be specific about what you are building. Be sure to confirm your email address at the end of the application flow, and check that email in case our team has additional questions about your application before we can approve it.* Since this is just an API, it won't suffice to write "using general API for Social Networks" as a use case, you need to specify why you will be using this API for. Depending on your description, the process of getting a developer account may take a few ours or up to a few days, so be specific.
+2) Go to [developer potal](https://developer.twitter.com/en/portal/dashboard) and create your application. If you're not sure how, check out [this guide from Twitter](https://developer.twitter.com/en/docs/tutorials/step-by-step-guide-to-making-your-first-request-to-the-twitter-api-v2).
+3) After your app is successfully created, the *API key*, *API secret key* and *Bearer token* will be displayed. Copy the first two into file `tw_credentials.json`. If for any reason the keys don't show up or you didn't copy them, you can still access them by going to https:/[developer potal](https://developer.twitter.com/en/portal/dashboard), navigating to *Projects and Apps* in the menu on the left and selecting your application, then switching to the tab *Keys and tokens* on the top.
+4) Set the `redirect uri` in `tw_credentials.json` to the uri to `oob`. Currently custom redirect aren't supported here so the value has to be `oob`.
 
-### Facebook
+<!-- TODO: Also accept other redirect uris? -->
+
+## API
+
+#### Response
+
+#### Request
 
 #### Endpoints
 
@@ -215,7 +251,6 @@ Instead of this table make a simpler one. These fb non-root endpoints can also b
 |||||||||
 |||||||||
 
-
 Connections for `me`:albums, apprequestformerrecipients, apprequests, business_users, businesses, conversations, accounts, ad_studies, adaccounts, assigned_ad_accounts, assigned_business_asset_groups, assigned_pages, assigned_product_catalogs, custom_labels, events, feed, friends, groups, ids_for_apps, ids_for_business, ids_for_pages, likes, live_encoders, live_videos, music, payment.subscriptions, payment_transactions, permissions, personal_ad_accounts, photos, picture, posts, rich_media_documents, videos
 
 Connections for `<ALBUM-ID>`:comments, likes, photos, picture
@@ -249,7 +284,6 @@ See all possible errors in the following table.
 |---|---|---|---|
 |400|1|Too many requested platforms|Specify only one requested social media platform in the `sm` parameter|
 ||||
-
 
 #### Errors returned by social media APIs
 
@@ -297,3 +331,9 @@ See the documentation about specific errors here:
 - Instagram: https://developers.facebook.com/docs/instagram-api/reference/error-codes/
 - LinkedIn: https://docs.microsoft.com/en-us/linkedin/shared/api-guide/concepts/error-handling
 - Twitter: https://developer.twitter.com/en/support/twitter-api/error-troubleshooting
+
+## Further development
+
+### Adding another social media API
+
+### Improvements on the current version
