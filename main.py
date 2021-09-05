@@ -307,6 +307,91 @@ def home():
     return (response)
 
 
+# fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
+@app.get('/album/{album_id}')
+def get_data_abut_album(album_id: str, sm: str):
+    '''Returns data about the album with given album_id specified by parameter `fields`'''
+
+    endpoint = 'album'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, album_id)
+    return response
+
+
+# fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
+# Privacy levels (enum, fb name, our name)
+# * level 0 ==>only me (me)
+# * level 1==>friend only (connections)
+# * level 2==>public (public)
+# * level >2 ==>error
+@app.post('group/{group_id}/albums')
+def create_album_in_group(sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+    ''' Creates a new album in a group specified by group_id '''
+
+    endpoint = 'group'
+    path = 'albums'
+    requested_social_media = sm.split(',')
+    response = None # TODO
+    return response
+
+
+# fb: fields 
+@app.get('')
+def get_data_about_():
+
+
+
+
+
+
+
+# fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@app.get('/comment/{comment_id}')
+def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
+    '''Returns data about the comment with given user_id specified by parameter `fields`'''
+
+    endpoint = 'comment'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, comment_id)
+    return response
+
+
+#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@app.post('{some_endpoint}/comment')
+# Add various options
+# albums
+# comment
+# event
+# link
+# live video
+# photo
+# post
+# thread
+# user
+# video
+
+
+#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@app.delete('/comment/{comment_id}')
+def delete_comment(comment_id: str, sm: str):
+    '''Delete a comment with the given id'''
+
+    endpoint = 'comment'
+    response = None # TODO
+    return response
+
+
+# fb:
+@app.get('/event/{event_id}')
+def get_data_about_event(event_id: str, sm: str, fields: str = ''):
+    '''Returns data about the event with given event_id specified by parameter `fields`'''
+
+    endpoint = 'event'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, event_id)
+    return response
+
+
+
+
+# fb, ln, tw
 @app.get('/me')
 def get_data_about_me(sm: str, fields: str = ''):
     '''Returns data about the logged-in user specified by parameter `fields`'''
@@ -317,15 +402,7 @@ def get_data_about_me(sm: str, fields: str = ''):
     return response
 
 
-@app.get('/user/{user_id}')
-def get_data_about_user(user_id: str, sm: str, fields: str = ''):
-    '''Returns data about the user with given user_id specified by parameter `fields`'''
-
-    endpoint = 'user'
-    response = call_social_media_APIs_with_id(sm, endpoint, fields, user_id)
-    return response
-
-
+# fb
 @app.get('/post/{post_id}')
 def get_data_about_post(post_id: str, sm: str, fields: str = ''):
     '''Returns data about the post with given user_id specified by parameter `fields`'''
@@ -335,15 +412,17 @@ def get_data_about_post(post_id: str, sm: str, fields: str = ''):
     return response
 
 
-@app.get('/comment/{comment_id}')
-def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
-    '''Returns data about the comment with given user_id specified by parameter `fields`'''
+# fb
+@app.get('/user/{user_id}')
+def get_data_about_user(user_id: str, sm: str, fields: str = ''):
+    '''Returns data about the user with given user_id specified by parameter `fields`'''
 
-    endpoint = 'comment'
-    response = call_social_media_APIs_with_id(sm, endpoint, fields, comment_id)
+    endpoint = 'user'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, user_id)
     return response
 
 
+# TODO: Post and delete versions of call social media apis function
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
 # TODO: fb authentication
@@ -354,15 +433,21 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 # TODO: check error handling of the "too many requested social media platforms" error
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
-# TODO: write welcome message and quick how to for the homepage on index
-# TODO: Is it enough to support user-accessible APIs or do I need merkting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
+# TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
+# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs
+# TODO: Restructure data dictionaries so that fields are dependent on the endpoint
+# TOOD: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
 
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
 # FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
+# FURTHER DEVELOPMENT: Add suggestions on how to resolve the error in the merged response. Either from the docs of social media APIs or from us if it's something with this api.
+# FURTHER DEVELOPMENT: expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
+# FURTHER DEVELOPMENT: Add Facebook's edges also as endpoints, not just as fields
+# FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
 
 
 # QUICK TEST
