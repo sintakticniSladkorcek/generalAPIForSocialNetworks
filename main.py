@@ -68,7 +68,6 @@ if tw_error != None:
     print(tw_error, tw_error.json)
     # TODO: raise Exception or somehow include tw_error in a merged response
 
-tw_access = tw_creds
 
 
 
@@ -142,7 +141,7 @@ def merge_responses(unified_fields, responses):
                 merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
                 
     # Convert dictionary merged_responses to json string
-    response = json.dumps(merged_response, indent=2)
+    response = merged_response
     return response
 
 
@@ -176,14 +175,14 @@ def map_fields(requested_social_media, fields):
     unified_fields = fields
 
     # If no fields are selected, return all possible data
-    if fields == []: 
-        unified_fields = requested_social_media_data.keys()[0]['field_mapping'].keys()
+    if fields == ['']: 
+        unified_fields = requested_social_media_data[0]['field_mapping'].keys()
 
     # Map fields for similar parameter for each platform
     for social_media in requested_social_media_data:
         temp_fields = ''
 
-        if fields == []: 
+        if fields == ['']: 
             # Collate all possible fields
             for field in social_media['field_mapping']:
                 if social_media['field_mapping'][field] != None:
@@ -298,10 +297,14 @@ def call_social_media_APIs_with_id(sm, endpoint, fields, id):
 # Endpoint definitions #
 ########################
 
+# GET requests
+
 @app.get('/') 
 def home():
-    
-    return ('Welcome to General API for Social Media! + list of endpoints and link to readme') # TODO
+    response = requests.Response()
+    response.status_code = 200
+    response.json = {'Hello': 'Welcome to General API for Social Networks! Check out documentation on /docs, /redoc or on Github https://github.com/sintakticniSladkorcek/generalAPIForSocialNetworks.'}
+    return (response)
 
 
 @app.get('/me')
@@ -341,24 +344,27 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
     return response
 
 
-# TODO: twitter authentication
-# TODO: ln authentication
+# TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
+# TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
 # TODO: fb authentication
 # TODO: check if already authenticated
 # TODO: error handling if no social media is selected
-# TODO: iclude HTTP status codes in merged response
+# TODO: include HTTP status codes in merged response
 # TODO: limit parameter (how many items do you want returned)
 # TODO: check error handling of the "too many requested social media platforms" error
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
 # TODO: write welcome message and quick how to for the homepage on index
+# TODO: Is it enough to support user-accessible APIs or do I need merkting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
+# TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
+# TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
 
-# TODO: add empty files for credentials to github
 
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
+# FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
 
 
 # QUICK TEST
-print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
-print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+# print(get_data_about_me(sm='ln',fields='id,first_name,last_name,birthday'))
+# print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
