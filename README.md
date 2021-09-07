@@ -1,6 +1,6 @@
-# generalAPIForSocialNetworks
+# General API for Social Networks
 
-General API for social networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developers the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one.
+General API for Social Networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developers the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one.
 
 Currently supported APIs:
 
@@ -183,9 +183,9 @@ Connections for `<ALBUM-ID> on fb`:comments, likes, photos, picture -->
 
 ### Errors
 
-#### Errors returned by generalAPIForSocialNetworks
+#### Errors returned by General API for Social Networks
 
-If the request isn't formatted correctly, an error will be returned. The request won't be forwarded to any of the social media APIs and no data will be returned aside from the above mentioned error. You can see an example of such error below.
+If the request isn't formatted correctly, an error will be returned. The request won't be forwarded to any of the social media APIs and no data will be returned aside from the above mentioned error. You can see an example of an error response below.
 
 ```json
 {
@@ -197,7 +197,7 @@ If the request isn't formatted correctly, an error will be returned. The request
 }
 ```
 
-See all possible errors in the following table.
+See all errors returned by General API for Social Networks in the following table.
 
 |Status|Error code|Name|What to do|
 |---|---|---|---|
@@ -206,7 +206,7 @@ See all possible errors in the following table.
 
 #### Errors returned by social media APIs
 
-When any of the social media APIs return an error response (with HTTP status code >= 400), that response will be listed in the response of the generalAPIForSocialNetworks under the key `errors`. Responses from the other social media APIs won't be affected. An example response is shown below.
+When any of the social media APIs returns an error response (with HTTP status code >= 400), that response will be listed in the response of the General API for Social Networks under the key `errors`. Responses from the other social media APIs won't be affected. An example of such response is shown below.
 
 ```json
 {
@@ -244,7 +244,7 @@ When any of the social media APIs return an error response (with HTTP status cod
 }
 ```
 
-See the documentation about specific errors here:
+See the documentation about social media specific errors here:
 
 - Facebook: https://developers.facebook.com/docs/graph-api/guides/error-handling/
 - Instagram: https://developers.facebook.com/docs/instagram-api/reference/error-codes/
