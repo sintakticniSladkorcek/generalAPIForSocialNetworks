@@ -31,6 +31,8 @@ By using this API you accept the Terms and Conditions of all of the included soc
     - https://developer.twitter.com/en/developer-terms
     - https://twitter.com/en/tos
 
+<!-- TODO: Add Instagram -->
+
 ### Technical
 
 - python 3.7.4 or higher (might work for lower python 3 versions as well but hasn't been tested yet)
@@ -54,7 +56,7 @@ Move to the directory where the cloned code is saved.
 cd generalAPIForSocialNetworks
 ```
 
-Install/upgrade, create and activate a python virtual environment. Here teh virtual environment is named `social_venv`. For Mac OS or Linux replace the last line with `source social_venv/bin/activate`.
+Install/upgrade, create and activate a python virtual environment. Here the virtual environment is named `social_venv`. For Mac OS or Linux replace the last line with `source social_venv/bin/activate`.
 
 ```cmd
 pip install -U virtualenv
@@ -77,7 +79,7 @@ In order to use this API you'll need to provide the same credentials as you woul
 
 ### Facebook credentials
 
-You will need an `app token` and a `user token` for Facebook API. To be able to get them, you'll need a Facebook account first, then Facebook Developer account and finnaly an app on Facebook for Developers platform. 
+You will need an `app token` and a `user token` for Facebook API. To be able to get them, you'll need a Facebook account first, then Facebook Developer account and finnaly an app on Facebook for Developers platform.
 <!-- TODO: Do we also need the app token? -->
 
 1) To create Facebook developer account, follow [this guide from Facebook](https://developers.facebook.com/docs/development/register/).
@@ -85,8 +87,10 @@ You will need an `app token` and a `user token` for Facebook API. To be able to 
 3) Go to https://developers.facebook.com/tools/explorer, login to your Facebook account if prompted and choose your app in the *Facebook App* dropdown.
 4) To get an `app token`, choose *Get App Token* in *User or Page* dropdown. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
 5) To get a `user token`, choose *Get User Token* in *User or Page* dropdown. In the dropdown at the bottom, choose which permissions do you want to grant. You can read more abour permissions in `TODO` chapter. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
+<!-- TODO: add link to chapter for permissions -->
+<!-- fb permissions: https://developers.facebook.com/docs/permissions/reference -->
 
-The *app token* does not expire. The *user token*, howewer, expires in 2 hours. 
+The *app token* does not expire. The *user token*, howewer, expires in 2 hours.
 <!-- TODO extend and change or does our API refresh? Finish the text above based on the answer. -->
 
 ### Instagram
@@ -101,8 +105,7 @@ For LinkedIn authentication we will be using [3-legged OAuth authorization code 
 2) Verify your app in the *Settings* tab by clicking the blue *Verify* button.
 3) Head over to *Auth* tab and copy your credentials: `client ID` and `client secret`. Paste them into file `ln_credentials.json`.
 4) In the *Products* tab, enable *Sign in with LinkedIn* by clicking the blue *Select* button next to it.
-5) Go back to the *Auth* tab to the *OAuth 2.0 settings* section and add a redirect url under *Authorized redirect URLs for your app*. Copy this url and paste it into file `ln_credentials.json` as it has to match in both locations in order for authentication to go through.
-<!-- oob isn't allowed, test localhost link (http://127.0.0.1:8000) -->
+5) Go back to the *Auth* tab to the *OAuth 2.0 settings* section and add a redirect url under *Authorized redirect URLs for your app*. This can also be a postman link (https://oauth.pstmn.io/v1/callback) or a localhost link (http://127.0.0.1:8000). Copy the url you added and paste it into file `ln_credentials.json` as it has to match in both locations in order for authentication to go through.
 
 ### Twitter
 
@@ -113,154 +116,70 @@ For Twitter authentication you will need `consumer key`, `consumer secret key` a
 3) After your app is successfully created, the *API key*, *API secret key* and *Bearer token* will be displayed. Copy the first two into file `tw_credentials.json`. If for any reason the keys don't show up or you didn't copy them, you can still access them by going to https:/[developer potal](https://developer.twitter.com/en/portal/dashboard), navigating to *Projects and Apps* in the menu on the left and selecting your application, then switching to the tab *Keys and tokens* on the top.
 4) Set the `redirect uri` in `tw_credentials.json` to the uri to `oob`. Currently custom redirect aren't supported here so the value has to be `oob`.
 
-<!-- TODO: Also accept other redirect uris? -->
+<!-- TODO: Also accept other redirect uris? If 'oob' this, else that, try also with localhost-->
 
-## API
+## Usage
 
-#### Response
+### Response
 
-#### Request
+<!-- Naj bo requests.Response() objekt, kjer je status code odvisen tudi od tega, a je nek api vrnu error al noben -->
+<!-- Različn format glede na metodo (post, get, ...)? -->
 
-#### Endpoints
+### Request
 
-- `me`
-- `user/<USER-ID>`
-- `post/<POST-ID>`
-- `comment/<COMMENT-ID>`
+<!-- get, post, delete, ... -->
 
-<!-- mušter
-|||||||||
+### Important parameters
 
-Root endpopoints and their meanings (standalone endpoints)
+#### sm
 
-|Endpoint|Meaning|
-|---|---|
-|/docs|Swagger documentation|
-|/redocs|another documentation|
-|/me|info about the api user|
-|/user/{USER-ID}|info about user with specific id|
-|||
+This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a required parameter and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
+<!-- TODO: Add  a list of requests that do not need the sm parameter. -->
 
-Only Fb parameters that can return some data with permissions given are included in the list.
-TODO: List fb permissons for certain data!
+Currently available values are: `fb` (representing Facebook), `ig` (representing Instagram), `ln` (representing LinkedIn), `tw` (representing Twitter).
 
-Equivalent if exists for that platform is in table
+#### limit
 
-Instead of this table make a simpler one. These fb non-root endpoints can also be accessed via parameters so we don't need to have them all listed like that. Instead all parameters should be listed under the description of each root endpoint.
+Yet to be implemented.
+<!-- TODO: Implement  -->
+Positive integer
 
-|General API<br>endpoint|<br>parameter|Facebook<br>endpoint|<br>parameter|LinkedIn<br>endpoint|<br>parameter|Twitter<br>endpoint|<br>parameter|
-|---|---|---|---|---|---|---|---|
-|docs||||||||
-|redocs||||||||
-|me||me|birthday|me||||
-|me||me|id|me||||
-|me||me|age_range|me||||
-|me||me|email|me||||
-|me||me|favorite_athletes|me||||
-|me||me|favorite_teams|me||||
-|me||me|first_name|me||||
-|me||me|gender|me||||
-|me||me|hometown|me||||
-|me||me|inspirational_people|me||||
-|me||me|install_type|me||||
-|me||me|installed|me||||
-|me||me|is_guest_user|me||||
-|me||me|languages|me||||
-|me||me|last_name|me||||
-|me||me|link|me||||
-|me||me|location|me||||
-|me||me|meeting_for|me||||
-|me||me|middle_name|me||||
-|me||me|name|me||||
-|me||me|name_format|me||||
-|me||me|payment_pricepoints|me||||
-|me||me|profile_pic|me||||
-|me||me|quotes|me||||
-|me||me|shared_login_upgrade_required_by|me||||
-|me||me|short_name|me||||
-|me||me|significant_other|me||||
-|me||me|sports|me||||
-|me||me|supports_donate_button_in_live_video|me||||
-|me||me|token_for_business|me||||
-|me||me|video_upload_limits|me||||
-|me||me||me||||
-|me||me||me||||
-|||`<ALBUM-ID>`|id|||||
-|||`<ALBUM-ID>`|backdated_time|||||
-|||`<ALBUM-ID>`|backdated_time_granularity|||||
-|||`<ALBUM-ID>`|can_upload|||||
-|||`<ALBUM-ID>`|count|||||
-|||`<ALBUM-ID>`|cover_photo|||||
-|||`<ALBUM-ID>`|created_time|||||
-|||`<ALBUM-ID>`|description|||||
-|||`<ALBUM-ID>`|event|||||
-|||`<ALBUM-ID>`|from|||||
-|||`<ALBUM-ID>`|link|||||
-|||`<ALBUM-ID>`|location|||||
-|||`<ALBUM-ID>`|name|||||
-|||`<ALBUM-ID>`|place|||||
-|||`<ALBUM-ID>`|privacy|||||
-|||`<ALBUM-ID>`|type|||||
-|||`<ALBUM-ID>`|updated_time|||||
-|me||me/albums|id|me||||
-|me||me/albums|backdated_time|me||||
-|me||me/albums|backdated_time_granularity|me||||
-|me||me/albums|can_upload|me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/albums||me||||
-|me||me/apprequestformerrecipients||me||||
-|me||me/apprequests||me||||
-|me||me/business_users||me||||
-|me||me/businesses||me||||
-|me||me/conversations||me||||
-|me||me/accounts||me||||
-|me||me/ad_studies||me||||
-|me||me/adaccounts||me||||
-|me||me/assigned_ad_accounts||me||||
-|me||me/assigned_business_asset_groups||me||||
-|me||me/assigned_pages||me||||
-|me||me/assigned_product_catalogs||me||||
-|me||me/custom_labels||me||||
-|me||me/events||me||||
-|me||me/feed||me||||
-|me||me/friends||me||||
-|me||me/groups||me||||
-|me||me/ids_for_apps||me||||
-|me||me/ids_for_business||me||||
-|me||me/ids_for_pages||me||||
-|me||me/likes||me||||
-|me||me/live_encoders||me||||
-|me||me/live_videos||me||||
-|me||me/music||me||||
-|me||me/payment.subscriptions||me||||
-|me||me/payment_transactions||me||||
-|me||me/permissions||me||||
-|me||me/personal_ad_accounts||me||||
-|me||me/photos||me||||
-|me||me/picture||me||||
-|me||me/posts||me||||
-|me||me/rich_media_documents||me||||
-|me||me/videos||me||||
-|me||me||me||||
-|||||||||
-|||||||||
+#### visible_to
 
-Connections for `me`:albums, apprequestformerrecipients, apprequests, business_users, businesses, conversations, accounts, ad_studies, adaccounts, assigned_ad_accounts, assigned_business_asset_groups, assigned_pages, assigned_product_catalogs, custom_labels, events, feed, friends, groups, ids_for_apps, ids_for_business, ids_for_pages, likes, live_encoders, live_videos, music, payment.subscriptions, payment_transactions, permissions, personal_ad_accounts, photos, picture, posts, rich_media_documents, videos
+Yet to be implemented.
+<!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
+Available values: `me`, `connections`, `public`, `custom`(?)
 
-Connections for `<ALBUM-ID>`:comments, likes, photos, picture
+### Endpoints
 
-Connections for ``:
-Connections for ``:
-Connections for ``:
-Connections for ``:
-Connections for ``:
- -->
+Below is a table of all of the available endpoints and paths that you can use for your requests. Each of the endpoints/path is additionally described in its own section. Apart from the listed endpoints, there are also some others important ones, well look at them first.
+
+#### /docs or /redoc
+
+These are the endpoints leading to auto-generated documentation. `/docs` leads to Swagger and `/redoc` to ___. Here each endpoint/path is described and all possible parameters are listed for each of them.
+
+#### /auth
+
+Yet to be implemented.
+
+This endpoint is the one you should call first. It takes care of the authentication with all of the social media APIs so you can then perform other requests. Unless authenticated, you will not be able to perform other requests. 
+
+<!-- Add use example and implement -->
+
+#### Table of endpoints
+
+|endpoint/path|supported social media|description|
+|---|---|---|
+|me|Facebook, LinkedIn|Returns data about the user who is logged in.|
+
+<!-- Add required permissions? -->
+
+<!-- Some fb non-root endpoints can also be accessed via parameters so we don't need to have them all listed like that. Instead all parameters should be listed under the description of each root endpoint. -->
+
+
+<!-- Connections for `me` on fb:albums, apprequestformerrecipients, apprequests, business_users, businesses, conversations, accounts, ad_studies, adaccounts, assigned_ad_accounts, assigned_business_asset_groups, assigned_pages, assigned_product_catalogs, custom_labels, events, feed, friends, groups, ids_for_apps, ids_for_business, ids_for_pages, likes, live_encoders, live_videos, music, payment.subscriptions, payment_transactions, permissions, personal_ad_accounts, photos, picture, posts, rich_media_documents, videos
+
+Connections for `<ALBUM-ID> on fb`:comments, likes, photos, picture -->
 
 ### Errors
 
@@ -283,7 +202,7 @@ See all possible errors in the following table.
 |Status|Error code|Name|What to do|
 |---|---|---|---|
 |400|1|Too many requested platforms|Specify only one requested social media platform in the `sm` parameter|
-||||
+|400|2|Invalid value for `sm`|Choose values for social media only among the valid ones|
 
 #### Errors returned by social media APIs
 
@@ -336,4 +255,35 @@ See the documentation about specific errors here:
 
 ### Adding another social media API
 
-### Improvements on the current version
+This is a guide on how to add a new social media API.
+
+#### 1) Choose an abbreviation
+
+Choose the abbreviation for the name of the social media plaform that you want to add. For example, for Facebook we used `fb`. This abbreviation will be used as the value in `sm` parameter, for naming files and functions.
+
+Add the chosen abbreviation to `data_dictionary` in the `main.py`.
+
+#### 2) Set up authentication
+
+Create new json file for credentials in the rood folder of this API. Add this file to `main.py` next to 
+
+```python
+file_with_fb_credentials = 'fb_credentials.json'
+file_with_ig_credentials = 'ig_credentials.json'
+file_with_ln_credentials = 'ln_credentials.json'
+file_with_tw_credentials = 'tw_credentials.json'
+```
+
+In the folder `authentication`, add a new python file that will contain the logic for authenticating with the newly added social media.
+Add the import for the main authentication function from this python file to `main.py` and also add it under the endpoint `auth`.
+<!-- TODO: Check if this is still true with /auth and add additional explanation of how-to if needed.  -->
+
+#### 3) Prepare mappings
+
+<!-- TODO -->
+
+#### 4) Set up API calls
+
+In the folder `social_media_api_calls`, create a new python file that will contain the code for calling the social media API. Add the import for the main call function from this python file to `main.py` and also add it to function `call_social_media_APIs`.
+
+### Suggested improvements on the current version
