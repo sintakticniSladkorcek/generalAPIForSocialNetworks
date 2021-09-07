@@ -221,6 +221,9 @@ def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
 
     responses = {}
 
+    # check if value of the 'sm' field is valid
+    check_if_valid_platforms_requested(requested_social_media, list(data_dictionary.keys()))
+
     # map fields
     fields = fields.split(',')
     unified_fields, mapped_fields = map_fields(requested_social_media, fields)
@@ -243,13 +246,39 @@ def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
     return response
 
 
+def check_if_valid_platforms_requested(requested_social_media, supported_social_media):
+    ''' Checks if requested social media platforms are supported. 
+    
+    Parameters
+    -----
+    requested_social_media: list
+        List of short names for social media platforms that were requested via parameter 'sm'.
+    supported_social_media: list
+        List of all social media platforms that are currently supported.
+
+    Raises HTTPexception if an invalid social media platform is requested.
+    '''
+
+    for social_media in requested_social_media:
+        if social_media not in supported_social_media:
+            error = {
+                'Error': {
+                    'HTTPstatus': 400,
+                    'error_code': 2,
+                    'message': f'\'{social_media}\' is not a valid value for the parameter \'sm\'. Please choose among the supported values: {supported_social_media}'
+                }
+            }
+            raise HTTPException(status_code=400, detail=error)
+    return
+
+
 def check_if_too_many_requested_platforms(requested_social_media):
     ''' Checks if there is more than 1 requested social media platform in the request. 
     
     Parameters
     -----
     requested_social_media: list
-        List of short names for social media platforms that were requested via parameter 'sm'. Assumes that there is at least 1 element in the list.
+        List of short names for social media platforms that were requested via parameter 'sm'.
 
     Raises HTTPexception if there is more than 1 requested social media.
     '''
@@ -447,12 +476,12 @@ def update_live_video(
     is_manual_mode: bool=None,
     live_comment_moderation_setting: list=None,
 
-    live_encoders: list, 
+    live_encoders: list=None, 
 
     master_ingest_stream_id: str=None,
     location: str=None,
 
-    planned_start_time: int,
+    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -489,9 +518,9 @@ def create_live_video_on_user(
     fisheye_video_cropped: bool=None, 
     front_z_rotation: float=None, 
     is_360: bool=False, 
-    live_encoders: list, 
+    live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int,
+    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -521,9 +550,9 @@ def create_live_video_in_group(
     fisheye_video_cropped: bool=None, 
     front_z_rotation: float=None, 
     is_360: bool=False, 
-    live_encoders: list, 
+    live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int,
+    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -557,9 +586,9 @@ def create_live_video_on_page(
     front_z_rotation: float=None, 
     game_show: str=None,
     is_360: bool=False, 
-    live_encoders: list, 
+    live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int,
+    planned_start_time: int=None,
     visible_to: str='connections',
     products_shown: list=None,
     projection: str='eqirectangular',
@@ -591,9 +620,9 @@ def create_live_video_in_event(
     fisheye_video_cropped: bool=None, 
     front_z_rotation: float=None, 
     is_360: bool=False, 
-    live_encoders: list, 
+    live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int,
+    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -636,17 +665,16 @@ def delete_live_video(video_id: str, sm: str):
 
 
 # TODO: Add this type (fb): /search?type=adinterest&q=TEDx
+# {id}/reactions
 
 
 
 
 
-# TODO: Post and delete versions of call social media apis function
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
 # TODO: fb authentication
 # TODO: check if already authenticated
-# TODO: error handling if no social media is selected
 # TODO: include HTTP status codes in merged response
 # TODO: limit parameter (how many items do you want returned)
 # TODO: check error handling of the "too many requested social media platforms" error
@@ -670,5 +698,5 @@ def delete_live_video(video_id: str, sm: str):
 
 
 # QUICK TEST
-# print(get_data_about_me(sm='ln',fields='id,first_name,last_name,birthday'))
+print(get_data_about_me(sm='ln',fields='id,first_name,last_name,birthday'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
