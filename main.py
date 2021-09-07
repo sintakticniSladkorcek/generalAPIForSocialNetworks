@@ -16,7 +16,7 @@
 # https://www.youtube.com/watch?v=kCggyi_7pHg
 # https://www.jcchouinard.com/authenticate-to-linkedin-api-using-oauth2/
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 import facebook # TODO: Do we need this library?
 import tweepy # TODO: Do we need this library?
 import json
@@ -317,33 +317,6 @@ def get_data_abut_album(album_id: str, sm: str):
     return response
 
 
-# fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
-# Privacy levels (enum, fb name, our name)
-# * level 0 ==>only me (me)
-# * level 1==>friend only (connections)
-# * level 2==>public (public)
-# * level >2 ==>error
-@app.post('group/{group_id}/albums')
-def create_album_in_group(sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
-    ''' Creates a new album in a group specified by group_id '''
-
-    endpoint = 'group'
-    path = 'albums'
-    requested_social_media = sm.split(',')
-    response = None # TODO
-    return response
-
-
-# fb: fields 
-@app.get('')
-def get_data_about_():
-
-
-
-
-
-
-
 # fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
 @app.get('/comment/{comment_id}')
 def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
@@ -351,31 +324,6 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 
     endpoint = 'comment'
     response = call_social_media_APIs_with_id(sm, endpoint, fields, comment_id)
-    return response
-
-
-#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.post('{some_endpoint}/comment')
-# Add various options
-# albums
-# comment
-# event
-# link
-# live video
-# photo
-# post
-# thread
-# user
-# video
-
-
-#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.delete('/comment/{comment_id}')
-def delete_comment(comment_id: str, sm: str):
-    '''Delete a comment with the given id'''
-
-    endpoint = 'comment'
-    response = None # TODO
     return response
 
 
@@ -389,6 +337,24 @@ def get_data_about_event(event_id: str, sm: str, fields: str = ''):
     return response
 
 
+# fb
+@app.get('/group/{group_id}')
+def get_data_about_group(group_id: str, sm: str, fields: str = ''):
+    '''Returns data about the group with given group_id specified by parameter `fields`'''
+
+    endpoint = 'group'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, group_id)
+    return response
+
+
+# fb
+@app.get('/live_video/{video_id}')
+def get_data_about_live_video(video_id: str, sm: str, fields: str = ''):
+    '''Returns data about the live video with given video_id specified by parameter `fields`'''
+
+    endpoint = 'live_video'
+    response = call_social_media_APIs_with_id(sm, endpoint, fields, video_id)
+    return response
 
 
 # fb, ln, tw
@@ -420,6 +386,259 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
     endpoint = 'user'
     response = call_social_media_APIs_with_id(sm, endpoint, fields, user_id)
     return response
+
+
+# POST requests
+
+# fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
+# Privacy levels (enum, fb name, our name)
+# * level 0 ==>only me (me)
+# * level 1==>friend only (connections)
+# * level 2==>public (public)
+# * level >2 ==>error
+@app.post('group/{group_id}/album')
+def create_album_in_group(sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+    ''' Creates a new album in a group specified by group_id '''
+
+    endpoint = 'group'
+    path = 'album'
+    requested_social_media = sm.split(',')
+    response = None # TODO
+    return response
+
+
+#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@app.post('{some_endpoint}/comment')
+# Add various options
+# albums
+# comment
+# event
+# link
+# live video
+# photo
+# post
+# thread
+# user
+# video
+
+
+# fb
+@app.post('/live_video/{video_id}')
+def update_live_video(
+    video_id: str, 
+    sm: str, 
+
+    allow_bm_crossposting: bool=None,
+
+    content_tags: list=None, 
+
+    crossposting_actions: list=None,
+    custom_labels: list=None,
+
+    description: str=None, 
+
+    direct_share_status: int=None,
+    disturbing: bool=None,
+
+    donate_button_charity_id: str=None, 
+
+    embeddable: bool=None,
+    end_live_video: bool=None,
+    is_manual_mode: bool=None,
+    live_comment_moderation_setting: list=None,
+
+    live_encoders: list, 
+
+    master_ingest_stream_id: str=None,
+    location: str=None,
+
+    planned_start_time: int,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+
+    custom_background_image_for_schedule: str=None,
+    sponsor_id: str=None,
+    sponsor_relationship: int=None,
+
+    status: str='unpublished',
+
+    tagged_users: list=None,
+    targeting: str=None,
+
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video on users profile with given user_id.'''
+
+    endpoint = 'user'
+    response = None # TODO
+    return response
+
+
+# fb
+@app.post('/user/{user_id}/live_video')
+def create_live_video_on_user(
+    user_id: str, 
+    sm: str, 
+    app_id: str, 
+    content_tags: list=None, 
+    description: str=None, 
+    donate_button_charity_id: str=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    is_360: bool=False, 
+    live_encoders: list, 
+    original_fov: int=None,
+    planned_start_time: int,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video on users profile with given user_id.'''
+
+    endpoint = 'user'
+    response = None # TODO
+    return response
+
+
+# fb
+@app.post('/group/{group_id}/live_video')
+def create_live_video_in_group(
+    group_id: str, 
+    sm: str, 
+    app_id: str, 
+    content_tags: list=None, 
+    description: str=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    is_360: bool=False, 
+    live_encoders: list, 
+    original_fov: int=None,
+    planned_start_time: int,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video in group with given group_id.'''
+
+    endpoint = 'group'
+    response = None # TODO
+    return response
+
+
+# fb
+@app.post('/page/{page_id}/live_video')
+def create_live_video_on_page(
+    page_id: str, 
+    sm: str, 
+    app_id: str, 
+    content_tags: list=None, 
+    crossposting_actions: list=None,
+    custom_labels: list=None,
+    description: str=None, 
+    donate_button_charity_id: str=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    game_show: str=None,
+    is_360: bool=False, 
+    live_encoders: list, 
+    original_fov: int=None,
+    planned_start_time: int,
+    visible_to: str='connections',
+    products_shown: list=None,
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    targeting: str=None,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video on users profile with given user_id.'''
+
+    endpoint = 'user'
+    response = None # TODO
+    return response
+
+
+# fb
+@app.post('/event/{event_id}/live_video')
+def create_live_video_in_event(
+    event_id: str, 
+    sm: str, 
+    app_id: str, 
+    content_tags: list=None, 
+    description: str=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    is_360: bool=False, 
+    live_encoders: list, 
+    original_fov: int=None,
+    planned_start_time: int,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video in event with given event_id.'''
+
+    endpoint = 'user'
+    response = None # TODO
+    return response
+
+
+
+
+# DELETE requests
+
+#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@app.delete('/comment/{comment_id}')
+def delete_comment(comment_id: str, sm: str):
+    '''Delete a comment with the given id'''
+
+    endpoint = 'comment'
+    response = None # TODO
+    return response
+
+
+#fb
+@app.delete('/live_video/{video_id}')
+def delete_live_video(video_id: str, sm: str):
+    '''Delete a live video with the given video_id'''
+
+    endpoint = 'live_video'
+    response = None # TODO
+    return response
+
+
+
+# TODO: Add this type (fb): /search?type=adinterest&q=TEDx
+
+
+
 
 
 # TODO: Post and delete versions of call social media apis function
