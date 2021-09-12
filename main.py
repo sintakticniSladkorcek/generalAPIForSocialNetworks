@@ -21,6 +21,7 @@ import facebook # TODO: Do we need this library?
 import tweepy # TODO: Do we need this library?
 import json
 import requests
+import inspect
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -93,7 +94,7 @@ def error_response(responses):
     return error_responses, non_error_responses
 
 
-def merge_responses(endpoint, unified_fields, responses):
+def merge_responses(method, endpoint, unified_fields, responses):
     ''' Compiles responses of social media APIs into one json response. 
     
     Parameters
@@ -115,20 +116,33 @@ def merge_responses(endpoint, unified_fields, responses):
     # Separate error and non error responses
     error_responses, non_error_responses = error_response(responses)
 
-    # Merge responses
-    for field in unified_fields:
-        merged_response[field] = []
+    # Merge responses for GET method
+    if method == 'get':
+        for field in unified_fields:
+            merged_response[field] = []
+            for platform in responses:
+                temp_dict = {}
+                platform_name = data_dictionary[platform]['name']
+                
+                if platform in non_error_responses:
+                    specific_field_name = data_dictionary[platform]['endpoint_mapping'][endpoint]['get_fields'][field]
+                    if specific_field_name == None:
+                        continue
+                    temp_dict['provider'] = platform_name
+                    temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
+                    merged_response[field].append(temp_dict)
+                else:
+                    merged_response['errors'][platform_name] = {}
+                    merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
+                    merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
+    
+    # Merge responses for POST method
+    elif method == 'post':
         for platform in responses:
-            temp_dict = {}
             platform_name = data_dictionary[platform]['name']
-            
+           
             if platform in non_error_responses:
-                specific_field_name = data_dictionary[platform]['endpoint_mapping'][endpoint]['get_fields'][field]
-                if specific_field_name == None:
-                    continue
-                temp_dict['provider'] = platform_name
-                temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
-                merged_response[field].append(temp_dict)
+                merged_response[platform_name] = responses[platform].json()
             else:
                 merged_response['errors'][platform_name] = {}
                 merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
@@ -139,21 +153,39 @@ def merge_responses(endpoint, unified_fields, responses):
     return response
 
 
-def map_fields(method, requested_social_media, endpoint, fields):
+def map_fields(method, requested_social_media, endpoint, path, fields):
     ''' Compiles responses of social media APIs into one json response. 
     
     Parameters
     -----
+    method: string
+        String denoting a HTTP method. One of 'get', 'post', 'delete'.
     requested_social_media: list
         List of short names for social media platforms that were requested via parameter 'sm'. Assumes that there is at least 1 element in the list.
-    fields: list
-        List of all fields that were requested.
+    endpoint: string
+        Endpoint to which the request will be addressed.
+    fields: string or dictionary
+        For GET method: string of fields separated by commas
+        For POST method: dictionary of field_name - field_value pairs
 
     Returns
     -----
     list, list
-        Returns two lists: `mapped_fields` and `unified_fields`. `mapped_fields` contains list of selected fields corresponding to requested social media platforms from `selected_social_media`. `unified_fields` contains list of selected fields (not mapped). If parameter `fields` is empty, `unified_fields` contains all possible fields.
+        Returns two lists: `unified_fields` and `mapped_fields`.
+        For GET method: `unified_fields` contains list of all requested fields (not mapped). If parameter `fields` is empty, `unified_fields` contains all possible fields. `mapped_fields` contains list of concatenated strings of selected fields corresponding to requested social media platforms from `selected_social_media` separated by commas.
+        For POST method: `unified_fields` contains list of all requested fields (not mapped). `mapped_fields` contains list of dictionaries corresponding to requested social media platforms from `selected_social_media`, dictionaries contain social_media_specific_field_name - field_value pairs.
     '''
+
+    # chooses the field mapping
+    type_of_fields = fields_dictionary[method]
+
+    # prepare fields for processing for the GET method
+    if method=='get' and fields != None:
+        prepared_fields = fields.split(',')
+
+    # prepare fields for processing for the POST method
+    elif method=='post':
+        prepared_fields = fields.keys()
 
     # contains data dictionaries of selected social media platforms
     requested_social_media_data = [] 
@@ -166,37 +198,48 @@ def map_fields(method, requested_social_media, endpoint, fields):
     mapped_fields = []
 
     # contains list of selected fields (not mapped)
-    unified_fields = fields
-
-    # chooses the field mapping
-    type_of_fields = fields_dictionary[method]
+    unified_fields = prepared_fields
 
     # If no fields are selected, return all possible data
-    if fields == ['']: 
+    if fields == [''] or fields == None: # TODO: Check if we need also the [''] option 
         unified_fields = requested_social_media_data[0]['endpoint_mapping'][endpoint][type_of_fields].keys()
 
+    
     # Map fields for similar parameter for each platform
     for social_media in requested_social_media_data:
-        temp_fields = ''
 
-        if fields == ['']: 
-            # Collate all possible fields
-            for field in social_media['endpoint_mapping'][endpoint][type_of_fields]:
-                if social_media['endpoint_mapping'][endpoint][type_of_fields][field] != None:
-                    temp_fields += social_media['endpoint_mapping'][endpoint][type_of_fields][field] + ','
-        else:
-            # Collate requested fields
-            for field in fields:
+        # Map for GET method
+        if method == 'get': # TODO: Move concatenating to files for social medi API calls
+            temp_fields = ''
+            if fields == [''] or fields == None: # TODO: Check if we need also the [''] option
+                # Collate all possible fields
+                for field in social_media['endpoint_mapping'][endpoint][type_of_fields]:
+                    if social_media['endpoint_mapping'][endpoint][type_of_fields][field] != None:
+                        temp_fields += social_media['endpoint_mapping'][endpoint][type_of_fields][field] + ','
+            else:
+                # Collate requested fields
+                for field in unified_fields:
+                    if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
+                        temp_fields += social_media['endpoint_mapping'][endpoint]['get_fields'][field] + ','
+                
+            # Add mapped fields to the list
+            mapped_fields.append(temp_fields[:-1])
+
+        # Map for POST method
+        elif method == 'post':
+            temp_fields = {}
+            for field in unified_fields:
                 if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
-                    temp_fields += social_media['endpoint_mapping'][endpoint]['get_fields'][field] + ','
+                    temp_fields[social_media['endpoint_mapping'][endpoint]['get_fields'][field]] = fields[field]
             
-        # Add mapped fields to the list
-        mapped_fields.append(temp_fields[:-1])
+            # Add mapped fields to the list
+            mapped_fields.append(temp_fields)
 
+    print('unified_fields', unified_fields, 'mapped_fields', mapped_fields)
     return unified_fields, mapped_fields
 
 
-def call_social_media_APIs(method, requested_social_media, endpoint, fields, id=None):
+def call_social_media_APIs(method, requested_social_media, endpoint, path, id=None, fields=None):
     ''' Calls socaila media APIs. 
     
     Parameters
@@ -222,32 +265,33 @@ def call_social_media_APIs(method, requested_social_media, endpoint, fields, id=
     check_if_valid_platforms_requested(requested_social_media, list(data_dictionary.keys()))
 
     # map fields
-    fields = fields.split(',')
-    unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, fields)
+    if method=='get' and fields != None:
+        fields = fields.split(',')
+    unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields) # TODO: make path dependent!
 
     # call social media APIs
     if 'fb' in requested_social_media:
         # if not fb_authenticated:
         #     authenticate('fb')
-        responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, mapped_fields[requested_social_media.index('fb')], id) # fb_api or fb_access
+        responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, path, mapped_fields[requested_social_media.index('fb')], id) # fb_api or fb_access
     
     if 'ig' in requested_social_media:
         # if not ig_authenticated:
         #     authenticate('ig')
-        responses['ig'] = call_ig_api(ig_api, data_dictionary['ig'], method, endpoint, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
+        responses['ig'] = call_ig_api(ig_api, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
     
     if 'ln' in requested_social_media:
         # if not ln_authenticated:
         #     authenticate('ln')
-        responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, mapped_fields[requested_social_media.index('ln')], id)
+        responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, path, mapped_fields[requested_social_media.index('ln')], id)
 
     if 'tw' in requested_social_media:
         # if not tw_authenticated:
         #     authenticate('tw')
-        responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, mapped_fields[requested_social_media.index('tw')], id)
+        responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
-    response = merge_responses(endpoint, unified_fields, responses) # TODO: Make dependent on method
+    response = merge_responses(method, endpoint, unified_fields, responses)
     return response
 
 
@@ -299,7 +343,7 @@ def check_if_too_many_requested_platforms(requested_social_media):
     return
 
 
-def call_social_media_APIs_with_id(method, sm, endpoint, fields, id):
+def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None):
     ''' Calls socaila media APIs. 
     
     Parameters
@@ -322,8 +366,21 @@ def call_social_media_APIs_with_id(method, sm, endpoint, fields, id):
     requested_social_media = sm.split(',')
     check_if_too_many_requested_platforms(requested_social_media)
 
-    response = call_social_media_APIs(method, requested_social_media, endpoint, fields, id=id)
+    response = call_social_media_APIs(method, requested_social_media, endpoint, path, id=id, fields=fields)
     return response
+
+
+def actual_kwargs():
+    """
+    Decorator that provides the wrapped function with an attribute 'actual_kwargs'
+    containing just those keyword arguments actually passed in to the function.
+    """
+    def decorator(function):
+        def inner(*args, **kwargs):
+            inner.actual_kwargs = kwargs
+            return function(*args, **kwargs)
+        return inner
+    return decorator
 
 
 ########################
@@ -395,7 +452,7 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = ''):
 
     endpoint = 'album'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, album_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', album_id, fields=fields)
     return response
 
 
@@ -406,7 +463,7 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 
     endpoint = 'comment'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, comment_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', comment_id, fields=fields)
     return response
 
 
@@ -417,7 +474,7 @@ def get_data_about_event(event_id: str, sm: str, fields: str = ''):
 
     endpoint = 'event'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, event_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', event_id, fields=fields)
     return response
 
 
@@ -428,7 +485,7 @@ def get_data_about_group(group_id: str, sm: str, fields: str = ''):
 
     endpoint = 'group'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, group_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', group_id, fields=fields)
     return response
 
 
@@ -439,7 +496,7 @@ def get_data_about_live_video(video_id: str, sm: str, fields: str = ''):
 
     endpoint = 'live_video'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, video_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', video_id, fields=fields)
     return response
 
 
@@ -451,7 +508,7 @@ def get_data_about_me(sm: str, fields: str = ''):
     endpoint = 'me'
     method = 'get'
     requested_social_media = sm.split(',') # Because this endpoint is not id dependent
-    response = call_social_media_APIs(method, requested_social_media, endpoint, fields)
+    response = call_social_media_APIs(method, requested_social_media, endpoint, '', fields=fields)
     return response
 
 
@@ -462,7 +519,7 @@ def get_data_about_post(post_id: str, sm: str, fields: str = ''):
 
     endpoint = 'post'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, post_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', post_id, fields=fields)
     return response
 
 
@@ -473,7 +530,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
 
     endpoint = 'user'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, fields, user_id)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, '', user_id, fields=fields)
     return response
 
 
@@ -486,6 +543,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
 # * level 1==>friend only (connections)
 # * level 2==>public (public)
 # * level >2 ==>error
+@actual_kwargs()
 @app.post('group/{group_id}/album')
 def create_album_in_group(group_id:str, sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
     ''' Creates a new album in a group specified by group_id '''
@@ -493,8 +551,12 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str, vis
     endpoint = 'group'
     path = 'album'
     method = 'post'
-    requested_social_media = sm.split(',')
-    response = None # TODO
+
+    fields = create_album_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
     return response
 
 
@@ -794,5 +856,8 @@ def delete_live_video(video_id: str, sm: str):
 
 
 # QUICK TEST
-print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
+authenticate('fb')
+# print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
+print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
+# 2998732937039201
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
