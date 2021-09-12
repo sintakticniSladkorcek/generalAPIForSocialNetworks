@@ -210,7 +210,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         unified_field_mappings = unified_field_mappings['paths'][path]
 
     # If no fields are selected, return all possible data
-    if fields == None: # TODO: Check if we need also the [''] option 
+    if fields == None:
         unified_fields = unified_field_mappings[type_of_fields].keys()
 
     
@@ -223,24 +223,24 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             field_mappings = field_mappings['paths'][path]
 
         # Map for GET method
-        if method == 'get': # TODO: Move concatenating to files for social medi API calls
-            temp_fields = ''
+        if method == 'get':
+            temp_fields = []
 
-            if fields == None: # TODO: Check if we need also the [''] option
+            if fields == None:
 
                 # Collate all possible fields
                 for field in field_mappings[type_of_fields]:
                     if field_mappings[type_of_fields][field] != None:
-                        temp_fields += field_mappings[type_of_fields][field] + ','
+                        temp_fields.append(field_mappings[type_of_fields][field])
                 
             else:
                 # Collate requested fields
                 for field in unified_fields:
                     if field_mappings[type_of_fields][field] != None:
-                        temp_fields += field_mappings[type_of_fields][field] + ','
+                        temp_fields.append(field_mappings[type_of_fields][field])
                 
             # Add mapped fields to the list
-            mapped_fields.append(temp_fields[:-1])
+            mapped_fields.append(temp_fields)
 
         # Map for POST method
         elif method == 'post':
@@ -281,8 +281,6 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
     check_if_valid_platforms_requested(requested_social_media, list(data_dictionary.keys()))
 
     # map fields
-    if method=='get' and fields != None:
-        fields = fields.split(',')
     unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields)
 
     # call social media APIs
@@ -873,7 +871,7 @@ def delete_live_video(video_id: str, sm: str):
 
 # QUICK TEST
 authenticate('fb')
-print(get_data_about_me(sm='fb'))
-print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
+print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
+# print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
 # 2998732937039201
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))

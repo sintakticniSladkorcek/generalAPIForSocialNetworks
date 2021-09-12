@@ -10,19 +10,22 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
     if path != None:
         url += '/' + data_dictionary['endpoint_mapping'][endpoint]['paths'][path]['path']
     
-    
     if method == 'get':
-        # prepare parameters
-        parameters = 'fields=' + mapped_fields
+        # remove possible duplicates
+        mapped_fields = list(dict.fromkeys(mapped_fields))
+
+        # concatenate parameters into string
+        temp = ''
+        for field in mapped_fields:
+            temp += field + ','
+        
+        parameters = 'fields=' + temp[:-1]
 
         # call API
-        # if mapped_fields == '':
-        #     response = requests.get(f'{url}?&access_token={access_token}')
-        # else:
         response = requests.get(f'{url}?{parameters}&access_token={access_token}')
 
     elif method == 'post':
-        # prepare parameters
+        # concatenate parameters into string
         parameters = ''
         for field_name in mapped_fields:
             parameters += field_name + '=' + str(mapped_fields[field_name]) + '&'
