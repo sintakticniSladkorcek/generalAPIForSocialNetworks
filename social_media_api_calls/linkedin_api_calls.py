@@ -15,7 +15,7 @@ def create_header(access_token):
 
 def call_api(access_token, data_dictionary, endpoint, fields_string, id):
 
-    url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]
+    url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]['endpoint']
     if id != None:
         url += '/' + id
 

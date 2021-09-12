@@ -87,7 +87,7 @@ def error_response(responses):
     return error_responses, non_error_responses
 
 
-def merge_responses(unified_fields, responses):
+def merge_responses(endpoint, unified_fields, responses):
     ''' Compiles responses of social media APIs into one json response. 
     
     Parameters
@@ -117,7 +117,7 @@ def merge_responses(unified_fields, responses):
             platform_name = data_dictionary[platform]['name']
             
             if platform in non_error_responses:
-                specific_field_name = data_dictionary[platform]['field_mapping'][field]
+                specific_field_name = data_dictionary[platform]['endpoint_mapping'][endpoint]['get_fields'][field]
                 if specific_field_name == None:
                     continue
                 temp_dict['provider'] = platform_name
@@ -133,7 +133,7 @@ def merge_responses(unified_fields, responses):
     return response
 
 
-def map_fields(requested_social_media, fields):
+def map_fields(requested_social_media, endpoint, fields):
     ''' Compiles responses of social media APIs into one json response. 
     
     Parameters
@@ -172,14 +172,14 @@ def map_fields(requested_social_media, fields):
 
         if fields == ['']: 
             # Collate all possible fields
-            for field in social_media['field_mapping']:
-                if social_media['field_mapping'][field] != None:
-                    temp_fields += social_media['field_mapping'][field] + ','
+            for field in social_media['endpoint_mapping'][endpoint]['get_fields']:
+                if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
+                    temp_fields += social_media['endpoint_mapping'][endpoint]['get_fields'][field] + ','
         else:
             # Collate requested fields
             for field in fields:
-                if social_media['field_mapping'][field] != None:
-                    temp_fields += social_media['field_mapping'][field] + ','
+                if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
+                    temp_fields += social_media['endpoint_mapping'][endpoint]['get_fields'][field] + ','
             
         # Add mapped fields to the list
         mapped_fields.append(temp_fields[:-1])
@@ -214,7 +214,7 @@ def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
 
     # map fields
     fields = fields.split(',')
-    unified_fields, mapped_fields = map_fields(requested_social_media, fields)
+    unified_fields, mapped_fields = map_fields(requested_social_media, endpoint, fields)
 
     # call social media APIs
     if 'fb' in requested_social_media:
@@ -238,7 +238,7 @@ def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
         responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], endpoint, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
-    response = merge_responses(unified_fields, responses)
+    response = merge_responses(endpoint, unified_fields, responses)
     return response
 
 
@@ -342,6 +342,7 @@ def authenticate(sm: str):
     # authenticate with social media APIs
     if 'fb' in requested_social_media:
         try:
+            global fb_access
             fb_access = fb_auth(file_with_fb_credentials)
             fb_authenticated = True
             response['Facebook'] = 'Success'
@@ -350,6 +351,7 @@ def authenticate(sm: str):
     
     if 'ig' in requested_social_media:
         try:
+            global ig_access
             ig_access = ig_auth(file_with_ig_credentials)
             ig_authenticated = True
             response['Instagram'] = 'Success'
@@ -358,6 +360,7 @@ def authenticate(sm: str):
     
     if 'ln' in requested_social_media:
         try:
+            global ln_access
             ln_access = ln_auth(file_with_ln_credentials)
             ln_authenticated = True
             response['LinkedIn'] = 'Success'
@@ -367,6 +370,7 @@ def authenticate(sm: str):
     if 'tw' in requested_social_media:
         tw_creds, tw_error = tw_auth(file_with_tw_credentials)
         if tw_error != None:
+            global tw_access
             tw_access = tw_creds
             print(tw_error, tw_error.json)
             response['Twitter'] = 'Error'
@@ -764,5 +768,5 @@ def delete_live_video(video_id: str, sm: str):
 
 
 # QUICK TEST
-print(get_data_about_me(sm='ln',fields='id,first_name,last_name,birthday'))
+print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))

@@ -3,10 +3,32 @@ class Instagram_data():
         'name': 'Instagram',
         'base_url': 'https://graph.facebook.com/v11.0/',
         'endpoint_mapping': {
-            'me': '',
-            'user': '',
-            'post': '',
-            'comment': ''
-        },
-        'field_mapping': {}        
+            'album': {
+                'endpoint': None
+            },
+            'comment': {
+                'endpoint': None
+            },
+            'event': {
+                'endpoint': None
+            },
+            'group': {
+                'endpoint': None
+            },
+            'live_video': {
+                'endpoint': None
+            },
+            'me': {
+                'endpoint': None
+            },
+            'page': {
+                'endpoint': None
+            },
+            'post': {
+                'endpoint': None
+            },
+            'user': {
+                'endpoint': None
+            }
+        }        
     }
