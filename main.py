@@ -200,27 +200,40 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     # contains list of selected fields (not mapped)
     unified_fields = prepared_fields
 
+    # set location of field mappings for unified_fields depending on presence of path parameter
+    unified_field_mappings = requested_social_media_data[0]['endpoint_mapping'][endpoint]
+    if path != None:
+        unified_field_mappings = unified_field_mappings['paths'][path]
+
     # If no fields are selected, return all possible data
     if fields == [''] or fields == None: # TODO: Check if we need also the [''] option 
-        unified_fields = requested_social_media_data[0]['endpoint_mapping'][endpoint][type_of_fields].keys()
+        unified_fields = unified_field_mappings[type_of_fields].keys()
 
     
     # Map fields for similar parameter for each platform
     for social_media in requested_social_media_data:
 
+        # set location of field mappings depending on presence of path parameter
+        field_mappings = social_media['endpoint_mapping'][endpoint]
+        if path != None:
+            field_mappings = field_mappings['paths'][path]
+
         # Map for GET method
         if method == 'get': # TODO: Move concatenating to files for social medi API calls
             temp_fields = ''
+
             if fields == [''] or fields == None: # TODO: Check if we need also the [''] option
+
                 # Collate all possible fields
-                for field in social_media['endpoint_mapping'][endpoint][type_of_fields]:
-                    if social_media['endpoint_mapping'][endpoint][type_of_fields][field] != None:
-                        temp_fields += social_media['endpoint_mapping'][endpoint][type_of_fields][field] + ','
+                for field in field_mappings[type_of_fields]:
+                    if field_mappings[type_of_fields][field] != None:
+                        temp_fields += field_mappings[type_of_fields][field] + ','
+                
             else:
                 # Collate requested fields
                 for field in unified_fields:
-                    if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
-                        temp_fields += social_media['endpoint_mapping'][endpoint]['get_fields'][field] + ','
+                    if field_mappings[type_of_fields][field] != None:
+                        temp_fields += field_mappings[type_of_fields][field] + ','
                 
             # Add mapped fields to the list
             mapped_fields.append(temp_fields[:-1])
@@ -229,8 +242,8 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         elif method == 'post':
             temp_fields = {}
             for field in unified_fields:
-                if social_media['endpoint_mapping'][endpoint]['get_fields'][field] != None:
-                    temp_fields[social_media['endpoint_mapping'][endpoint]['get_fields'][field]] = fields[field]
+                if field_mappings[type_of_fields][field] != None:
+                    temp_fields[field_mappings[type_of_fields][field]] = fields[field]
             
             # Add mapped fields to the list
             mapped_fields.append(temp_fields)
