@@ -13,7 +13,7 @@ def create_header(access_token):
     return headers
 
 
-def call_api(access_token, data_dictionary, endpoint, fields_string, id):
+def call_api(access_token, data_dictionary, method, endpoint, fields_string, id):
 
     url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]['endpoint']
     if id != None:
