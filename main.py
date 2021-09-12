@@ -55,20 +55,8 @@ file_with_ig_credentials = 'ig_credentials.json'
 file_with_ln_credentials = 'ln_credentials.json'
 file_with_tw_credentials = 'tw_credentials.json'
 
-# Authenticate
-fb_access = fb_auth(file_with_fb_credentials)
-
-ig_access = ig_auth(file_with_ig_credentials)
-
-ln_access = ln_auth(file_with_ln_credentials)
-
-tw_creds, tw_error = tw_auth(file_with_tw_credentials)
-if tw_error != None:
-    tw_access = tw_creds
-    print(tw_error, tw_error.json)
-    # TODO: raise Exception or somehow include tw_error in a merged response
-
-
+fb_access = ig_access = ln_access = tw_access = None
+fb_authenticated = ig_authenticated = ln_authenticated = tw_authenticated = False
 
 
 def error_response(responses):
@@ -230,15 +218,23 @@ def call_social_media_APIs(requested_social_media, endpoint, fields, id=None):
 
     # call social media APIs
     if 'fb' in requested_social_media:
+        # if not fb_authenticated:
+        #     authenticate('fb')
         responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], endpoint, mapped_fields[requested_social_media.index('fb')], id) # fb_api or fb_access
     
     if 'ig' in requested_social_media:
+        # if not ig_authenticated:
+        #     authenticate('ig')
         responses['ig'] = call_ig_api(ig_api, data_dictionary['ig'], endpoint, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
     
     if 'ln' in requested_social_media:
+        # if not ln_authenticated:
+        #     authenticate('ln')
         responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], endpoint, mapped_fields[requested_social_media.index('ln')], id)
 
     if 'tw' in requested_social_media:
+        # if not tw_authenticated:
+        #     authenticate('tw')
         responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], endpoint, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
@@ -336,6 +332,50 @@ def home():
     return (response)
 
 
+@app.get('/auth')
+def authenticate(sm: str):
+
+    requested_social_media = sm.split(',')
+
+    response = {}
+
+    # authenticate with social media APIs
+    if 'fb' in requested_social_media:
+        try:
+            fb_access = fb_auth(file_with_fb_credentials)
+            fb_authenticated = True
+            response['Facebook'] = 'Success'
+        except:
+            response['Facebook'] = 'Error'
+    
+    if 'ig' in requested_social_media:
+        try:
+            ig_access = ig_auth(file_with_ig_credentials)
+            ig_authenticated = True
+            response['Instagram'] = 'Success'
+        except:
+            response['Instagram'] = 'Error'
+    
+    if 'ln' in requested_social_media:
+        try:
+            ln_access = ln_auth(file_with_ln_credentials)
+            ln_authenticated = True
+            response['LinkedIn'] = 'Success'
+        except:
+            response['LinkedIn'] = 'Error'
+
+    if 'tw' in requested_social_media:
+        tw_creds, tw_error = tw_auth(file_with_tw_credentials)
+        if tw_error != None:
+            tw_access = tw_creds
+            print(tw_error, tw_error.json)
+            response['Twitter'] = 'Error'
+            # TODO: raise Exception or somehow include tw_error in a merged response
+        tw_authenticated = True
+        response['Twitter'] = 'Success'
+
+    return response
+
 # fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
 @app.get('/album/{album_id}')
 def get_data_abut_album(album_id: str, sm: str):
@@ -419,6 +459,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
 
 # POST requests
 
+# TODO: setup mappings
 # fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
 # Privacy levels (enum, fb name, our name)
 # * level 0 ==>only me (me)
@@ -426,7 +467,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
 # * level 2==>public (public)
 # * level >2 ==>error
 @app.post('group/{group_id}/album')
-def create_album_in_group(sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+def create_album_in_group(group_id:str, sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
     ''' Creates a new album in a group specified by group_id '''
 
     endpoint = 'group'
@@ -436,19 +477,37 @@ def create_album_in_group(sm:str, name: str, description: str, visible_to: str='
     return response
 
 
-#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.post('{some_endpoint}/comment')
-# Add various options
-# albums
-# comment
-# event
-# link
-# live video
-# photo
-# post
-# thread
-# user
-# video
+# # TODO
+# #fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+# @app.post('album/{album_id}/comment')
+# def comment_on_album(album_id:str, sm:str, TODO:todo):
+#     ''' Posts a comment on the album specified by album_id '''
+
+#     endpoint = 'album'
+#     path = 'comment'
+#     requested_social_media = sm.split(',')
+#     response = None # TODO
+#     return response
+
+# # TODO: Maybe set path to reply instead of comment
+# @app.post('comment/{comment_id}/comment')
+# def reply_to_comment(comment_id:str, sm:str, TODO:todo):
+#     ''' Reply to a comment with comment_id '''
+
+#     endpoint = 'comment'
+#     path = 'comment'
+#     requested_social_media = sm.split(',')
+#     response = None # TODO
+#     return response
+
+# @app.post('event/{event_id}/comment')
+# @app.post('link/{link_id}/comment')
+# @app.post('live_video/{video_id}/comment')
+# @app.post('photo/{photo_id}/comment')
+# @app.post('post/{post_id}/comment')
+# @app.post('thread/{thread_id}/comment')
+# @app.post('user/{user_id}/comment')
+# @app.post('video/{video_id}/comment')
 
 
 # fb
@@ -665,29 +724,36 @@ def delete_live_video(video_id: str, sm: str):
 
 
 # TODO: Add this type (fb): /search?type=adinterest&q=TEDx
-# {id}/reactions
+# {id}/reactions and likes
 
 
-
+# TODO: Finish adding /comment endpoints
+# TODO: Restructure data dictionaries so that fields are dependent on the endpoint
+# TODO: include HTTP status codes in merged response
+# TODO: limit parameter (how many items do you want returned)
+# TODO: API calls for post requests
+# TODO: API calls for delete requests
 
 
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
 # TODO: fb authentication
 # TODO: check if already authenticated
-# TODO: include HTTP status codes in merged response
-# TODO: limit parameter (how many items do you want returned)
-# TODO: check error handling of the "too many requested social media platforms" error
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
-# TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
-# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs
-# TODO: Restructure data dictionaries so that fields are dependent on the endpoint
-# TOOD: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
+# TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
+# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution?
+# TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
+# TODO: Add more fb endpoints
+# TODO: Add Twitter endpoints and mappings
+# TODO: Add LinkedIn endpoints and mappings
+# TODO: Add Instagram authentication
+# TODO: Add Instagram endpoints and mappings
 
+# FURTHER DEVELOPMENT: Right now, you cannot authenticate only some social media APIs, you HAVE to authenticate all to be able to use the api at all. Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
 # FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
