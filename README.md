@@ -1,13 +1,13 @@
 # General API for Social Networks
 
-General API for Social Networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developers the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one.
+General API for Social Networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developer the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one. General API for Social Networks is built using [FastAPI](https://fastapi.tiangolo.com/).
 
 Currently supported APIs:
 
-- Facebook Graph API v11.0
-- Instagram Basic Display API v11.0
-- LinkedIn Consumer Solutions Platform v2
-- Twitter API v2
+- [Facebook Graph API v11.0](https://developers.facebook.com/docs/graph-api)
+- [Instagram Basic Display API v11.0](https://developers.facebook.com/docs/instagram-basic-display-api/)
+- [LinkedIn Consumer Solutions Platform v2](https://docs.microsoft.com/en-us/linkedin/consumer/)
+- [Twitter API v2](https://developer.twitter.com/en/docs/twitter-api)
 
 Functionality:
 
@@ -21,17 +21,20 @@ Functionality:
 By using this API you accept the Terms and Conditions of all of the included social media APIs:
 
 - Facebook:
-    - https://developers.facebook.com/devpolicy/
-    - https://developers.facebook.com/terms/dfc_platform_terms/
-    - https://www.facebook.com/policies_center
+  - https://developers.facebook.com/devpolicy/
+  - https://developers.facebook.com/terms/dfc_platform_terms/
+  - https://www.facebook.com/policies_center
+- Instagram\*:
+  - https://developers.facebook.com/terms
+  - https://developers.facebook.com/devpolicy/
 - LinkedIn:
-    - https://legal.linkedin.com/api-terms-of-use
-    - https://www.linkedin.com/legal/user-agreement
+  - https://legal.linkedin.com/api-terms-of-use
+  - https://www.linkedin.com/legal/user-agreement
 - Twitter:
-    - https://developer.twitter.com/en/developer-terms
-    - https://twitter.com/en/tos
+  - https://developer.twitter.com/en/developer-terms
+  - https://twitter.com/en/tos
 
-<!-- TODO: Add Instagram -->
+\*this is not a mistake, links for Instagram are in fact located at facebook.com (Instagram is owned by Facebook)
 
 ### Technical
 
@@ -62,7 +65,6 @@ Install/upgrade, create and activate a python virtual environment. Here the virt
 pip install -U virtualenv
 virtualenv social_venv
 social_venv/Scripts/activate
-
 ```
 
 Install all required packages by running the following command.
@@ -118,6 +120,18 @@ For Twitter authentication you will need `consumer key`, `consumer secret key` a
 
 <!-- TODO: Also accept other redirect uris? If 'oob' this, else that, try also with localhost-->
 
+## Run
+
+To run the General API for Social Networks, run the following command:
+
+```cmd
+hypercorn main:app --reload
+```
+
+After that, the API can be accessed at [http://127.0.0.1:8000](http://127.0.0.1:8000). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [http://127.0.0.1:8000/auth](http://127.0.0.1:8000/auth) and setting the value of `sm` parameter.
+
+<a name="auth_example"></a>For example, to authenticate only with Facebook and LinkedIn, you would send a GET request to `http://127.0.0.1:8000/auth?sm=fb,ln`.
+
 ## Usage
 
 ### Response
@@ -131,12 +145,17 @@ For Twitter authentication you will need `consumer key`, `consumer secret key` a
 
 ### Important parameters
 
-#### sm
+#### <a name="sm"></a>sm
 
 This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a required parameter and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
 <!-- TODO: Add  a list of requests that do not need the sm parameter. -->
 
-Currently available values are: `fb` (representing Facebook), `ig` (representing Instagram), `ln` (representing LinkedIn), `tw` (representing Twitter).
+Currently available values are:
+
+- `fb` (representing Facebook),
+- `ig` (representing Instagram),
+- `ln` (representing LinkedIn),
+- `tw` (representing Twitter).
 
 #### limit
 
@@ -156,13 +175,11 @@ Below is a table of all of the available endpoints and paths that you can use fo
 
 #### /docs or /redoc
 
-These are the endpoints leading to auto-generated documentation. `/docs` leads to Swagger and `/redoc` to ___. Here each endpoint/path is described and all possible parameters are listed for each of them.
+These are the endpoints leading to auto-generated documentation. `/docs` leads to [Swagger UI](https://github.com/swagger-api/swagger-ui) and `/redoc` to [ReDoc](https://github.com/Redocly/redoc). Here each endpoint/path is described and all possible parameters are listed for each of them.
 
 #### /auth
 
-Yet to be implemented.
-
-This endpoint is the one you should call first. It takes care of the authentication with all of the social media APIs so you can then perform other requests. Unless authenticated, you will not be able to perform other requests. 
+This endpoint is the one you should call first. It takes care of the authentication with all of the social media APIs so you can then perform other requests. Unless authenticated, you will not be able to perform other requests. To specify which social media APIs you want to authetnicate with, use parameter `sm`. See example [here](#auth_example).
 
 <!-- Add use example and implement -->
 
@@ -202,7 +219,7 @@ See all errors returned by General API for Social Networks in the following tabl
 |Status|Error code|Name|What to do|
 |---|---|---|---|
 |400|1|Too many requested platforms|Specify only one requested social media platform in the `sm` parameter|
-|400|2|Invalid value for `sm`|Choose values for social media only among the valid ones|
+|400|2|Invalid value for `sm`|Choose values for social media only among the [valid ones](#sm)|
 
 #### Errors returned by social media APIs
 
@@ -275,8 +292,7 @@ file_with_tw_credentials = 'tw_credentials.json'
 ```
 
 In the folder `authentication`, add a new python file that will contain the logic for authenticating with the newly added social media.
-Add the import for the main authentication function from this python file to `main.py` and also add it under the endpoint `auth`.
-<!-- TODO: Check if this is still true with /auth and add additional explanation of how-to if needed.  -->
+Add the import for the main authentication function from this python file to `main.py` and also add it under the endpoint `/auth`.
 
 #### 3) Prepare mappings
 
