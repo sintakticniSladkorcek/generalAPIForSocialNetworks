@@ -180,8 +180,12 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     type_of_fields = fields_dictionary[method]
 
     # prepare fields for processing for the GET method
-    if method=='get' and fields != None:
-        prepared_fields = fields.split(',')
+    if method=='get':
+        if fields != None:
+            prepared_fields = fields.split(',')
+        else:
+            prepared_fields = None
+    
 
     # prepare fields for processing for the POST method
     elif method=='post':
@@ -206,7 +210,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         unified_field_mappings = unified_field_mappings['paths'][path]
 
     # If no fields are selected, return all possible data
-    if fields == [''] or fields == None: # TODO: Check if we need also the [''] option 
+    if fields == None: # TODO: Check if we need also the [''] option 
         unified_fields = unified_field_mappings[type_of_fields].keys()
 
     
@@ -222,7 +226,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         if method == 'get': # TODO: Move concatenating to files for social medi API calls
             temp_fields = ''
 
-            if fields == [''] or fields == None: # TODO: Check if we need also the [''] option
+            if fields == None: # TODO: Check if we need also the [''] option
 
                 # Collate all possible fields
                 for field in field_mappings[type_of_fields]:
@@ -248,11 +252,10 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             # Add mapped fields to the list
             mapped_fields.append(temp_fields)
 
-    print('unified_fields', unified_fields, 'mapped_fields', mapped_fields)
     return unified_fields, mapped_fields
 
 
-def call_social_media_APIs(method, requested_social_media, endpoint, path, id=None, fields=None):
+def call_social_media_APIs(method, requested_social_media, endpoint, path=None, id=None, fields=None):
     ''' Calls socaila media APIs. 
     
     Parameters
@@ -280,7 +283,7 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path, id=No
     # map fields
     if method=='get' and fields != None:
         fields = fields.split(',')
-    unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields) # TODO: make path dependent!
+    unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields)
 
     # call social media APIs
     if 'fb' in requested_social_media:
@@ -465,7 +468,7 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = ''):
 
     endpoint = 'album'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', album_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, album_id, fields=fields)
     return response
 
 
@@ -476,7 +479,7 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 
     endpoint = 'comment'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', comment_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, comment_id, fields=fields)
     return response
 
 
@@ -487,7 +490,7 @@ def get_data_about_event(event_id: str, sm: str, fields: str = ''):
 
     endpoint = 'event'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', event_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, event_id, fields=fields)
     return response
 
 
@@ -498,7 +501,7 @@ def get_data_about_group(group_id: str, sm: str, fields: str = ''):
 
     endpoint = 'group'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', group_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, group_id, fields=fields)
     return response
 
 
@@ -509,19 +512,19 @@ def get_data_about_live_video(video_id: str, sm: str, fields: str = ''):
 
     endpoint = 'live_video'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', video_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
     return response
 
 
 # fb, ln, tw
 @app.get('/me')
-def get_data_about_me(sm: str, fields: str = ''):
+def get_data_about_me(sm: str, fields: str = None):
     '''Returns data about the logged-in user specified by parameter `fields`'''
 
     endpoint = 'me'
     method = 'get'
     requested_social_media = sm.split(',') # Because this endpoint is not id dependent
-    response = call_social_media_APIs(method, requested_social_media, endpoint, '', fields=fields)
+    response = call_social_media_APIs(method, requested_social_media, endpoint, None, fields=fields)
     return response
 
 
@@ -532,7 +535,7 @@ def get_data_about_post(post_id: str, sm: str, fields: str = ''):
 
     endpoint = 'post'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', post_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, post_id, fields=fields)
     return response
 
 
@@ -543,7 +546,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = ''):
 
     endpoint = 'user'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, '', user_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
     return response
 
 
@@ -870,7 +873,7 @@ def delete_live_video(video_id: str, sm: str):
 
 # QUICK TEST
 authenticate('fb')
-# print(get_data_about_me(sm='fb,ln',fields='id,first_name,last_name,birthday'))
+print(get_data_about_me(sm='fb'))
 print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
 # 2998732937039201
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
