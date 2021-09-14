@@ -390,7 +390,7 @@ def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None):
 def actual_kwargs():
     """
     Decorator that provides the wrapped function with an attribute 'actual_kwargs'
-    containing just those keyword arguments actually passed in to the function.
+    containing just those keyword arguments actually passed in to the function. Copied from https://stackoverflow.com/a/1409284.
     """
     def decorator(function):
         def inner(*args, **kwargs):
@@ -487,6 +487,7 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
 
 
 # fb:
+# Facebook: Access to Events on Users and Pages is only available to Facebook Marketing Partners.
 @app.get('/events/{event_id}')
 def get_data_about_event(event_id: str, sm: str, fields: str = None):
     '''Returns data about the event with given event_id specified by parameter `fields`'''
@@ -579,39 +580,59 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str, vis
     return response
 
 
-# # TODO
-# #fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-# @app.post('album/{album_id}/comment')
-# def comment_on_album(album_id:str, sm:str, TODO:todo):
-#     ''' Posts a comment on the album specified by album_id '''
+# TODO
+# Facebook: 
+# A User can only query their own comments. Other users' comments are unavailable due to privacy concerns.
+# For the following nodes, the /comments endpoint returns empty data if you read it with a User access token:
+# Album
+# Photo
+# Post
+# Video
+#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+@actual_kwargs()
+@app.post('albums/{album_id}/comments')
+def comment_on_album(album_id:str, sm:str, attachment_id:str=None, attachment_share_url:str=None, attachment_url:str=None, source:str=None, message:str=None):
+    ''' Posts a comment on the album specified by album_id '''
 
-#     endpoint = 'album'
-#     path = 'comment'
-        # method = 'post'
-#     requested_social_media = sm.split(',')
-#     response = None # TODO
-#     return response
+    endpoint = 'albums'
+    path = 'comments'
+    method = 'post'
+
+    fields = comment_on_album.actual_kwargs
+    del fields['album_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=fields)
+    return response
+    # (#3) Application does not have the capability to make this API call. WHY???
 
 # # TODO: Maybe set path to reply instead of comment
-# @app.post('comment/{comment_id}/comment')
-# def reply_to_comment(comment_id:str, sm:str, TODO:todo):
-#     ''' Reply to a comment with comment_id '''
+@actual_kwargs()
+@app.post('comments/{comment_id}/comments')
+def reply_to_comment(comment_id:str, sm:str, attachment_id:str=None, attachment_share_url:str=None, attachment_url:str=None, source:str=None, message:str=None):
+    ''' Reply to a comment with comment_id '''
 
-#     endpoint = 'comment'
-#     path = 'comment'
-#       method = 'post'
-#     requested_social_media = sm.split(',')
-#     response = None # TODO
-#     return response
+    endpoint = 'comments'
+    path = 'comments'
+    method = 'post'
 
-# @app.post('event/{event_id}/comment')
-# @app.post('link/{link_id}/comment')
-# @app.post('live_video/{video_id}/comment')
-# @app.post('photo/{photo_id}/comment')
-# @app.post('post/{post_id}/comment')
-# @app.post('thread/{thread_id}/comment')
-# @app.post('user/{user_id}/comment')
-# @app.post('video/{video_id}/comment')
+    fields = reply_to_comment.actual_kwargs
+    del fields['comment_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, comment_id, fields=fields)
+    return response
+# Publishing comments through the API is only available for page access tokens. !!!
+# DO WE EVEN DO OTHER ENDPOINTS FOR POSTING COMMENTS? IT DOESN'T MAKE SENSE SINCE OUR AUTHENTICATION REQUIRES USER ACCESS TOKEN.
+
+# @app.post('events/{event_id}/comments')
+# @app.post('links/{link_id}/comments')
+# @app.post('live_videos/{video_id}/comments')
+# @app.post('photos/{photo_id}/comments')
+# @app.post('posts/{post_id}/comments')
+# @app.post('threads/{thread_id}/comments')
+# @app.post('users/{user_id}/comments')
+# @app.post('videos/{video_id}/comments')
 
 
 # fb
@@ -820,7 +841,7 @@ def delete_comment(comment_id: str, sm: str):
     method = 'delete'
     response = None # TODO
     return response
-
+# REQUIRE pages access token - we use user access tokens, so this won't work fo Facebook! Basically all comments for Facebook are inaccessible with user access tokens ...
 
 #fb
 @app.delete('/live_videos/{video_id}')
@@ -857,6 +878,7 @@ def delete_live_video(video_id: str, sm: str):
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
+# TODO: Facebook pagination
 
 # TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
 
@@ -881,7 +903,12 @@ authenticate('fb')
 print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
 # print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test2', description='lalala'))
 print(get_data_abut_album(album_id='379274703677170', sm='fb'))
+# print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+
+# print(comment_on_album(album_id='379274703677170', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
+# print(reply_to_comment(comment_id='3000284600217368', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
+
 # group 2998732937039201
 # album 1952607818239826
 # album with 1 photo and 1 comment: 379274703677170
-# print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+# comment on album in a group: 3000284600217368
