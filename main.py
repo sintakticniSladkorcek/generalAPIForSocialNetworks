@@ -832,34 +832,35 @@ def delete_live_video(video_id: str, sm: str):
 # TODO: Add this type (fb): /search?type=adinterest&q=TEDx
 # {id}/reactions and likes
 
+# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution? Nah. Make it so that if endpoint translates to None, the call doesn't happen. And response could say "oh, and just so you know, this social media you called, doesn't have this endpoint." WHICH???
+# TODO: API calls for delete requests
+# TODO: Add Instagram authentication
+# TODO: Fill in dictionaries for other sm than Facebook
+# TODO: Implement API calls for other sm than Facebook
+# TODO: authentication check for FB and LinkedIn
+# TODO: Delete LinkedIn last token when restarting API. YES/NO???
+# TODO: include HTTP status codes in merged response YES/NO???
+# TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
 # TODO: Finish adding /comment endpoints
-# TODO: include HTTP status codes in merged response
 # TODO: Add paths like /feed or /timeline for /user endpoint
 # TODO: limit parameter (how many items do you want returned)
-# TODO: API calls for post requests
-# TODO: API calls for delete requests
-
-
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
 # TODO: fb authentication
-# TODO: check if already authenticated
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
 
 # TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
-# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution?
-# TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
+
 # TODO: Add more fb endpoints
 # TODO: Add Twitter endpoints and mappings
 # TODO: Add LinkedIn endpoints and mappings
-# TODO: Add Instagram authentication
 # TODO: Add Instagram endpoints and mappings
 
-# FURTHER DEVELOPMENT: Right now, you cannot authenticate only some social media APIs, you HAVE to authenticate all to be able to use the api at all. Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
+# FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
 # FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
@@ -867,6 +868,7 @@ def delete_live_video(video_id: str, sm: str):
 # FURTHER DEVELOPMENT: expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
 # FURTHER DEVELOPMENT: Add Facebook's edges also as endpoints, not just as fields
 # FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
+# FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
 
 
 # QUICK TEST
