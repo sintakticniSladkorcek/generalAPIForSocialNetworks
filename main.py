@@ -129,8 +129,11 @@ def merge_responses(method, endpoint, unified_fields, responses):
                     if specific_field_name == None:
                         continue
                     temp_dict['provider'] = platform_name
-                    temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
-                    merged_response[field].append(temp_dict)
+                    try:
+                        temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
+                        merged_response[field].append(temp_dict)
+                    except:
+                        continue
                 else:
                     merged_response['errors'][platform_name] = {}
                     merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
@@ -461,7 +464,7 @@ def authenticate(sm: str):
 
 # fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
 @app.get('/album/{album_id}')
-def get_data_abut_album(album_id: str, sm: str, fields: str = ''):
+def get_data_abut_album(album_id: str, sm: str, fields: str = None):
     '''Returns data about the album with given album_id specified by parameter `fields`'''
 
     endpoint = 'album'
@@ -472,7 +475,7 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = ''):
 
 # fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
 @app.get('/comment/{comment_id}')
-def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
+def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
     '''Returns data about the comment with given user_id specified by parameter `fields`'''
 
     endpoint = 'comment'
@@ -483,7 +486,7 @@ def get_data_about_comment(comment_id: str, sm: str, fields: str = ''):
 
 # fb:
 @app.get('/event/{event_id}')
-def get_data_about_event(event_id: str, sm: str, fields: str = ''):
+def get_data_about_event(event_id: str, sm: str, fields: str = None):
     '''Returns data about the event with given event_id specified by parameter `fields`'''
 
     endpoint = 'event'
@@ -494,7 +497,7 @@ def get_data_about_event(event_id: str, sm: str, fields: str = ''):
 
 # fb
 @app.get('/group/{group_id}')
-def get_data_about_group(group_id: str, sm: str, fields: str = ''):
+def get_data_about_group(group_id: str, sm: str, fields: str = None):
     '''Returns data about the group with given group_id specified by parameter `fields`'''
 
     endpoint = 'group'
@@ -505,7 +508,7 @@ def get_data_about_group(group_id: str, sm: str, fields: str = ''):
 
 # fb
 @app.get('/live_video/{video_id}')
-def get_data_about_live_video(video_id: str, sm: str, fields: str = ''):
+def get_data_about_live_video(video_id: str, sm: str, fields: str = None):
     '''Returns data about the live video with given video_id specified by parameter `fields`'''
 
     endpoint = 'live_video'
@@ -528,7 +531,7 @@ def get_data_about_me(sm: str, fields: str = None):
 
 # fb
 @app.get('/post/{post_id}')
-def get_data_about_post(post_id: str, sm: str, fields: str = ''):
+def get_data_about_post(post_id: str, sm: str, fields: str = None):
     '''Returns data about the post with given user_id specified by parameter `fields`'''
 
     endpoint = 'post'
@@ -539,7 +542,7 @@ def get_data_about_post(post_id: str, sm: str, fields: str = ''):
 
 # fb
 @app.get('/user/{user_id}')
-def get_data_about_user(user_id: str, sm: str, fields: str = ''):
+def get_data_about_user(user_id: str, sm: str, fields: str = None):
     '''Returns data about the user with given user_id specified by parameter `fields`'''
 
     endpoint = 'user'
@@ -874,6 +877,8 @@ def delete_live_video(video_id: str, sm: str):
 # QUICK TEST
 authenticate('fb')
 print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
-# print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
-# 2998732937039201
+print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
+print(get_data_abut_album(album_id='1952607818239826', sm='fb'))
+# group 2998732937039201
+# album 1952607818239826
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))

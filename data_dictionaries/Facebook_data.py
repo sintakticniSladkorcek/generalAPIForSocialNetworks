@@ -10,19 +10,19 @@ class Facebook_data():
                     'author': 'from',
                     'can_upload_photos': 'can_upload',
                     'count': 'count',
-                    'cover_photo_id': 'cover_photo',
+                    'cover_photo_id': 'cover_photo', # not for albums in groups
                     'created_time': 'created_time',
-                    'dated': 'backdated_time',
-                    'dated_accuracy': 'backdated_time_granularity',
+                    'dated': 'backdated_time', #
+                    'dated_accuracy': 'backdated_time_granularity', #
                     'description': 'description',
-                    'event_on_location': 'event',
+                    'event_on_location': 'event', #
                     'id': 'id',
                     'link': 'link',
-                    'location_by_id': 'place',
-                    'location_by_name': 'location',
+                    'location_by_id': 'place', #
+                    'location_by_name': 'location', #
                     'name': 'name',
                     'updated_time': 'updated_time',
-                    'visible_to': 'privacy'
+                    'visible_to': 'privacy' #
                 }
             },
             'comment': {
