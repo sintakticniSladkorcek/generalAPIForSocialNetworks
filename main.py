@@ -463,55 +463,57 @@ def authenticate(sm: str):
     return response
 
 # fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
-@app.get('/album/{album_id}')
+@app.get('/albums/{album_id}')
 def get_data_abut_album(album_id: str, sm: str, fields: str = None):
     '''Returns data about the album with given album_id specified by parameter `fields`'''
 
-    endpoint = 'album'
+    endpoint = 'albums'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, album_id, fields=fields)
     return response
 
+# FB EDGES: comments, likes, photos are added as fields
+
 
 # fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.get('/comment/{comment_id}')
+@app.get('/comments/{comment_id}')
 def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
     '''Returns data about the comment with given user_id specified by parameter `fields`'''
 
-    endpoint = 'comment'
+    endpoint = 'comments'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, comment_id, fields=fields)
     return response
 
 
 # fb:
-@app.get('/event/{event_id}')
+@app.get('/events/{event_id}')
 def get_data_about_event(event_id: str, sm: str, fields: str = None):
     '''Returns data about the event with given event_id specified by parameter `fields`'''
 
-    endpoint = 'event'
+    endpoint = 'events'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, event_id, fields=fields)
     return response
 
 
 # fb
-@app.get('/group/{group_id}')
+@app.get('/groups/{group_id}')
 def get_data_about_group(group_id: str, sm: str, fields: str = None):
     '''Returns data about the group with given group_id specified by parameter `fields`'''
 
-    endpoint = 'group'
+    endpoint = 'groups'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, group_id, fields=fields)
     return response
 
 
 # fb
-@app.get('/live_video/{video_id}')
+@app.get('/live_videos/{video_id}')
 def get_data_about_live_video(video_id: str, sm: str, fields: str = None):
     '''Returns data about the live video with given video_id specified by parameter `fields`'''
 
-    endpoint = 'live_video'
+    endpoint = 'live_videos'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
     return response
@@ -530,22 +532,22 @@ def get_data_about_me(sm: str, fields: str = None):
 
 
 # fb
-@app.get('/post/{post_id}')
+@app.get('/posts/{post_id}')
 def get_data_about_post(post_id: str, sm: str, fields: str = None):
     '''Returns data about the post with given user_id specified by parameter `fields`'''
 
-    endpoint = 'post'
+    endpoint = 'posts'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, post_id, fields=fields)
     return response
 
 
 # fb
-@app.get('/user/{user_id}')
+@app.get('/users/{user_id}')
 def get_data_about_user(user_id: str, sm: str, fields: str = None):
     '''Returns data about the user with given user_id specified by parameter `fields`'''
 
-    endpoint = 'user'
+    endpoint = 'users'
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
     return response
@@ -561,12 +563,12 @@ def get_data_about_user(user_id: str, sm: str, fields: str = None):
 # * level 2==>public (public)
 # * level >2 ==>error
 @actual_kwargs()
-@app.post('group/{group_id}/album')
+@app.post('groups/{group_id}/albums')
 def create_album_in_group(group_id:str, sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
     ''' Creates a new album in a group specified by group_id '''
 
-    endpoint = 'group'
-    path = 'album'
+    endpoint = 'groups'
+    path = 'albums'
     method = 'post'
 
     fields = create_album_in_group.actual_kwargs
@@ -613,7 +615,7 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str, vis
 
 
 # fb
-@app.post('/live_video/{video_id}')
+@app.post('/live_videos/{video_id}')
 def update_live_video(
     video_id: str, 
     sm: str, 
@@ -667,7 +669,7 @@ def update_live_video(
 
 
 # fb
-@app.post('/user/{user_id}/live_video')
+@app.post('/users/{user_id}/live_videos')
 def create_live_video_on_user(
     user_id: str, 
     sm: str, 
@@ -701,7 +703,7 @@ def create_live_video_on_user(
 
 
 # fb
-@app.post('/group/{group_id}/live_video')
+@app.post('/groups/{group_id}/live_videos')
 def create_live_video_in_group(
     group_id: str, 
     sm: str, 
@@ -734,7 +736,7 @@ def create_live_video_in_group(
 
 
 # fb
-@app.post('/page/{page_id}/live_video')
+@app.post('/pages/{page_id}/live_videos')
 def create_live_video_on_page(
     page_id: str, 
     sm: str, 
@@ -773,7 +775,7 @@ def create_live_video_on_page(
 
 
 # fb
-@app.post('/event/{event_id}/live_video')
+@app.post('/events/{event_id}/live_videos')
 def create_live_video_in_event(
     event_id: str, 
     sm: str, 
@@ -810,7 +812,7 @@ def create_live_video_in_event(
 # DELETE requests
 
 #fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.delete('/comment/{comment_id}')
+@app.delete('/comments/{comment_id}')
 def delete_comment(comment_id: str, sm: str):
     '''Delete a comment with the given id'''
 
@@ -821,7 +823,7 @@ def delete_comment(comment_id: str, sm: str):
 
 
 #fb
-@app.delete('/live_video/{video_id}')
+@app.delete('/live_videos/{video_id}')
 def delete_live_video(video_id: str, sm: str):
     '''Delete a live video with the given video_id'''
 
@@ -877,8 +879,9 @@ def delete_live_video(video_id: str, sm: str):
 # QUICK TEST
 authenticate('fb')
 print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
-print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test1', description='lalala'))
-print(get_data_abut_album(album_id='1952607818239826', sm='fb'))
+# print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test2', description='lalala'))
+print(get_data_abut_album(album_id='379274703677170', sm='fb'))
 # group 2998732937039201
 # album 1952607818239826
+# album with 1 photo and 1 comment: 379274703677170
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
