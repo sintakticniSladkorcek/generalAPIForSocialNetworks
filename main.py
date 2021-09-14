@@ -580,61 +580,6 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str, vis
     return response
 
 
-# TODO
-# Facebook: 
-# A User can only query their own comments. Other users' comments are unavailable due to privacy concerns.
-# For the following nodes, the /comments endpoint returns empty data if you read it with a User access token:
-# Album
-# Photo
-# Post
-# Video
-#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@actual_kwargs()
-@app.post('albums/{album_id}/comments')
-def comment_on_album(album_id:str, sm:str, attachment_id:str=None, attachment_share_url:str=None, attachment_url:str=None, source:str=None, message:str=None):
-    ''' Posts a comment on the album specified by album_id '''
-
-    endpoint = 'albums'
-    path = 'comments'
-    method = 'post'
-
-    fields = comment_on_album.actual_kwargs
-    del fields['album_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=fields)
-    return response
-    # (#3) Application does not have the capability to make this API call. WHY???
-
-# # TODO: Maybe set path to reply instead of comment
-@actual_kwargs()
-@app.post('comments/{comment_id}/comments')
-def reply_to_comment(comment_id:str, sm:str, attachment_id:str=None, attachment_share_url:str=None, attachment_url:str=None, source:str=None, message:str=None):
-    ''' Reply to a comment with comment_id '''
-
-    endpoint = 'comments'
-    path = 'comments'
-    method = 'post'
-
-    fields = reply_to_comment.actual_kwargs
-    del fields['comment_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, comment_id, fields=fields)
-    return response
-# Publishing comments through the API is only available for page access tokens. !!!
-# DO WE EVEN DO OTHER ENDPOINTS FOR POSTING COMMENTS? IT DOESN'T MAKE SENSE SINCE OUR AUTHENTICATION REQUIRES USER ACCESS TOKEN.
-
-# @app.post('events/{event_id}/comments')
-# @app.post('links/{link_id}/comments')
-# @app.post('live_videos/{video_id}/comments')
-# @app.post('photos/{photo_id}/comments')
-# @app.post('posts/{post_id}/comments')
-# @app.post('threads/{thread_id}/comments')
-# @app.post('users/{user_id}/comments')
-# @app.post('videos/{video_id}/comments')
-
-
 # fb
 @app.post('/live_videos/{video_id}')
 def update_live_video(
@@ -831,17 +776,6 @@ def create_live_video_in_event(
 
 
 # DELETE requests
-
-#fb: fields, permissions, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.delete('/comments/{comment_id}')
-def delete_comment(comment_id: str, sm: str):
-    '''Delete a comment with the given id'''
-
-    endpoint = 'comment'
-    method = 'delete'
-    response = None # TODO
-    return response
-# REQUIRE pages access token - we use user access tokens, so this won't work fo Facebook! Basically all comments for Facebook are inaccessible with user access tokens ...
 
 #fb
 @app.delete('/live_videos/{video_id}')
