@@ -728,6 +728,7 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str=None
 
 
 # TO BE TESTED
+# video_title: str=Query('None', max_length=254)
 # fb
 @actual_kwargs()
 @app.post('/groups/{group_id}/live_videos')
@@ -743,7 +744,7 @@ def create_live_video_in_group(
     encoding_settings_identifier: str=None, 
     fisheye_video_cropped: bool=None, 
     front_z_rotation: float=None, 
-    game_id: string=None,
+    game_id: str=None,
     game_specs: str=None,
     is_360: bool=False, 
     live_encoders: list=None, 
@@ -756,7 +757,7 @@ def create_live_video_in_group(
     status: str='unpublished',
     stereoscopic_mode: str='mono',
     stop_on_delete_stream: bool=False,
-    video_title: str=Query(None, max_length=254)
+    video_title: str=None
     ):
     '''Creates a live video in group with given group_id.'''
 
@@ -855,14 +856,14 @@ def create_video_in_group(
     file_size_in_bytes: int=None,
     file_url: str=None,
     fisheye_video_cropped: bool=None,
-    360_vertical_fov: int=None,
+    vertical_fov_for_360: int=None,
     front_z_rotation: float=None,
-    360_guide_keyframes_data: list=None,
-    360_guide_enabled: bool=None,
-    360_initial_heading: int=None,
-    360_initial_pitch: int=None,
+    guide_keyframes_data_for_360: list=None,
+    guide_enabled_for_360: bool=None,
+    initial_heading_for_360: int=None,
+    initial_pitch_for_360: int=None,
     original_fov: int=None,
-    360_original_projection_type: str='eqirectangular',
+    original_projection_type_for_360: str='eqirectangular',
     prompt_id: str=None,
     prompt_tracking_string: str=None,
     react_mode_metadata: str=None,
@@ -1024,16 +1025,16 @@ def create_video_on_user(
     file_size_in_bytes: int=None,
     file_url: str=None,
     fisheye_video_cropped: bool=None,
-    360_vertical_fov: int=None,
+    vertical_fov_for_360: int=None,
     front_z_rotation: float=None,
-    360_guide_keyframes_data: list=None,
-    360_guide_enabled: bool=None,
-    360_initial_heading: int=None,
-    360_initial_pitch: int=None,
+    guide_keyframes_data_for_360: list=None,
+    guide_enabled_for_360: bool=None,
+    initial_heading_for_360: int=None,
+    initial_pitch_for_360: int=None,
     is_voice_clip: bool=None,
     no_story: bool=False,
     original_fov: int=None,
-    360_original_projection_type: str='eqirectangular',
+    original_projection_type_for_360: str='eqirectangular',
     posting_to_redspace: bool=None,
     visible_to: str='connections',
     prompt_id: str=None,
@@ -1202,10 +1203,10 @@ authenticate('fb')
 # print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
 
 # print(get_data_about_group(group_id='2998732937039201', sm='fb'))
-# print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test2', description='lalala'))
+print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test3', description='lalala'))
 # print(get_data_abut_album(album_id='379274703677170', sm='fb'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
-print(get_data_about_event(event_id='845071692823639', sm='fb'))
+# print(get_data_about_event(event_id='845071692823639', sm='fb'))
 
 # print(comment_on_album(album_id='379274703677170', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
 # print(reply_to_comment(comment_id='3000284600217368', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
