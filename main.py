@@ -474,16 +474,16 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = None):
 
 # FB EDGES: comments, likes, photos are added as fields
 
+# Works only with page access token
+# # fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
+# @app.get('/comments/{comment_id}')
+# def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
+#     '''Returns data about the comment with given user_id specified by parameter `fields`'''
 
-# fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-@app.get('/comments/{comment_id}')
-def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
-    '''Returns data about the comment with given user_id specified by parameter `fields`'''
-
-    endpoint = 'comments'
-    method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, comment_id, fields=fields)
-    return response
+#     endpoint = 'comments'
+#     method = 'get'
+#     response = call_social_media_APIs_with_id(method, sm, endpoint, None, comment_id, fields=fields)
+    # return response
 
 
 # fb:
@@ -498,7 +498,7 @@ def get_data_about_event(event_id: str, sm: str, fields: str = None):
     return response
 
 
-# fb
+# fb: Fields that return User information will not be included in any responses unless the request is made using an access token of an Admin of the Group.
 @app.get('/groups/{group_id}')
 def get_data_about_group(group_id: str, sm: str, fields: str = None):
     '''Returns data about the group with given group_id specified by parameter `fields`'''
@@ -507,6 +507,18 @@ def get_data_about_group(group_id: str, sm: str, fields: str = None):
     method = 'get'
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, group_id, fields=fields)
     return response
+
+
+# fb
+@app.get('/links/{link_id}')
+def get_data_about_link(link_id: str, sm: str, fields: str = None):
+    '''Returns data about the link with given link_id specified by parameter `fields`'''
+
+    endpoint = 'links'
+    method = 'get'
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, groulink_idp_id, fields=fields)
+    return response
+# TO BE TESTED
 
 
 # fb
@@ -520,6 +532,18 @@ def get_data_about_live_video(video_id: str, sm: str, fields: str = None):
     return response
 
 
+# WARNING requires pages_read_engagement
+# # fb
+# @app.get('/locations/{location_id}')
+# def get_data_about_location(location_id: str, sm: str, fields: str = None):
+#     '''Returns data about the live video with given video_id specified by parameter `fields`'''
+
+#     endpoint = 'locations'
+#     method = 'get'
+#     response = call_social_media_APIs_with_id(method, sm, endpoint, None, location_id, fields=fields)
+#     return response
+
+
 # fb, ln, tw
 @app.get('/me')
 def get_data_about_me(sm: str, fields: str = None):
@@ -530,12 +554,23 @@ def get_data_about_me(sm: str, fields: str = None):
     requested_social_media = sm.split(',') # Because this endpoint is not id dependent
     response = call_social_media_APIs(method, requested_social_media, endpoint, None, fields=fields)
     return response
+    
+
+# fb
+@app.get('/photos/{photo_id}')
+def get_data_about_photo(photo_id: str, sm: str, fields: str = None):
+    '''Returns data about the photo with given photo_id specified by parameter `fields`'''
+
+    endpoint = 'photos'
+    method = 'get'
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, photo_id, fields=fields)
+    return response
 
 
 # fb
 @app.get('/posts/{post_id}')
 def get_data_about_post(post_id: str, sm: str, fields: str = None):
-    '''Returns data about the post with given user_id specified by parameter `fields`'''
+    '''Returns data about the post with given post_id specified by parameter `fields`'''
 
     endpoint = 'posts'
     method = 'get'
@@ -543,6 +578,7 @@ def get_data_about_post(post_id: str, sm: str, fields: str = None):
     return response
 
 
+# TO BE TESTED
 # fb
 @app.get('/users/{user_id}')
 def get_data_about_user(user_id: str, sm: str, fields: str = None):
@@ -557,195 +593,88 @@ def get_data_about_user(user_id: str, sm: str, fields: str = None):
 # POST requests
 
 # TODO: setup mappings
-# fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
 # Privacy levels (enum, fb name, our name)
 # * level 0 ==>only me (me)
 # * level 1==>friend only (connections)
 # * level 2==>public (public)
 # * level >2 ==>error
-@actual_kwargs()
-@app.post('groups/{group_id}/albums')
-def create_album_in_group(group_id:str, sm:str, name: str, description: str, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
-    ''' Creates a new album in a group specified by group_id '''
-
-    endpoint = 'groups'
-    path = 'albums'
-    method = 'post'
-
-    fields = create_album_in_group.actual_kwargs
-    del fields['group_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
-    return response
 
 
+# TO BE TESTED
 # fb
-@app.post('/live_videos/{video_id}')
-def update_live_video(
-    video_id: str, 
-    sm: str, 
-
-    allow_bm_crossposting: bool=None,
-
-    content_tags: list=None, 
-
-    crossposting_actions: list=None,
-    custom_labels: list=None,
-
-    description: str=None, 
-
-    direct_share_status: int=None,
-    disturbing: bool=None,
-
-    donate_button_charity_id: str=None, 
-
-    embeddable: bool=None,
-    end_live_video: bool=None,
-    is_manual_mode: bool=None,
-    live_comment_moderation_setting: list=None,
-
-    live_encoders: list=None, 
-
-    master_ingest_stream_id: str=None,
-    location: str=None,
-
-    planned_start_time: int=None,
+@actual_kwargs()
+@app.post('/albums/{album_id}/photos')
+def create_photo_in_album(
+    album_id: str, 
+    sm: str,
+    allow_spherical_photo: bool=False,
+    alt_text: str=None,
+    android_key_hash: str=None,
+    itunes_app_id: str=None,
+    attempt: int=0,
+    is_audience_experience: bool=False,
+    dated: str=None,
+    dated_accuracy: str=None,
+    description: str=None,
+    composer_session_id: str=None,
+    sponsor_boost_status: int=None,
+    feed_targeting: str=None,
+    full_res_is_coming_later: bool=False,
+    override_initial_view_heading_degrees: int=None,
+    override_initial_view_pitch_degrees: int=None,
+    override_initial_view_vertical_fov_degrees: int=None,
+    ios_bundle_id: str=None,
+    is_explicit_location: bool=None,
+    is_place_tag: bool=None,
+    is_visual_search: bool=None,
+    manual_privacy: bool=False,
+    no_story: bool=None,
+    offline_id: int=0,
+    open_graph_action_type_id: str=None,
+    open_graph_icon_id: str=None, 
+    open_graph_object_id: str=None,
+    open_graph_phrase: str=None,
+    open_graph_set_profile_badge: bool=False,
+    open_graph_suggestion_mechanism: str=None,
+    location_by_id: str=None,
     visible_to: str='connections',
-    projection: str='eqirectangular',
-    custom_image_for_schedule: str=None,
-
-    custom_background_image_for_schedule: str=None,
+    proxied_app_id: str=None,
+    is_published: bool=True,
+    photos_waterfall_id: str=None,
+    scheduled_publish_time: int=None,
+    spherical_metadata: str=None,
     sponsor_id: str=None,
-    sponsor_relationship: int=None,
-
-    status: str='unpublished',
-
+    sponsor_relationship: str=None,
     tagged_users: list=None,
     targeting: str=None,
-
-    video_title: str=Query(None, max_length=254)
+    timedelta_since_dated: int=None,
+    unpublished_content_type: str=None,
+    source_url_of_photo: str=None,
+    user_selected_tags: bool=False,
+    vault_image_id: str=None
     ):
-    '''Creates a live video on users profile with given user_id.'''
+    '''Creates a photo in album with given album_id.'''
 
-    endpoint = 'user'
+    endpoint = 'albums'
+    path = 'photos'
     method = 'post'
-    response = None # TODO
+
+    fields = create_photo_in_album.actual_kwargs
+    del fields['album_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=fields)
     return response
 
 
+# TO BE TESTED
 # fb
-@app.post('/users/{user_id}/live_videos')
-def create_live_video_on_user(
-    user_id: str, 
-    sm: str, 
-    app_id: str, 
-    content_tags: list=None, 
-    description: str=None, 
-    donate_button_charity_id: str=None, 
-    enable_backup_ingest: bool=False, 
-    encoding_settings_identifier: str=None, 
-    fisheye_video_cropped: bool=None, 
-    front_z_rotation: float=None, 
-    is_360: bool=False, 
-    live_encoders: list=None, 
-    original_fov: int=None,
-    planned_start_time: int=None,
-    visible_to: str='connections',
-    projection: str='eqirectangular',
-    custom_image_for_schedule: str=None,
-    spatial_audio_format: int=None,
-    status: str='unpublished',
-    stereoscopic_mode: str='mono',
-    stop_on_delete_stream: bool=False,
-    video_title: str=Query(None, max_length=254)
-    ):
-    '''Creates a live video on users profile with given user_id.'''
-
-    endpoint = 'user'
-    method = 'post'
-    response = None # TODO
-    return response
-
-
-# fb
-@app.post('/groups/{group_id}/live_videos')
-def create_live_video_in_group(
-    group_id: str, 
-    sm: str, 
-    app_id: str, 
-    content_tags: list=None, 
-    description: str=None, 
-    enable_backup_ingest: bool=False, 
-    encoding_settings_identifier: str=None, 
-    fisheye_video_cropped: bool=None, 
-    front_z_rotation: float=None, 
-    is_360: bool=False, 
-    live_encoders: list=None, 
-    original_fov: int=None,
-    planned_start_time: int=None,
-    visible_to: str='connections',
-    projection: str='eqirectangular',
-    custom_image_for_schedule: str=None,
-    spatial_audio_format: int=None,
-    status: str='unpublished',
-    stereoscopic_mode: str='mono',
-    stop_on_delete_stream: bool=False,
-    video_title: str=Query(None, max_length=254)
-    ):
-    '''Creates a live video in group with given group_id.'''
-
-    endpoint = 'group'
-    method = 'post'
-    response = None # TODO
-    return response
-
-
-# fb
-@app.post('/pages/{page_id}/live_videos')
-def create_live_video_on_page(
-    page_id: str, 
-    sm: str, 
-    app_id: str, 
-    content_tags: list=None, 
-    crossposting_actions: list=None,
-    custom_labels: list=None,
-    description: str=None, 
-    donate_button_charity_id: str=None, 
-    enable_backup_ingest: bool=False, 
-    encoding_settings_identifier: str=None, 
-    fisheye_video_cropped: bool=None, 
-    front_z_rotation: float=None, 
-    game_show: str=None,
-    is_360: bool=False, 
-    live_encoders: list=None, 
-    original_fov: int=None,
-    planned_start_time: int=None,
-    visible_to: str='connections',
-    products_shown: list=None,
-    projection: str='eqirectangular',
-    custom_image_for_schedule: str=None,
-    spatial_audio_format: int=None,
-    status: str='unpublished',
-    stereoscopic_mode: str='mono',
-    stop_on_delete_stream: bool=False,
-    targeting: str=None,
-    video_title: str=Query(None, max_length=254)
-    ):
-    '''Creates a live video on users profile with given user_id.'''
-
-    endpoint = 'user'
-    method = 'post'
-    response = None # TODO
-    return response
-
-
-# fb
+@actual_kwargs()
 @app.post('/events/{event_id}/live_videos')
 def create_live_video_in_event(
     event_id: str, 
     sm: str, 
-    app_id: str, 
+    app_id: str=None, 
     content_tags: list=None, 
     description: str=None, 
     enable_backup_ingest: bool=False, 
@@ -767,16 +696,316 @@ def create_live_video_in_event(
     ):
     '''Creates a live video in event with given event_id.'''
 
-    endpoint = 'user'
+    endpoint = 'events'
+    path = 'live_videos'
     method = 'post'
-    response = None # TODO
+
+    fields = create_live_video_in_event.actual_kwargs
+    del fields['event_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, event_id, fields=fields)
     return response
 
 
+# fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
+@actual_kwargs()
+@app.post('groups/{group_id}/albums')
+def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+    ''' Creates a new album in a group specified by group_id '''
+
+    endpoint = 'groups'
+    path = 'albums'
+    method = 'post'
+
+    fields = create_album_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    return response
+
+
+# TO BE TESTED
+# fb
+@actual_kwargs()
+@app.post('/groups/{group_id}/live_videos')
+def create_live_video_in_group(
+    group_id: str, 
+    sm: str, 
+    app_id: str=None,
+    app_tag: str=None, 
+    content_tags: list=None, 
+    description: str=None,
+    dont_show_on: list=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    game_id: string=None,
+    game_specs: str=None,
+    is_360: bool=False, 
+    live_encoders: list=None, 
+    original_fov: int=None,
+    planned_start_time: int=None,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    save_vod: bool=True,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video in group with given group_id.'''
+
+    endpoint = 'groups'
+    path = 'live_videos'
+    method = 'post'
+
+    fields = create_live_video_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    return response
+
+
+# TO BE TESTED
+# fb
+@actual_kwargs()
+@app.post('/groups/{group_id}/photos')
+def create_photo_in_group(
+    group_id: str, 
+    sm: str,
+    allow_spherical_photo: bool=False,
+    alt_text: str=None,
+    android_key_hash: str=None,
+    itunes_app_id: str=None,
+    attempt: int=0,
+    is_audience_experience: bool=False,
+    dated: str=None,
+    dated_accuracy: str=None,
+    description: str=None,
+    composer_session_id: str=None,
+    sponsor_boost_status: int=None,
+    feed_targeting: str=None,
+    full_res_is_coming_later: bool=False,
+    override_initial_view_heading_degrees: int=None,
+    override_initial_view_pitch_degrees: int=None,
+    override_initial_view_vertical_fov_degrees: int=None,
+    ios_bundle_id: str=None,
+    is_explicit_location: bool=None,
+    is_place_tag: bool=None,
+    is_visual_search: bool=None,
+    manual_privacy: bool=False,
+    no_story: bool=None,
+    offline_id: int=0,
+    open_graph_action_type_id: str=None,
+    open_graph_icon_id: str=None, 
+    open_graph_object_id: str=None,
+    open_graph_phrase: str=None,
+    open_graph_set_profile_badge: bool=False,
+    open_graph_suggestion_mechanism: str=None,
+    location_by_id: str=None,
+    visible_to: str='connections',
+    proxied_app_id: str=None,
+    is_published: bool=True,
+    photos_waterfall_id: str=None,
+    scheduled_publish_time: int=None,
+    spherical_metadata: str=None,
+    sponsor_id: str=None,
+    sponsor_relationship: str=None,
+    tagged_users: list=None,
+    targeting: str=None,
+    timedelta_since_dated: int=None,
+    unpublished_content_type: str=None,
+    source_url_of_photo: str=None,
+    user_selected_tags: bool=False,
+    vault_image_id: str=None
+    ):
+    '''Creates a photo in group with given group_id.'''
+
+    endpoint = 'groups'
+    path = 'photos'
+    method = 'post'
+
+    fields = create_photo_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    return response
+
+
+# Not sure if fields are ok, since two documentation pages about this have different fields listed. To be tested.
+# fb
+@actual_kwargs()
+@app.post('/live_videos/{video_id}')
+def update_live_video(
+    video_id: str, 
+    sm: str, 
+    allow_bm_crossposting: bool=None,
+    content_tags: list=None, 
+    crossposting_actions: list=None,
+    cross_share_to_group_ids: list=None,
+    custom_labels: list=None,
+    description: str=None, 
+    direct_share_status: int=None,
+    is_disturbing: bool=None,
+    donate_button_charity_id: str=None, 
+    embeddable: bool=None,
+    end_live_video: bool=None,
+    is_manual_mode: bool=None,
+    live_comment_moderation_setting: list=None,
+    live_encoders: list=None, 
+    master_ingest_stream_id: str=None,
+    location: str=None,
+    planned_start_time: int=None,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    custom_background_image_for_schedule: str=None,
+    persistent_stream_key_status: str=None,
+    sponsor_id: str=None,
+    sponsor_relationship: int=None,
+    status: str='unpublished',
+    tagged_users: list=None,
+    targeting: str=None,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Updates a live video with given video_id.'''
+
+    endpoint = 'live_videos'
+    method = 'post'
+
+    fields = update_live_video.actual_kwargs
+    del fields['video_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    return response
+
+
+# # REQUIRES PAGE ACCESS TOKEN
+# # fb
+# @actual_kwargs()
+# @app.post('/pages/{page_id}/live_videos')
+# def create_live_video_on_page(
+#     page_id: str, 
+#     sm: str, 
+#     app_id: str, 
+#     content_tags: list=None, 
+#     crossposting_actions: list=None,
+#     custom_labels: list=None,
+#     description: str=None, 
+#     donate_button_charity_id: str=None, 
+#     enable_backup_ingest: bool=False, 
+#     encoding_settings_identifier: str=None, 
+#     fisheye_video_cropped: bool=None, 
+#     front_z_rotation: float=None, 
+#     game_show: str=None,
+#     is_360: bool=False, 
+#     live_encoders: list=None, 
+#     original_fov: int=None,
+#     planned_start_time: int=None,
+#     visible_to: str='connections',
+#     products_shown: list=None,
+#     projection: str='eqirectangular',
+#     custom_image_for_schedule: str=None,
+#     spatial_audio_format: int=None,
+#     status: str='unpublished',
+#     stereoscopic_mode: str='mono',
+#     stop_on_delete_stream: bool=False,
+#     targeting: str=None,
+#     video_title: str=Query(None, max_length=254)
+#     ):
+#     '''Creates a live video on page with given page_id.'''
+
+#     endpoint = 'pages'
+#     path = 'live_videos'
+#     method = 'post'
+
+#     fields = create_live_video_on_page.actual_kwargs
+#     del fields['page_id']
+#     del fields['sm']
+
+#     response = call_social_media_APIs_with_id(method, sm, endpoint, path, page_id, fields=fields)
+#     return response
+
+
+# fb
+@actual_kwargs()
+@app.post('/users/{user_id}')
+def update_user_profile(
+    user_id: str, 
+    sm: str, 
+    dismiss_local_news_megaphone: bool=None,
+    emoji_color_pref: int=None,
+    first_name: str=None,
+    last_name: str=None,
+    set_local_news_notifications: bool=None
+    ):
+    '''Updates a user profile with given user_id.'''
+
+    endpoint = 'users'
+    method = 'post'
+
+    fields = update_user_profile.actual_kwargs
+    del fields['user_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
+    return response
+
+
+# fb
+@actual_kwargs()
+@app.post('/users/{user_id}/live_videos')
+def create_live_video_on_user(
+    user_id: str, 
+    sm: str, 
+    content_tags: list=None, 
+    description: str=None, 
+    donate_button_charity_id: str=None, 
+    enable_backup_ingest: bool=False, 
+    encoding_settings_identifier: str=None, 
+    fisheye_video_cropped: bool=None, 
+    front_z_rotation: float=None, 
+    is_360: bool=False, 
+    live_encoders: list=None, 
+    original_fov: int=None,
+    planned_start_time: int=None,
+    visible_to: str='connections',
+    projection: str='eqirectangular',
+    custom_image_for_schedule: str=None,
+    spatial_audio_format: int=None,
+    status: str='unpublished',
+    stereoscopic_mode: str='mono',
+    stop_on_delete_stream: bool=False,
+    video_title: str=Query(None, max_length=254)
+    ):
+    '''Creates a live video on users profile with given user_id.'''
+
+    endpoint = 'users'
+    path = 'live_videos'
+    method = 'post'
+
+    fields = create_live_video_on_user.actual_kwargs
+    del fields['user_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
+    return response
+
+# __________________________________________
+# ALL OF THESE ARE NOT CHECKED YET
 
 
 # DELETE requests
 
+# TO BE TESTED
 #fb
 @app.delete('/live_videos/{video_id}')
 def delete_live_video(video_id: str, sm: str):
@@ -784,9 +1013,22 @@ def delete_live_video(video_id: str, sm: str):
 
     endpoint = 'live_video'
     method = 'delete'
+
     response = None # TODO
     return response
 
+
+# TO BE TESTED
+#fb
+@app.delete('/photos/{photo_id}')
+def delete_live_video(photo_id: str, sm: str):
+    '''Delete a photos with the given photo_id'''
+
+    endpoint = 'photos'
+    method = 'delete'
+
+    response = None # TODO
+    return response
 
 
 # TODO: Add this type (fb): /search?type=adinterest&q=TEDx
@@ -834,15 +1076,20 @@ def delete_live_video(video_id: str, sm: str):
 
 # QUICK TEST
 authenticate('fb')
-print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
+# print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
+
+# print(get_data_about_group(group_id='2998732937039201', sm='fb'))
 # print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test2', description='lalala'))
-print(get_data_abut_album(album_id='379274703677170', sm='fb'))
+# print(get_data_abut_album(album_id='379274703677170', sm='fb'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
+print(get_data_about_event(event_id='845071692823639', sm='fb'))
 
 # print(comment_on_album(album_id='379274703677170', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
 # print(reply_to_comment(comment_id='3000284600217368', sm='fb', message='Testni komentar')) # WARNING: does not work with user access token for fb
+# print(get_data_about_comment(comment_id='3000284600217368', sm='fb')) # WARNING: does not work with user access token for fb
 
 # group 2998732937039201
 # album 1952607818239826
 # album with 1 photo and 1 comment: 379274703677170
 # comment on album in a group: 3000284600217368
+# event in group: 845071692823639
