@@ -856,7 +856,7 @@ class Facebook_data():
                     'sponsor_relationship': 'sponsor_relationship',
                     'tagged_users': 'tags',
                     'target_video_id': 'target',
-                    universal_video_id'': 'universal_video_id'
+                    'universal_video_id': 'universal_video_id'
                 }
             }
         }
