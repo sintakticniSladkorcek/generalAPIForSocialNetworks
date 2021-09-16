@@ -198,7 +198,7 @@ GET
 |`/locations/{location_id}`|Facebook||
 |`/photos/{photo_id}`|Facebook||
 |`/users/{user_id}`|Facebook||
-|`/videos/{video_id}`|Facebook||*
+|`/videos/{video_id}`|Facebook||
 |`/me`|Facebook, LinkedIn|Returns data about the user who is logged in.|
 
 <!-- Add required permissions? -->
@@ -219,17 +219,15 @@ POST
 |`/users/{user_id}/live_videos`|Facebook||
 |`/users/{user_id}`|Facebook||
 |`/videos/{video_id}`|Facebook||
-|`/{group_id}/videos`|Facebook||*
-|`/{user_id}/videos`|Facebook||*
-|`/{video_id}/polls`|Facebook||*
-
+|`/{group_id}/videos`|Facebook||
+|`/{user_id}/videos`|Facebook||
 
 DELETE
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`/live_videos/{video_id}`|Facebook||
 |`/photos/{photo_id}`|Facebook||
-|`/videos/{video_id}`|Facebook||*
+|`/videos/{video_id}`|Facebook||
 
 
 <!-- Some fb non-root endpoints can also be accessed via parameters so we don't need to have them all listed like that. Instead all parameters should be listed under the description of each root endpoint. -->

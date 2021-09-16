@@ -590,6 +590,17 @@ def get_data_about_user(user_id: str, sm: str, fields: str = None):
     return response
 
 
+# fb
+@app.get('/videos/{video_id}')
+def get_data_about_video(video_id: str, sm: str, fields: str = None):
+    '''Returns data about the video with given video_id specified by parameter `fields`'''
+
+    endpoint = 'videos'
+    method = 'get'
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    return response
+
+
 # POST requests
 
 # TODO: setup mappings
@@ -839,6 +850,61 @@ def create_photo_in_group(
     return response
 
 
+# fb
+@actual_kwargs()
+@app.post('/groups/{group_id}/videos')
+def create_video_in_group(
+    group_id: str, 
+    sm: str, 
+    video_encoded_as_form_data: str,
+    video_file_chunk: str,
+    audio_story_wave_animation_handle: str=None,
+    content_category: str=None,
+    description: str=None,
+    embeddable: bool=None,
+    end_offset: int=None,
+    file_size_in_bytes: int=None,
+    file_url: str=None,
+    fisheye_video_cropped: bool=None,
+    360_vertical_fov: int=None,
+    front_z_rotation: float=None,
+    360_guide_keyframes_data: list=None,
+    360_guide_enabled: bool=None,
+    360_initial_heading: int=None,
+    360_initial_pitch: int=None,
+    original_fov: int=None,
+    360_original_projection_type: str='eqirectangular',
+    prompt_id: str=None,
+    prompt_tracking_string: str=None,
+    react_mode_metadata: str=None,
+    referenced_sticker_id: str=None,
+    video_id_to_replace: str=None,
+    scheduled_publish_time: int=None,
+    slideshow_spec: str=None,
+    source_instagram_media_id: str=None,
+    is_360: bool=False,
+    start_offset: int=None,
+    swap_mode: str=None,
+    video_title: str=None,
+    transcode_setting_properties: str=None,
+    unpublished_content_type: str=None,
+    upload_phase: str=None,
+    upload_session_id: str=None,
+    ):
+    '''Creates a video in group with given group_id.'''
+
+    endpoint = 'groups'
+    path = 'videos'
+    method = 'post'
+
+    fields = create_video_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    return response
+
+
 # Not sure if fields are ok, since two documentation pages about this have different fields listed. To be tested.
 # fb
 @actual_kwargs()
@@ -852,7 +918,7 @@ def update_live_video(
     cross_share_to_group_ids: list=None,
     custom_labels: list=None,
     description: str=None, 
-    direct_share_status: int=None,
+    sponsor_boost_status: int=None,
     is_disturbing: bool=None,
     donate_button_charity_id: str=None, 
     embeddable: bool=None,
@@ -999,8 +1065,115 @@ def create_live_video_on_user(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
     return response
 
-# __________________________________________
-# ALL OF THESE ARE NOT CHECKED YET
+
+# fb
+@actual_kwargs()
+@app.post('/users/{user_id}/videos')
+def create_video_on_user(
+    user_id: str, 
+    sm: str, 
+    video_encoded_as_form_data: str,
+    video_file_chunk: str,
+    audio_story_wave_animation_handle: str=None,
+    content_category: str=None,
+    description: str=None,
+    sponsor_boost_status: int=None,
+    embeddable: bool=None,
+    end_offset: int=None,
+    file_size_in_bytes: int=None,
+    file_url: str=None,
+    fisheye_video_cropped: bool=None,
+    360_vertical_fov: int=None,
+    front_z_rotation: float=None,
+    360_guide_keyframes_data: list=None,
+    360_guide_enabled: bool=None,
+    360_initial_heading: int=None,
+    360_initial_pitch: int=None,
+    is_voice_clip: bool=None,
+    no_story: bool=False,
+    original_fov: int=None,
+    360_original_projection_type: str='eqirectangular',
+    posting_to_redspace: bool=None,
+    visible_to: str='connections',
+    prompt_id: str=None,
+    prompt_tracking_string: str=None,
+    react_mode_metadata: str=None,
+    referenced_sticker_id: str=None,
+    video_id_to_replace: str=None,
+    slideshow_spec: str=None,
+    source_instagram_media_id: str=None,
+    is_360: bool=False,
+    sponsor_id: str=None,
+    start_offset: int=None,
+    swap_mode: str=None,
+    video_title: str=None,
+    transcode_setting_properties: str=None,
+    unpublished_content_type: str=None,
+    upload_phase: str=None,
+    upload_session_id: str=None,
+    video_id_original: str=None
+    ):
+    '''Creates a video on users profile with given user_id.'''
+
+    endpoint = 'users'
+    path = 'videos'
+    method = 'post'
+
+    fields = create_video_on_user.actual_kwargs
+    del fields['user_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
+    return response
+
+
+# fb
+@actual_kwargs()
+@app.post('/videos/{video_id}')
+def update_video(
+    user_id: str, 
+    sm: str, 
+    ad_breaks: list=None,
+    allow_bm_crossposting: bool=None,
+    allow_crossposting_for_pages: list=None,
+    dated: str=None,
+    dated_accuracy: str=None,
+    call_to_action: str=None,
+    content_category: str=None,
+    content_tags: list=None,
+    custom_labels: list=None,
+    description: str=None,
+    sponsor_boost_status: int=None,
+    embeddable: bool=None,
+    expiration: str=None,
+    expire_now: bool=None,
+    increment_play_count: bool=None,
+    video_title: str=None,
+    preferred_thumbnail_id: str=None,
+    visible_to: str='connectinos',
+    publish_to_news_feed: bool=None,
+    publish_to_videos_tab_only: bool=None,
+    is_published: bool=None,
+    scheduled_publish_time: int=None,
+    social_actions_disabled: bool=None,
+    sponsor_id: str=None,
+    sponsor_relationship: str=None,
+    tagged_users: list=None,
+    target_video_id: str=None,
+    universal_video_id: str=None
+    ):
+    '''Updates a video with given video_id.'''
+
+    endpoint = 'videos'
+    method = 'post'
+
+    fields = update_video.actual_kwargs
+    del fields['video_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    return response
+
 
 
 # DELETE requests
@@ -1009,7 +1182,7 @@ def create_live_video_on_user(
 #fb
 @app.delete('/live_videos/{video_id}')
 def delete_live_video(video_id: str, sm: str):
-    '''Delete a live video with the given video_id'''
+    '''Delete a live video with given video_id'''
 
     endpoint = 'live_video'
     method = 'delete'
@@ -1021,10 +1194,23 @@ def delete_live_video(video_id: str, sm: str):
 # TO BE TESTED
 #fb
 @app.delete('/photos/{photo_id}')
-def delete_live_video(photo_id: str, sm: str):
-    '''Delete a photos with the given photo_id'''
+def delete_photo(photo_id: str, sm: str):
+    '''Delete a photo with given photo_id'''
 
     endpoint = 'photos'
+    method = 'delete'
+
+    response = None # TODO
+    return response
+
+
+# TO BE TESTED
+#fb
+@app.delete('/videos/{video_id}')
+def delete_video(video_id: str, sm: str):
+    '''Delete a video with given video_id'''
+
+    endpoint = 'videos'
     method = 'delete'
 
     response = None # TODO
