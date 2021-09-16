@@ -4,7 +4,7 @@ General API for Social Networks is an API that connects to different social medi
 
 Currently supported APIs:
 
-- [Facebook Graph API v11.0](https://developers.facebook.com/docs/graph-api)
+- [Facebook Graph API v12.0](https://developers.facebook.com/docs/graph-api)
 - [Instagram Basic Display API v11.0](https://developers.facebook.com/docs/instagram-basic-display-api/)
 - [LinkedIn Consumer Solutions Platform v2](https://docs.microsoft.com/en-us/linkedin/consumer/)
 - [Twitter API v2](https://developer.twitter.com/en/docs/twitter-api)
@@ -34,7 +34,7 @@ By using this API you accept the Terms and Conditions of all of the included soc
   - https://developer.twitter.com/en/developer-terms
   - https://twitter.com/en/tos
 
-\*this is not a mistake, links for Instagram are in fact located at facebook.com (Instagram is owned by Facebook)
+\*this is not a mistake, links for Instagram are in fact located at facebook.com (Instagram is owned by Facebook).
 
 ### Technical
 
@@ -181,15 +181,56 @@ These are the endpoints leading to auto-generated documentation. `/docs` leads t
 
 This endpoint is the one you should call first. It takes care of the authentication with all of the social media APIs so you can then perform other requests. Unless authenticated, you will not be able to perform other requests. To specify which social media APIs you want to authetnicate with, use parameter `sm`. See example [here](#auth_example).
 
-<!-- Add use example and implement -->
-
 #### Table of endpoints
+
+<!-- TODO: Make method specific -->
+
+GET
 
 |endpoint/path|supported social media|description|
 |---|---|---|
-|me|Facebook, LinkedIn|Returns data about the user who is logged in.|
+|`/albums/{album_id}`|Facebook||
+|`/comments/{comment_id}`|Facebook||
+|`/events/{event_id}`|Facebook||
+|`/groups/{group_id}`|Facebook||
+|`/links/{link_id}`|Facebook||
+|`/live_videos/{video_id}`|Facebook||
+|`/locations/{location_id}`|Facebook||
+|`/photos/{photo_id}`|Facebook||
+|`/users/{user_id}`|Facebook||
+|`/videos/{video_id}`|Facebook||*
+|`/me`|Facebook, LinkedIn|Returns data about the user who is logged in.|
 
 <!-- Add required permissions? -->
+/album/{album_id}: if on user - user_photos, if on page - pages_read_engagement, if on group - you have to be admin
+/comments/{comment_id}: linked to object to which the comment belongs
+/events/{event_id}: if on group-A User access token of an Admin of the Event.
+/groups/{group_id}: groups_access_member_info, publish_to_groups, For Public and Closed Groups-A User access token, For Secret Groups-A User access token for an Admin of the Group
+
+POST
+|endpoint/path|supported social media|description|
+|---|---|---|
+|`groups/{group_id}/albums`|Facebook||
+|`/events/{event_id}/live_videos`|Facebook||
+|`/groups/{group_id}/live_videos`|Facebook||
+|`/albums/{album_id}/photos`|Facebook||
+|`/groups/{group_id}/photos`|Facebook||
+|`/live_videos/{video_id}`|Facebook||
+|`/users/{user_id}/live_videos`|Facebook||
+|`/users/{user_id}`|Facebook||
+|`/videos/{video_id}`|Facebook||
+|`/{group_id}/videos`|Facebook||*
+|`/{user_id}/videos`|Facebook||*
+|`/{video_id}/polls`|Facebook||*
+
+
+DELETE
+|endpoint/path|supported social media|description|
+|---|---|---|
+|`/live_videos/{video_id}`|Facebook||
+|`/photos/{photo_id}`|Facebook||
+|`/videos/{video_id}`|Facebook||*
+
 
 <!-- Some fb non-root endpoints can also be accessed via parameters so we don't need to have them all listed like that. Instead all parameters should be listed under the description of each root endpoint. -->
 
@@ -197,6 +238,86 @@ This endpoint is the one you should call first. It takes care of the authenticat
 <!-- Connections for `me` on fb:albums, apprequestformerrecipients, apprequests, business_users, businesses, conversations, accounts, ad_studies, adaccounts, assigned_ad_accounts, assigned_business_asset_groups, assigned_pages, assigned_product_catalogs, custom_labels, events, feed, friends, groups, ids_for_apps, ids_for_business, ids_for_pages, likes, live_encoders, live_videos, music, payment.subscriptions, payment_transactions, permissions, personal_ad_accounts, photos, picture, posts, rich_media_documents, videos
 
 Connections for `<ALBUM-ID> on fb`:comments, likes, photos, picture -->
+
+Some functionalities from the Facebook Graph API are not included in General API for Social Networks. These are (by endpoint): 
+
+- App Request
+- Application
+- Async Session
+- Atlas Ad Set
+- Atlas Campaign
+- Atlas FBConversion Event
+- Atlas Publisher
+- Atlas Report
+- Atlas Report Run
+- Atlas Report Schedule
+- Atlas Tracking Connection
+- Business Unit
+- CPASAdvertiser Partnership Recommendation
+- CPASCollaboration Request
+- CTCert Domain
+- Canvas
+- Canvas Button
+- Canvas Carousel
+- Canvas Footer
+- Canvas Header
+- Canvas Photo
+- Canvas Product List
+- Canvas Product Set
+- Canvas Store Locator
+- Canvas Text
+- Canvas Video
+- Collaborative Ads Directory
+- Commerce Merchant Settings
+- Commerce Order
+- Conversation (Facebook message between person and a page)
+- Destination
+- Doc ******* might add later
+- Flight
+- Friend List (deprecated)
+- Group Doc (only available through Workplace)
+- Group Message
+- Image Copyright ******** might add later
+- Instagram Oembed
+- Lead Gen Data
+- Live Encoder ******** might add later
+- Live Video Input Stream ******** might add later
+- Mailing Address ******** might add later
+- Media Fingerprint
+- Message (requires page access)
+- Milestone (requires page access)
+- Native Offer ******** might add later
+- Object Comments (GET included in other endpoints, other stuff needs page access token)
+- Object Likes (GET included in other endpoints, other stuff needs page access token)
+- Object Private Replies (deprecated, functionality moved to Messenger API which is not part of our API)
+- Object Reactions (included in other endpoints)
+- Object Sharedposts (included in other endpoints)
+- Oembed Page (data to display this on some website, not part of the scope)
+- Oembed Post (data to display this on some website, not part of the scope)
+- Oembed Video (data to display this on some website, not part of the scope)
+- Offline Conversion Data Set (something to do with the ads, we don't have permission)
+- Offline Conversion Data Set Upload (something to do with the ads, we don't have permission)
+- Page (requires page access token) ******** might add later
+- Page Call To Action
+- Page Post
+- Page Upcoming Change
+- Page/insights
+- Payment
+- Place Topic (requires pages_read_engagement)
+- Profile (just name for group of other endpoints)
+- RTBDynamic Post (something for ads)
+- Request (not in scope, related to apprequest)
+- Store Catalog Settings (not in scope)
+- Test User (not relevant)
+- Thread (only accessible for users that are developers of the app making the request)
+- Video Copyright ******** might add later
+- Video Copyright Rule ******** might add later
+- Video List (page video playlist)
+- Video Poll ******** might add later
+- Video Poll Option ******** might add later
+- Whats App Business Account (not relevant)
+- Whats App Business Account To Number Current Status (not relevant)
+- Whats App Business HSM (not relevant)
 
 ### Errors
 
@@ -224,6 +345,8 @@ See all errors returned by General API for Social Networks in the following tabl
 #### Errors returned by social media APIs
 
 When any of the social media APIs returns an error response (with HTTP status code >= 400), that response will be listed in the response of the General API for Social Networks under the key `errors`. Responses from the other social media APIs won't be affected. An example of such response is shown below.
+
+<!-- TODO: Make method specific -->
 
 ```json
 {
@@ -282,7 +405,7 @@ Add the chosen abbreviation to `data_dictionary` in the `main.py`.
 
 #### 2) Set up authentication
 
-Create new json file for credentials in the rood folder of this API. Add this file to `main.py` next to 
+Create new json file for credentials in the rood folder of this API. Add this file to `main.py` next to
 
 ```python
 file_with_fb_credentials = 'fb_credentials.json'
@@ -303,3 +426,13 @@ Add the import for the main authentication function from this python file to `ma
 In the folder `social_media_api_calls`, create a new python file that will contain the code for calling the social media API. Add the import for the main call function from this python file to `main.py` and also add it to function `call_social_media_APIs`.
 
 ### Suggested improvements on the current version
+
+<!-- -  Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
+- If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
+- When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
+- Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
+- Add suggestions on how to resolve the error in the merged response. Either from the docs of social media APIs or from us if it's something with this api.
+- expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
+- Add Facebook's edges also as endpoints, not just as fields
+- Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
+- fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that. -->
