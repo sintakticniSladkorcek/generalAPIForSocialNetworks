@@ -21,10 +21,10 @@ Functionality:
 - [General API for Social Networks](#general-api-for-social-networks)
   - [Table of contents](#table-of-contents)
   - [Requirements](#requirements)
-    - [<a name="legal_requirements"></a>Legal](#legal)
-    - [<a name="techincal_requirements"></a>Technical](#technical)
+    - [Legal](#legal)
+    - [Technical](#technical)
   - [Setup](#setup)
-  - [<a name="prepare_credentials"></a>Prepare credentials](#prepare-credentials)
+  - [Prepare credentials](#prepare-credentials)
     - [Facebook credentials](#facebook-credentials)
     - [Instagram](#instagram)
     - [LinkedIn](#linkedin)
@@ -36,10 +36,10 @@ Functionality:
       - [Response from POST or DELETE request](#response-from-post-or-delete-request)
     - [Request](#request)
     - [Important parameters](#important-parameters)
-      - [<a name="sm"></a>sm](#sm)
+      - [sm](#sm)
       - [limit](#limit)
       - [visible_to](#visible_to)
-    - [<a name="endpoints"></a>Endpoints](#endpoints)
+    - [Endpoints](#endpoints)
       - [/docs or /redoc](#docs-or-redoc)
       - [/auth](#auth)
       - [Table of endpoints](#table-of-endpoints)
@@ -57,8 +57,9 @@ Functionality:
 
 ## Requirements
 
-### <a name="legal_requirements"></a>Legal
+### Legal
 
+<a name="legal_requirements"></a>
 By using this API you accept the Terms and Conditions of all of the included social media APIs:
 
 - Facebook:
@@ -77,7 +78,9 @@ By using this API you accept the Terms and Conditions of all of the included soc
 
 \*this is not a mistake, links for Instagram are in fact located at facebook.com (Instagram is owned by Facebook).
 
-### <a name="techincal_requirements"></a>Technical
+### Technical
+
+<a name="techincal_requirements"></a>
 
 - python 3.7.4 or higher (might work for lower python 3 versions as well but hasn't been tested yet)
 - Facebook user account
@@ -115,8 +118,9 @@ pip install -r requirements.txt
 ```
 <!-- TODO: pip freeze > requirements.txt -->
 
-## <a name="prepare_credentials"></a>Prepare credentials
+## Prepare credentials
 
+<a name="prepare_credentials"></a>
 In order to use this API you'll need to provide the same credentials as you would have to if you just used any of the social media APIs on their own. Save credentials in the appropriate json file (`{social_media_short_name}_credentials.json`). Remember that credentials are just like a username and password and should not be shared with anyone.
 <!-- People will be building an app to use this api, so it's ok to require them to make an app on social media sites as well in order to get access tokens. Otherwise my app's tokens are exposed -->
 
@@ -351,8 +355,9 @@ http://127.0.0.1:8000//videos/12345678901234?sm=fb
 
 ### Important parameters
 
-#### <a name="sm"></a>sm
+#### sm
 
+<a name="sm"></a>
 This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a **required parameter** and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
 <!-- TODO: Add a list of requests that do not need the sm parameter. -->
 
@@ -375,8 +380,9 @@ Yet to be implemented.
 <!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
 Available values: `me`, `connections`, `public`, `custom`(?)
 
-### <a name="endpoints"></a>Endpoints
+### Endpoints
 
+<a name="endpoints"></a>
 Below is a table of all of the available endpoints and paths that you can use for your requests. Each of the endpoints/path is additionally described in its own section. Apart from the listed endpoints, there are also some others important ones, well look at them first.
 
 #### /docs or /redoc
