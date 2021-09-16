@@ -80,37 +80,6 @@ class Facebook_data():
                     }
                 }
             },
-            'comments': {
-                'endpoint': '',
-                'get_fields': {
-                    'application': 'application',
-                    'attachment': 'attachment',
-                    'author': 'from',
-                    'can_hide': 'can_hide',
-                    'can_like': 'can_like',
-                    'can_remove': 'can_remove',
-                    'can_reply': 'can_comment',
-                    'can_reply_privately': 'can_reply_privately',
-                    'comment_on_media': 'object',
-                    'comments': 'comments',
-                    'created_time': 'created_time',
-                    'id': 'id',
-                    'is_hidden': 'is_hidden',
-                    'is_private': 'is_private',
-                    'like_count': 'like_count',
-                    'likes': 'likes',
-                    'comment_url': 'permalink_url',
-                    'live_broadcast_timestamp': 'live_broadcast_timestamp',
-                    'parent_object': 'object',
-                    'parent_comment': 'parent',
-                    'private_reply_conversation': 'private_reply_conversation',
-                    'reactions': 'reactions',
-                    'replies_count': 'comment_count',
-                    'tagged': 'message_tags',
-                    'text': 'message',
-                    'user_has_liked': 'user_likes'
-                } # cannot get this with user access token
-            },
             'events': {
                 'endpoint': '',
                 'get_fields': {
@@ -172,7 +141,6 @@ class Facebook_data():
                             'is_360': 'is_spherical',
                             'live_encoders': 'live_encoders',
                             'original_fov': 'original_fov',
-                            'planned_start_time': 'planned_start_time',
                             'projection': 'projection',
                             'spatial_audio_format': 'spatial_audio_format',
                             'status': 'status',
@@ -246,7 +214,6 @@ class Facebook_data():
                             'is_360': 'is_spherical',
                             'live_encoders': 'live_encoders',
                             'original_fov': 'original_fov',
-                            'planned_start_time': 'planned_start_time',
                             'projection': 'projection',
                             'save_vod': 'save_vod',
                             'spatial_audio_format': 'spatial_audio_format',
@@ -431,15 +398,6 @@ class Facebook_data():
                     'visible_to': 'privacy'
                 }
             },
-            'locations': {
-                'endpoint': '',
-                'get_fields': {
-                    'id': 'id',
-                    'geo_location': 'location',
-                    'name': 'name',
-                    'overall_rating': 'overall_rating'
-                }
-            } # requires pages_read_engagement
             'me': {
                 'endpoint': 'me',
                 'get_fields': {
@@ -529,42 +487,6 @@ class Facebook_data():
                     'target': 'target',
                     'updated_time': 'updated_time',
                     'width': 'width'
-                }
-            }
-            'pages': {
-                'endpoint': '',
-                'get_fields': {},
-                'paths': {
-                    'live_videos': {
-                        'path': 'live_videos',
-                        'post_fields': {
-                            'app_id': 'attribution_app_id',
-                            'content_tags': 'content_tags',
-                            'crossposting_actions': 'crossposting_actions',
-                            'custom_image_for_schedule': 'schedule_custom_profile_image',
-                            'custom_labels': 'custom_labels',
-                            'description': 'description',
-                            'donate_button_charity_id': 'donate_button_charity_id',
-                            'enable_backup_ingest': 'enable_backup_ingest',
-                            'encoding_settings_identifier': 'encoding_settings',
-                            'fisheye_video_cropped': 'fisheye_video_cropped',
-                            'front_z_rotation': 'front_z_rotation',
-                            'game_show': 'game_show',
-                            'is_360': 'is_spherical',
-                            'live_encoders': 'live_encoders',
-                            'original_fov': 'original_fov',
-                            'planned_start_time': 'planned_start_time',
-                            'products_shown': 'product_items',
-                            'projection': 'projection',
-                            'spatial_audio_format': 'spatial_audio_format',
-                            'status': 'status',
-                            'stereoscopic_mode': 'stereoscopic_mode',
-                            'stop_on_delete_stream': 'stop_on_delete_stream',
-                            'targeting': 'targeting',
-                            'video_title': 'title',
-                            'visible_to': 'privacy'
-                        }
-                    } # REQUIRES PAGE ACCESS TOKEN
                 }
             },
             'posts': {
@@ -721,7 +643,6 @@ class Facebook_data():
                             'is_360': 'is_spherical',
                             'live_encoders': 'live_encoders',
                             'original_fov': 'original_fov',
-                            'planned_start_time': 'planned_start_time',
                             'projection': 'projection',
                             'spatial_audio_format': 'spatial_audio_format',
                             'status': 'status',

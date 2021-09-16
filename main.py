@@ -61,8 +61,7 @@ fb_authenticated = ig_authenticated = ln_authenticated = tw_authenticated = Fals
 
 fields_dictionary = {
     'get': 'get_fields',
-    'post': 'post_fields',
-    'delete': 'delete_fields'
+    'post': 'post_fields'
 }
 
 
@@ -536,18 +535,6 @@ def get_data_about_live_video(video_id: str, sm: str, fields: str = None):
     return response
 
 
-# WARNING requires pages_read_engagement
-# # fb
-# @app.get('/locations/{location_id}')
-# def get_data_about_location(location_id: str, sm: str, fields: str = None):
-#     '''Returns data about the live video with given video_id specified by parameter `fields`'''
-
-#     endpoint = 'locations'
-#     method = 'get'
-#     response = call_social_media_APIs_with_id(method, sm, endpoint, None, location_id, fields=fields)
-#     return response
-
-
 # fb, ln, tw
 @app.get('/me')
 def get_data_about_me(sm: str, fields: str = None):
@@ -699,7 +686,6 @@ def create_live_video_in_event(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -762,7 +748,6 @@ def create_live_video_in_group(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
@@ -958,53 +943,6 @@ def update_live_video(
     return response
 
 
-# # REQUIRES PAGE ACCESS TOKEN
-# # fb
-# @actual_kwargs()
-# @app.post('/pages/{page_id}/live_videos')
-# def create_live_video_on_page(
-#     page_id: str, 
-#     sm: str, 
-#     app_id: str, 
-#     content_tags: list=None, 
-#     crossposting_actions: list=None,
-#     custom_labels: list=None,
-#     description: str=None, 
-#     donate_button_charity_id: str=None, 
-#     enable_backup_ingest: bool=False, 
-#     encoding_settings_identifier: str=None, 
-#     fisheye_video_cropped: bool=None, 
-#     front_z_rotation: float=None, 
-#     game_show: str=None,
-#     is_360: bool=False, 
-#     live_encoders: list=None, 
-#     original_fov: int=None,
-#     planned_start_time: int=None,
-#     visible_to: str='connections',
-#     products_shown: list=None,
-#     projection: str='eqirectangular',
-#     custom_image_for_schedule: str=None,
-#     spatial_audio_format: int=None,
-#     status: str='unpublished',
-#     stereoscopic_mode: str='mono',
-#     stop_on_delete_stream: bool=False,
-#     targeting: str=None,
-#     video_title: str=Query(None, max_length=254)
-#     ):
-#     '''Creates a live video on page with given page_id.'''
-
-#     endpoint = 'pages'
-#     path = 'live_videos'
-#     method = 'post'
-
-#     fields = create_live_video_on_page.actual_kwargs
-#     del fields['page_id']
-#     del fields['sm']
-
-#     response = call_social_media_APIs_with_id(method, sm, endpoint, path, page_id, fields=fields)
-#     return response
-
-
 # fb
 @actual_kwargs()
 @app.post('/users/{user_id}')
@@ -1046,7 +984,6 @@ def create_live_video_on_user(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    planned_start_time: int=None,
     visible_to: str='connections',
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
