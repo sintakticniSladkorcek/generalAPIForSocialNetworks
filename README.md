@@ -2,7 +2,7 @@
 
 General API for Social Networks is an API that connects to different social media APIs in order to ease the developer's job of communicating to all these APIs. It saves developer the hurdle of reading documentation for and implementing calls to multiple APIs as they can now just study and integrate with one. General API for Social Networks is built using [FastAPI](https://fastapi.tiangolo.com/).
 
-Currently supported APIs:
+<a name="currently_supported_apis"></a>Currently supported APIs:
 
 - [Facebook Graph API v12.0](https://developers.facebook.com/docs/graph-api)
 - [Instagram Basic Display API v11.0](https://developers.facebook.com/docs/instagram-basic-display-api/)
@@ -11,12 +11,14 @@ Currently supported APIs:
 
 Functionality:
 
-- retrieve data about the user who is logged in
-- TODO
+- retrieve data about the users, posts, links, photos, videos, live videos, albums, events, groups
+- post in events, groups and on users profile
+- modify users profile, video and live video
+- delete photos, videos and live videos
 
 ## Requirements
 
-### Legal
+### <a name="legal_requirements"></a>Legal
 
 By using this API you accept the Terms and Conditions of all of the included social media APIs:
 
@@ -36,7 +38,7 @@ By using this API you accept the Terms and Conditions of all of the included soc
 
 \*this is not a mistake, links for Instagram are in fact located at facebook.com (Instagram is owned by Facebook).
 
-### Technical
+### <a name="techincal_requirements"></a>Technical
 
 - python 3.7.4 or higher (might work for lower python 3 versions as well but hasn't been tested yet)
 - Facebook user account
@@ -74,7 +76,7 @@ pip install -r requirements.txt
 ```
 <!-- TODO: pip freeze > requirements.txt -->
 
-## Prepare credentials
+## <a name="prepare_credentials"></a>Prepare credentials
 
 In order to use this API you'll need to provide the same credentials as you would have to if you just used any of the social media APIs on their own. Save credentials in the appropriate json file (`{social_media_short_name}_credentials.json`). Remember that credentials are just like a username and password and should not be shared with anyone.
 <!-- People will be building an app to use this api, so it's ok to require them to make an app on social media sites as well in order to get access tokens. Otherwise my app's tokens are exposed -->
@@ -128,7 +130,7 @@ To run the General API for Social Networks, run the following command:
 hypercorn main:app --reload
 ```
 
-After that, the API can be accessed at [http://127.0.0.1:8000](http://127.0.0.1:8000). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [http://127.0.0.1:8000/auth](http://127.0.0.1:8000/auth) and setting the value of `sm` parameter.
+After that, the API can be accessed at [http://127.0.0.1:8000](http://127.0.0.1:8000). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [http://127.0.0.1:8000/auth](http://127.0.0.1:8000/auth) and setting the value of [`sm` parameter](#sm).
 
 <a name="auth_example"></a>For example, to authenticate only with Facebook and LinkedIn, you would send a GET request to `http://127.0.0.1:8000/auth?sm=fb,ln`.
 
@@ -137,18 +139,183 @@ After that, the API can be accessed at [http://127.0.0.1:8000](http://127.0.0.1:
 ### Response
 
 <!-- Naj bo requests.Response() objekt, kjer je status code odvisen tudi od tega, a je nek api vrnu error al noben -->
-<!-- Različn format glede na metodo (post, get, ...)? -->
+Response format depends on the HTTP method that was used in the request.
+
+#### Response from GET request
+
+Below is an example of a response of a GET request, requesting data (id, first name, last name, birthday) about the user who is logged in from Facebook, LinkedIn and Twitter. The Twitter API returned and error, so this response is in the "errors" part of the response. The other two social network APIs returned the requested data, which is grouped by requested pieces of data. We can see that LinkedIn API does not return anything for the birthday, so only the value from Facebook is returned.
+
+```json
+{
+  "errors": {
+    "Twitter": {
+      "HTTP_status": "<Response [401]>",
+      "json_response": {
+        "errors": {
+          "code": 89,
+          "message": "Invalid or expired token."
+        }
+      }
+    }
+  },
+  "id": [
+    {
+      "provider": "Linkedin",
+      "id": "abCdefGHiJ"
+    },
+    {
+      "provider": "Facebook",
+      "id": "12345678901234567"
+    }
+  ],
+  "first_name": [
+    {
+      "provider": "Linkedin",
+      "localizedFirstName": "Ajda"
+    },
+    {
+      "provider": "Facebook",
+      "first_name": "Ajda"
+    }
+  ],
+  "last_name": [
+    {
+      "provider": "Linkedin", 
+      "localizedLastName": "Surname"
+    },
+    {
+      "provider": "Facebook", 
+      "last_name": "Surname"
+    }
+  ],
+  "birthday": [
+    {
+      "provider": "Facebook", 
+      "birthday": "11/29/1992"
+    }
+  ]
+}
+```
+
+Formal definition of the response format for GET requests would therefore be:
+
+```json
+{
+  "errors": {
+    "<social_media_name>": {
+      "HTTP_status": "<error_code>",
+      "json_response": {
+        "<json_response_from_social_media>"
+      }
+    }
+  },
+  "<requested_field_name>": [
+    {
+      "provider": "<social_media_name>",
+      "<requested_field_name_in_social_media_API>": "<returned_value>"
+    }
+  ]
+}
+```
+
+#### Response from POST or DELETE request
+
+For now, there isn't a specific way in which our API would unify the responses from social media within the returned response. The main structure of a response for POST or DELETE request depends on success of the social media API call.
+
+If error is present, the following structure is to be expected.
+
+```json
+{
+  "errors": {
+    "<social_media_name>": {
+      "HTTP_status": "<error_code>",
+      "json_response": {
+        "<json_response_from_social_media>"
+      }
+    }
+  },
+}
+```
+
+Example:
+
+```json
+{
+  "errors": {
+    "Facebook": {
+      "HTTP_status": "<Response [400]>", 
+      "json_response": {
+        "error": {
+          "message": "Error validating access token: Session has expired on Wednesday, 15-Sep-21 08:00:00 PDT. The current time is Thursday, 16-Sep-21 10:16:41 PDT.", 
+          "type": "OAuthException", 
+          "code": 190, 
+          "error_subcode": 463, 
+          "fbtrace_id": "AyUUsHlS2eejfalekFTb"
+        }
+      }
+    }
+  }
+}
+```
+
+If there was no error, the response would adhere to the following structure.
+
+```json
+{
+  "errors": {},
+  "<social_media_name>": {
+    "<social_media_json_response>"
+  }
+}
+```
+
+Example:
+
+```json
+{
+  "errors": {}, 
+  "Facebook": {
+    "id": "12345678901234"
+  }
+}
+```
 
 ### Request
 
 <!-- get, post, delete, ... -->
+All requests consist of a base url `http://127.0.0.1:8000`, slash `/`, an endpoint `<some_endpoint>`, question mark `?` and the required field `sm=<short_social_media_names_separated_by_comma>`. If we put this together, we get `http://127.0.0.1:8000/<some_endpoint>?sm=<short_social_media_names_separated_by_comma>`.
+
+If additional fields are specified, for GET requests append an amperstand `&` and the fields `fields=<field_names_separated_by_comma>`.
+For POST requests, also append an amperstand `&` and then all of the field names and their values you want to append, separated by amperstands, like so `&<field1>=<value1>&<field2>=<value2>&<field3>=<value3> ...`.
+
+DELETE requests don't have any fields so no additions are necessary.
+
+Example GET request url:
+
+```url
+http://127.0.0.1:8000/me?sm=fb,ln
+```
+
+Example POST request url:
+
+```url
+http://127.0.0.1:8000/group/12345678901234/album?sm=fb&name=My Album&description=This is my first album
+```
+
+Example DELETE request url:
+
+```url
+http://127.0.0.1:8000//videos/12345678901234?sm=fb
+```
+
+<!-- TODO: Check how is it with spaces and special characters in strings -->
 
 ### Important parameters
 
 #### <a name="sm"></a>sm
 
-This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a required parameter and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
-<!-- TODO: Add  a list of requests that do not need the sm parameter. -->
+This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a **required parameter** and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
+<!-- TODO: Add a list of requests that do not need the sm parameter. -->
 
 Currently available values are:
 
@@ -169,7 +336,7 @@ Yet to be implemented.
 <!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
 Available values: `me`, `connections`, `public`, `custom`(?)
 
-### Endpoints
+### <a name="endpoints"></a>Endpoints
 
 Below is a table of all of the available endpoints and paths that you can use for your requests. Each of the endpoints/path is additionally described in its own section. Apart from the listed endpoints, there are also some others important ones, well look at them first.
 
@@ -183,9 +350,7 @@ This endpoint is the one you should call first. It takes care of the authenticat
 
 #### Table of endpoints
 
-<!-- TODO: Make method specific -->
-
-GET
+Endpoints for GET requests
 
 |endpoint/path|supported social media|description|
 |---|---|---|
@@ -207,7 +372,8 @@ GET
 /events/{event_id}: if on group-A User access token of an Admin of the Event.
 /groups/{group_id}: groups_access_member_info, publish_to_groups, For Public and Closed Groups-A User access token, For Secret Groups-A User access token for an Admin of the Group
 
-POST
+Endpoints for POST requests
+
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`groups/{group_id}/albums`|Facebook||
@@ -222,22 +388,15 @@ POST
 |`/{group_id}/videos`|Facebook||
 |`/{user_id}/videos`|Facebook||
 
-DELETE
+Endpoints for DELETE requests
+
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`/live_videos/{video_id}`|Facebook||
 |`/photos/{photo_id}`|Facebook||
 |`/videos/{video_id}`|Facebook||
 
-
-<!-- Some fb non-root endpoints can also be accessed via parameters so we don't need to have them all listed like that. Instead all parameters should be listed under the description of each root endpoint. -->
-
-
-<!-- Connections for `me` on fb:albums, apprequestformerrecipients, apprequests, business_users, businesses, conversations, accounts, ad_studies, adaccounts, assigned_ad_accounts, assigned_business_asset_groups, assigned_pages, assigned_product_catalogs, custom_labels, events, feed, friends, groups, ids_for_apps, ids_for_business, ids_for_pages, likes, live_encoders, live_videos, music, payment.subscriptions, payment_transactions, permissions, personal_ad_accounts, photos, picture, posts, rich_media_documents, videos
-
-Connections for `<ALBUM-ID> on fb`:comments, likes, photos, picture -->
-
-Some functionalities from the Facebook Graph API are not included in General API for Social Networks. These are (by endpoint): 
+Some functionalities from the Facebook Graph API are not included in General API for Social Networks. These are (by endpoint):
 
 - App Request
 - Application
@@ -344,8 +503,6 @@ See all errors returned by General API for Social Networks in the following tabl
 
 When any of the social media APIs returns an error response (with HTTP status code >= 400), that response will be listed in the response of the General API for Social Networks under the key `errors`. Responses from the other social media APIs won't be affected. An example of such response is shown below.
 
-<!-- TODO: Make method specific -->
-
 ```json
 {
   "errors": {
@@ -382,7 +539,7 @@ When any of the social media APIs returns an error response (with HTTP status co
 }
 ```
 
-See the documentation about social media specific errors here:
+<a name="error_documentation"></a>See the documentation about social media specific errors here:
 
 - Facebook: https://developers.facebook.com/docs/graph-api/guides/error-handling/
 - Instagram: https://developers.facebook.com/docs/instagram-api/reference/error-codes/
@@ -413,15 +570,59 @@ file_with_tw_credentials = 'tw_credentials.json'
 ```
 
 In the folder `authentication`, add a new python file that will contain the logic for authenticating with the newly added social media.
-Add the import for the main authentication function from this python file to `main.py` and also add it under the endpoint `/auth`.
+Add the import for the main authentication function from this python file to `main.py` next to 
+
+```python
+from authentication.fb_authentication import auth as fb_auth
+from authentication.ig_authentication import auth as ig_auth
+from authentication.ln_authentication import auth as ln_auth
+from authentication.tw_authentication import auth as tw_auth
+```
+
+and also add it to function `authenticate()` under the endpoint `/auth`.
 
 #### 3) Prepare mappings
 
-<!-- TODO -->
+In folder `data_dictionaries` create a new python file. In `main.py` add an import next to other dictionary imports
+
+```python
+from data_dictionaries.Facebook_data import Facebook_data as fbd
+from data_dictionaries.Instagram_data import Instagram_data as igd
+from data_dictionaries.Linkedin_data import Linkedin_data as lnd
+from data_dictionaries.Twitter_data import Twitter_data as twd
+```
+
+and then also add it a bit lower in the `data_dictionary`.
+
+```python
+data_dictionary = {
+    'fb': fbd.dict,
+    'ig': igd.dict,
+    'ln': lnd.dict,
+    'tw': twd.dict
+}
+```
+
+Copy the contents of dictonary for some other social media API into the file ypu created in `data_dictionaries` folder and replace values to match those of the social media API you are adding. If some field does not exist for the new social medi API, set its value to `None`.
+
+If there are new fields you would like to add, it is a bit more complicated. You have to add it to dictionaries for all of the social medi APIs and then if they are used in POST requests, add them as function parameters for a particular endpoint as well.
 
 #### 4) Set up API calls
 
-In the folder `social_media_api_calls`, create a new python file that will contain the code for calling the social media API. Add the import for the main call function from this python file to `main.py` and also add it to function `call_social_media_APIs`.
+In the folder `social_media_api_calls`, create a new python file that will contain the code for calling the social media API. Add the import for the main call function from this python file to `main.py` next to
+
+```python
+from social_media_api_calls.facebook_api_calls import call_api as call_fb_api
+from social_media_api_calls.instagram_api_calls import call_api as call_ig_api
+from social_media_api_calls.linkedin_api_calls import call_api as call_ln_api
+from social_media_api_calls.twitter_api_calls import call_api as call_tw_api
+```
+
+and also add it to function `call_social_media_APIs`.
+
+#### 5) Update documentation
+
+In the `README.md` file, add to the sections [Currently supported APIs](#currently_supported_apis), [Legal requirements](#legal_requirements), [Technical requirements](#techincal_requirements), [Prepare credentials](#prepare_credentials), [Parameter sm](#sm), [Endpoints](#endpoints) and [Error documentation for social media APIs](#error_documentation).
 
 ### Suggested improvements on the current version
 
