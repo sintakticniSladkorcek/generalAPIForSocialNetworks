@@ -16,6 +16,42 @@ Functionality:
 - modify users profile, video and live video
 - delete photos, videos and live videos
 
+- [General API for Social Networks](#general-api-for-social-networks)
+  - [Requirements](#requirements)
+    - [<a name="legal_requirements"></a>Legal](#legal)
+    - [<a name="techincal_requirements"></a>Technical](#technical)
+  - [Setup](#setup)
+  - [<a name="prepare_credentials"></a>Prepare credentials](#prepare-credentials)
+    - [Facebook credentials](#facebook-credentials)
+    - [Instagram](#instagram)
+    - [LinkedIn](#linkedin)
+    - [Twitter](#twitter)
+  - [Run](#run)
+  - [Usage](#usage)
+    - [Response](#response)
+      - [Response from GET request](#response-from-get-request)
+      - [Response from POST or DELETE request](#response-from-post-or-delete-request)
+    - [Request](#request)
+    - [Important parameters](#important-parameters)
+      - [<a name="sm"></a>sm](#sm)
+      - [limit](#limit)
+      - [visible_to](#visible_to)
+    - [<a name="endpoints"></a>Endpoints](#endpoints)
+      - [/docs or /redoc](#docs-or-redoc)
+      - [/auth](#auth)
+      - [Table of endpoints](#table-of-endpoints)
+    - [Errors](#errors)
+      - [Errors returned by General API for Social Networks](#errors-returned-by-general-api-for-social-networks)
+      - [Errors returned by social media APIs](#errors-returned-by-social-media-apis)
+  - [Further development](#further-development)
+    - [Adding another social media API](#adding-another-social-media-api)
+      - [1) Choose an abbreviation](#1-choose-an-abbreviation)
+      - [2) Set up authentication](#2-set-up-authentication)
+      - [3) Prepare mappings](#3-prepare-mappings)
+      - [4) Set up API calls](#4-set-up-api-calls)
+      - [5) Update documentation](#5-update-documentation)
+    - [Suggested improvements on the current version](#suggested-improvements-on-the-current-version)
+
 ## Requirements
 
 ### <a name="legal_requirements"></a>Legal
