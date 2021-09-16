@@ -16,7 +16,10 @@ Functionality:
 - modify users profile, video and live video
 - delete photos, videos and live videos
 
+## Table of contents
+
 - [General API for Social Networks](#general-api-for-social-networks)
+  - [Table of contents](#table-of-contents)
   - [Requirements](#requirements)
     - [<a name="legal_requirements"></a>Legal](#legal)
     - [<a name="techincal_requirements"></a>Technical](#technical)
