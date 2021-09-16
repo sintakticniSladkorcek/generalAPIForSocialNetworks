@@ -343,7 +343,7 @@ class Facebook_data():
                             'unpublished_content_type': 'unpublished_content_type',
                             'upload_phase': 'upload_phase',
                             'upload_session_id': 'upload_session_id',
-                            'video_file_chunk': 'video_file_chunk', # required during transfer upload phasr
+                            'video_file_chunk': 'video_file_chunk' # required during transfer upload phasr
                         }
                     }
                 }
