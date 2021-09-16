@@ -139,8 +139,8 @@ def merge_responses(method, endpoint, unified_fields, responses):
                     merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
                     merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
     
-    # Merge responses for POST method
-    elif method == 'post':
+    # Merge responses for POST method and DELETE method
+    elif method == 'post' or method == 'delete':
         for platform in responses:
             platform_name = data_dictionary[platform]['name']
            
@@ -178,6 +178,10 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         For GET method: `unified_fields` contains list of all requested fields (not mapped). If parameter `fields` is empty, `unified_fields` contains all possible fields. `mapped_fields` contains list of concatenated strings of selected fields corresponding to requested social media platforms from `selected_social_media` separated by commas.
         For POST method: `unified_fields` contains list of all requested fields (not mapped). `mapped_fields` contains list of dictionaries corresponding to requested social media platforms from `selected_social_media`, dictionaries contain social_media_specific_field_name - field_value pairs.
     '''
+
+    # Skip all of this if the method is DELETE
+    if method == 'delete':
+        return None, None
 
     # chooses the field mapping
     type_of_fields = fields_dictionary[method]
@@ -1187,7 +1191,7 @@ def delete_live_video(video_id: str, sm: str):
     endpoint = 'live_video'
     method = 'delete'
 
-    response = None # TODO
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id)
     return response
 
 
@@ -1200,7 +1204,7 @@ def delete_photo(photo_id: str, sm: str):
     endpoint = 'photos'
     method = 'delete'
 
-    response = None # TODO
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, photo_id)
     return response
 
 
@@ -1213,7 +1217,7 @@ def delete_video(video_id: str, sm: str):
     endpoint = 'videos'
     method = 'delete'
 
-    response = None # TODO
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id)
     return response
 
 
@@ -1221,7 +1225,6 @@ def delete_video(video_id: str, sm: str):
 # {id}/reactions and likes
 
 # TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution? Nah. Make it so that if endpoint translates to None, the call doesn't happen. And response could say "oh, and just so you know, this social media you called, doesn't have this endpoint." WHICH???
-# TODO: API calls for delete requests
 # TODO: Add Instagram authentication
 # TODO: Fill in dictionaries for other sm than Facebook
 # TODO: Implement API calls for other sm than Facebook
@@ -1230,8 +1233,6 @@ def delete_video(video_id: str, sm: str):
 # TODO: include HTTP status codes in merged response YES/NO???
 # TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
-# TODO: Finish adding /comment endpoints
-# TODO: Add paths like /feed or /timeline for /user endpoint
 # TODO: limit parameter (how many items do you want returned)
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
@@ -1244,7 +1245,6 @@ def delete_video(video_id: str, sm: str):
 
 # TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
 
-# TODO: Add more fb endpoints
 # TODO: Add Twitter endpoints and mappings
 # TODO: Add LinkedIn endpoints and mappings
 # TODO: Add Instagram endpoints and mappings

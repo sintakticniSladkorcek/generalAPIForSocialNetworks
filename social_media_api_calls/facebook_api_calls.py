@@ -35,8 +35,9 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
         response = requests.post(f'{url}?{parameters}&access_token={access_token}')
 
     elif method == 'delete':
-        response = None # TODO
+        # call API
+        response = requests.post(f'{url}?access_token={access_token}')
 
-    print(response.json())
+    # print(response.json())
     return response
 
