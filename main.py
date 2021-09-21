@@ -33,7 +33,7 @@ from data_dictionaries.Twitter_data import Twitter_data as twd
 
 from authentication.fb_authentication import auth as fb_auth
 from authentication.ig_authentication import auth as ig_auth
-from authentication.ln_authentication import auth_part_2 as ig_auth_2
+from authentication.ig_authentication import auth_part_2 as ig_auth_2
 from authentication.ln_authentication import auth as ln_auth
 from authentication.ln_authentication import auth_part_2 as ln_auth_2
 from authentication.tw_authentication import auth as tw_auth
@@ -147,7 +147,7 @@ def merge_responses(method, endpoint, unified_fields, responses):
                     merged_response['errors'][platform_name] = {}
                     merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
                     merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
-    
+
     # Merge responses for POST method and DELETE method
     elif method == 'post' or method == 'delete':
         for platform in responses:
@@ -430,8 +430,7 @@ def home():
 def get_ig_code(code: str, error_reason: str=None, error_description: str=None):
     try:
         global ig_access
-        print(code)
-        ig_access = ig_auth_2(code, file_with_ig_credentials)
+        ig_access = ig_auth_2(code, file_with_ig_credentials).json()['access_token']
         ig_authenticated = True
         response = 'Success'
     except:
@@ -441,7 +440,7 @@ def get_ig_code(code: str, error_reason: str=None, error_description: str=None):
     
     return response
 
-@app.get('/ln_auth') # 3) LinkedIn te po loginu preusmeri sem, pokličemo auth_part_2()
+@app.get('/ln_auth')
 def get_ln_code(code: str):
     try:
         global ln_access
@@ -450,7 +449,6 @@ def get_ln_code(code: str):
         response = 'Success'
     except:
         response = 'Error'
-        # redirectaj nazaj na /auth? in preverjaj še booleane. Če so true, potem ne delaj na novo avtentikacije ampak sam vrni Success. Je pa pol vprašanje, ali se ta zadeva zacikla, če LinkedInova avtentikacija faila. Lahka shandlamo tk, da se ne, v primeru da je linkedin ni pa boolean true, sam vrnemo error. Ne sam to ne gre, ker pol se tud prvič ne izvede. Razen če mamo nek count ki potem to shandla in se resetira po uspehu.
     return response
 
 @app.get('/auth')
@@ -472,20 +470,13 @@ def authenticate(sm: str):
     
     if 'ig' in requested_social_media:
         try:
-            global ig_access
-            ig_access = ig_auth(file_with_ig_credentials)
-            print(ig_access)
-            ig_authenticated = True
-            response['Instagram'] = 'Success'
+            ig_auth(file_with_ig_credentials)
         except:
             response['Instagram'] = 'Error'
     
     if 'ln' in requested_social_media:
         try:
-            global ln_access
-            ln_access = ln_auth(file_with_ln_credentials) # 1) pokliče auth()
-            ln_authenticated = True
-            response['LinkedIn'] = 'Success'
+            ln_auth(file_with_ln_credentials)
         except:
             response['LinkedIn'] = 'Error'
 
@@ -1244,10 +1235,11 @@ def delete_video(video_id: str, sm: str):
 # FURTHER DEVELOPMENT: Add Facebook's edges also as endpoints, not just as fields
 # FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
 # FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
+# FURTHER DEVELOPMENT: If no fields are provided in get request, use not all of them but all that are non None value for requested sm.
 
 # QUICK TEST
-# print(authenticate('ig'))
-print(get_data_about_me(sm='ig'))
+print(authenticate('fb,ig,ln'))
+# print(get_data_about_me(sm='ig,ln'))
 # ,fields='id,first_name,last_name,birthday'
 
 # print(get_data_about_group(group_id='2998732937039201', sm='fb'))

@@ -1,7 +1,7 @@
 class Instagram_data():
     dict = {
         'name': 'Instagram',
-        'base_url': 'https://graph.facebook.com/v12.0/',
+        'base_url': 'https://graph.instagram.com/v12.0/',
         'endpoint_mapping': {
             'albums': {
                 'endpoint': None
@@ -52,7 +52,7 @@ class Instagram_data():
                     'languages': None,
                     'last_name': None,
                     'last_name_by_location': None,
-                    'likes': None,
+                    'liked_pages': None,
                     'link': None,
                     'live_encoders': None,
                     'live_videos': None,
@@ -90,7 +90,7 @@ class Instagram_data():
             },
             'users': {
                 'endpoint': '',
-                
+
             },
             'videos': {
                 'endpoint': None

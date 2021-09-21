@@ -11,26 +11,32 @@ import requests
 import string
 from .utility import Utility as ut
 
+'''
+Run the Authentication.
+If the access token exists, it will use it to skip browser auth.
+If not, it will open the browser for you to authenticate.
+You will have to manually paste the redirect URI in the prompt.
+'''
+
 def auth(file_with_credentials):
-    '''
-    Run the Authentication.
-    If the access token exists, it will use it to skip browser auth.
-    If not, it will open the browser for you to authenticate.
-    You will have to manually paste the redirect URI in the prompt.
-    '''
+
     creds = ut.read_credentials(file_with_credentials)
     client_id, client_secret = creds['client_id'], creds['client_secret']
     redirect_uri = creds['redirect_uri']
     api_url = 'https://www.linkedin.com/oauth/v2' 
         
-    if 'access_token' not in creds.keys(): 
-        args = client_id, client_secret, redirect_uri
-        auth_code = authorize(api_url, *args)
-        access_token = refresh_token(auth_code, *args)
-        creds.update({'access_token':access_token})
-        ut.save_token(file_with_credentials, creds)
-    else: 
-        access_token = creds['access_token']
+    args = client_id, client_secret, redirect_uri
+    authorize(api_url, *args) 
+
+
+def auth_part_2(auth_code, file_with_credentials):
+
+    creds = ut.read_credentials(file_with_credentials)
+    client_id, client_secret = creds['client_id'], creds['client_secret']
+    redirect_uri = creds['redirect_uri']
+    args = client_id, client_secret, redirect_uri
+
+    access_token = refresh_token(auth_code, *args)
     return access_token
 
 def create_header(access_token):
@@ -61,19 +67,7 @@ def open_url(url):
     Used to open the authorization link
     '''
     import webbrowser
-    print(url)
     webbrowser.open(url)
-
-def parse_redirect_uri(redirect_response):
-    '''
-    Parse redirect response into components.
-    Extract the authorized token from the redirect uri.
-    '''
-    from urllib.parse import urlparse, parse_qs
-
-    url = urlparse(redirect_response)
-    url = parse_qs(url.query)
-    return url['code'][0]
 
 def authorize(api_url,client_id,client_secret,redirect_uri):
     # Request authentication URL
@@ -87,21 +81,7 @@ def authorize(api_url,client_id,client_secret,redirect_uri):
         }
 
     response = requests.get(f'{api_url}/authorization',params=params)
-
-    print(f'''
-    The Browser will open to ask you to authorize the credentials.\n
-    Since we have not setted up a server, you will get the error:\n
-    This site can’t be reached. localhost refused to connect.\n
-    This is normal.\n
-    You need to copy the URL where you are being redirected to.\n
-    ''')
-
     open_url(response.url)
-
-    # Get the authorization verifier code from the callback url
-    redirect_response = input('Paste the full redirect URL here:')
-    auth_code = parse_redirect_uri(redirect_response)
-    return auth_code
 
 def refresh_token(auth_code,client_id,client_secret,redirect_uri):
     '''
@@ -119,7 +99,6 @@ def refresh_token(auth_code,client_id,client_secret,redirect_uri):
 
     response = requests.post(access_token_url, data=data, timeout=30)
     response = response.json()
-    print(response)
     access_token = response['access_token']
     return access_token
 
