@@ -512,19 +512,6 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = None):
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, album_id, fields=fields)
     return response
 
-# FB EDGES: comments, likes, photos are added as fields
-
-# Works only with page access token
-# # fb: fields, permissions, updating rules, errors https://developers.facebook.com/docs/graph-api/reference/v11.0/comment
-# @app.get('/comments/{comment_id}')
-# def get_data_about_comment(comment_id: str, sm: str, fields: str = None):
-#     '''Returns data about the comment with given user_id specified by parameter `fields`'''
-
-#     endpoint = 'comments'
-#     method = 'get'
-#     response = call_social_media_APIs_with_id(method, sm, endpoint, None, comment_id, fields=fields)
-    # return response
-
 
 # fb:
 # Facebook: Access to Events on Users and Pages is only available to Facebook Marketing Partners.
@@ -1196,36 +1183,25 @@ def delete_video(video_id: str, sm: str):
     return response
 
 
-# TODO: Add this type (fb): /search?type=adinterest&q=TEDx
-# {id}/reactions and likes
-
-# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution? Nah. Make it so that if endpoint translates to None, the call doesn't happen. And response could say "oh, and just so you know, this social media you called, doesn't have this endpoint." WHICH???
-# TODO: Add Instagram authentication
-# TODO: Fill in dictionaries for other sm than Facebook
-# TODO: Implement API calls for other sm than Facebook
-# TODO: authentication check for FB and LinkedIn
-# TODO: Delete LinkedIn last token when restarting API. YES/NO???
-# TODO: include HTTP status codes in merged response YES/NO???
+# TODO: Facebook pagination
+# TODO: Instagram pagination
+# TODO: Add LinkedIn endpoints and mappings
+# TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
+# TODO: Add Twitter endpoints and mappings
 # TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
-# TODO: limit parameter (how many items do you want returned)
-# TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
-# TODO: ln authentication, https://stackoverflow.com/questions/13522497/what-is-oob-in-oauth (also relevant for Twitter)
-# TODO: fb authentication
-# TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
+# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution? Nah. Make it so that if endpoint translates to None, the call doesn't happen. And response could say "oh, and just so you know, this social media you called, doesn't have this endpoint." WHICH???
+# TODO: include HTTP status codes in merged response YES/NO???
+# TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
+# TODO: fb authentication
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
-# TODO: Facebook pagination
+# data deletion for fb and ig
+# deauth for ig
 
-# TODO: Is it enough to support user-accessible APIs or do I need markting ones too? (Instagram basic display API vs Instagram Graph API) (Facebook Graph API vs Facebook Marketing API vs Facebook ads API), see "For example, user-related permissions are not available to Business apps, and business-related permissions are not available to Consumer apps." from https://developers.facebook.com/docs/development/build-and-test
-
-# TODO: Add Twitter endpoints and mappings
-# TODO: Add LinkedIn endpoints and mappings
-# TODO: Add Instagram endpoints and mappings
-
-# Put instead of Post for updating stuff
-
+# FURTHER DEVELOPMENT: limit parameter (how many items do you want returned)
+# FURTHER DEVELOPMENT: Put instead of Post for updating stuff
 # FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
@@ -1236,6 +1212,8 @@ def delete_video(video_id: str, sm: str):
 # FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
 # FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
 # FURTHER DEVELOPMENT: If no fields are provided in get request, use not all of them but all that are non None value for requested sm.
+# FURTHER DEVELOPMENT: Add this type (fb): /search?type=adinterest&q=TEDx
+
 
 # QUICK TEST
 print(authenticate('fb,ig,ln'))
