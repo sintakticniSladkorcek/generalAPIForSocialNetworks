@@ -75,6 +75,24 @@ fields_dictionary = {
 }
 
 
+def resolve_pagination(items):
+    '''
+
+    '''
+    all_items = []
+
+    while(True):
+        try:
+            for item in items['data']:
+                all_items.append(item)
+            # Attempt to make a request to the next page of data, if it exists.
+            items=requests.get(items['paging']['next']).json()
+        except KeyError:
+            # When there are no more pages (['paging']['next']), break from the
+            # loop and end the script.
+            break
+    return all_items
+
 def error_response(responses):
     ''' Checks if any of responses are error responses and if so, separates them from the others. 
     
@@ -139,7 +157,13 @@ def merge_responses(method, endpoint, unified_fields, responses):
                         continue
                     temp_dict['provider'] = platform_name
                     try:
-                        temp_dict[specific_field_name] = responses[platform].json()[specific_field_name]
+                        field_data = responses[platform].json()[specific_field_name]
+                        if 'paging' in field_data:
+                            if 'next' in field_data['paging']:
+                                all_data = resolve_pagination(field_data)
+                                field_data['data'] = all_data
+                                
+                        temp_dict[specific_field_name] = field_data    
                         merged_response[field].append(temp_dict)
                     except:
                         continue
@@ -1216,7 +1240,7 @@ def delete_video(video_id: str, sm: str):
 
 
 # QUICK TEST
-print(authenticate('fb,ig,ln'))
+# print(authenticate('fb,ig,ln'))
 # print(get_data_about_me(sm='ig,ln'))
 # ,fields='id,first_name,last_name,birthday'
 
