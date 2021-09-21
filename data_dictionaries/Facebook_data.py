@@ -10,6 +10,7 @@ class Facebook_data():
                     'album_url': 'link',
                     'author': 'from',
                     'can_upload_photos': 'can_upload',
+                    'children': 'photos',
                     'comments': 'comments',
                     'count': 'count',
                     'cover_photo_id': 'cover_photo', # not for albums in groups
@@ -25,6 +26,7 @@ class Facebook_data():
                     'name': 'name',
                     'photos': 'photos',
                     'updated_time': 'updated_time',
+                    'url_to_album': 'link',
                     'visible_to': 'privacy' #
                 },
                 'paths': {

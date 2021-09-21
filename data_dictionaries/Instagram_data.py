@@ -4,7 +4,31 @@ class Instagram_data():
         'base_url': 'https://graph.instagram.com/v12.0/',
         'endpoint_mapping': {
             'albums': {
-                'endpoint': None
+                'endpoint': '',
+                'get_fields': {
+                    'album_type': 'media_type',
+                    'album_url': 'permalink',
+                    'author': 'username',
+                    'can_upload_photos':  None,
+                    'children': 'children',
+                    'comments':  None,
+                    'count':  None,
+                    'cover_photo_id':  None,
+                    'created_time': 'timestamp',
+                    'dated':  None,
+                    'dated_accuracy':  None,
+                    'description': 'caption',
+                    'event_on_location':  None,
+                    'id': 'id',
+                    'likes':  None,
+                    'location_by_id':  None,
+                    'location_by_name':  None,
+                    'name':  None,
+                    'photos':  None,
+                    'updated_time':  None,
+                    'url_to_album': 'media_url',
+                    'visible_to': None
+                },
             },
             'events': {
                 'endpoint': None
