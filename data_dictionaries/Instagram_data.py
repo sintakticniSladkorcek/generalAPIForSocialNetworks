@@ -61,7 +61,7 @@ class Instagram_data():
                     'meeting_for': None,
                     'middle_name': None,
                     'music': None,
-                    'name':None,
+                    'name': 'username',
                     'name_format': None,
                     'pages_with_roles': None,
                     'payment_pricepoints': None,
@@ -77,7 +77,6 @@ class Instagram_data():
                     'significant_other': None,
                     'sports': None,
                     'supports_donate_button_in_live_video': None,
-                    'username': 'username',
                     'video_upload_limits': None,
                     'videos': None
                 }
@@ -86,14 +85,76 @@ class Instagram_data():
                 'endpoint': None
             },
             'posts': {
-                'endpoint': None
+                'endpoint': None #maybe this one as well
             },
             'users': {
                 'endpoint': '',
-
+                'get_fields': {
+                    'account_type': 'account_type',
+                    'ad_studies': None,
+                    'adaccounts': None,
+                    'age_range': None,
+                    'albums': None,
+                    'apprequests': None,
+                    'assigned_ad_accounts': None,
+                    'assigned_business_asset_groups': None,
+                    'assigned_pages': None,
+                    'assigned_product_catalogs': None,
+                    'birthday': None,
+                    'business_users': None,
+                    'businesses': None,
+                    'conversations': None,
+                    'custom_labels': None,
+                    'email': None,
+                    'favorite_athletes': None,
+                    'favorite_teams': None,
+                    'feed': None,
+                    'first_name': None,
+                    'friends': None,
+                    'gender': None,
+                    'hometown': None,
+                    'id': 'id',
+                    'ids_for_apps': None,
+                    'ids_for_business': None,
+                    'ids_for_pages': None,
+                    'inspirational_people': None,
+                    'install_type': None,
+                    'is_installed': None,
+                    'is_guest_user': None,
+                    'languages': None,
+                    'last_name': None,
+                    'liked_pages': None,
+                    'live_encoders': None,
+                    'live_videos': None,
+                    'location': None,
+                    'media_count': 'media_count',
+                    'meeting_for': None,
+                    'middle_name': None,
+                    'music': None,
+                    'name': 'username',
+                    'name_format': None,
+                    'pages_with_roles': None,
+                    'payment_pricepoints': None,
+                    'payment.subscriptions': None,
+                    'permissions': None,
+                    'personal_ad_accounts': None,
+                    'photos': None,
+                    'posts': 'media',
+                    'profile_pic_url': None,
+                    'quotes': None,
+                    'shared_login_upgrade_required_by': None,
+                    'short_name': None,
+                    'significant_other': None,
+                    'sports': None,
+                    'supports_donate_button_in_live_video': None,
+                    'timeline_url': None,
+                    'token_for_business': None,
+                    'video_upload_limits': None,
+                    'videos': None
+                }
             },
             'videos': {
-                'endpoint': None
+                'endpoint': ''
             }
         }        
     }

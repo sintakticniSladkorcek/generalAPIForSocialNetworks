@@ -564,6 +564,7 @@ class Facebook_data():
             'users': {
                 'endpoint': '',
                 'get_fields': {
+                    'account_type': None,
                     'ad_studies': 'ad_studies',
                     'adaccounts': 'adaccounts',
                     'age_range': 'age_range',
@@ -600,6 +601,7 @@ class Facebook_data():
                     'live_encoders': 'live_encoders',
                     'live_videos': 'live_videos',
                     'location': 'location',
+                    'media_count': None,                    
                     'meeting_for': 'meeting_for',
                     'middle_name': 'middle_name',
                     'music': 'music',
@@ -611,6 +613,7 @@ class Facebook_data():
                     'permissions': 'permissions',
                     'personal_ad_accounts': 'personal_ad_accounts',
                     'photos': 'photos',
+                    'posts': 'feed',
                     'profile_pic_url': 'profile_pic',
                     'quotes': 'quotes',
                     'shared_login_upgrade_required_by': 'shared_login_upgrade_required_by',
