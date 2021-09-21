@@ -22,6 +22,9 @@ import tweepy # TODO: Do we need this library?
 import json
 import requests
 import inspect
+from hypercorn.config import Config
+import asyncio
+from hypercorn.asyncio import serve
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -30,7 +33,9 @@ from data_dictionaries.Twitter_data import Twitter_data as twd
 
 from authentication.fb_authentication import auth as fb_auth
 from authentication.ig_authentication import auth as ig_auth
+from authentication.ln_authentication import auth_part_2 as ig_auth_2
 from authentication.ln_authentication import auth as ln_auth
+from authentication.ln_authentication import auth_part_2 as ln_auth_2
 from authentication.tw_authentication import auth as tw_auth
 
 from social_media_api_calls.facebook_api_calls import call_api as call_fb_api
@@ -38,6 +43,11 @@ from social_media_api_calls.instagram_api_calls import call_api as call_ig_api
 from social_media_api_calls.linkedin_api_calls import call_api as call_ln_api
 from social_media_api_calls.twitter_api_calls import call_api as call_tw_api
 
+# Set up hypercorn
+hypercorn_config = Config()
+hypercorn_config.certfile = 'cert.pem'
+hypercorn_config.keyfile = 'key.pem'
+hypercorn_config.bind = ['localhost:443']
 
 # Instantiate a FastAPI app object
 app = FastAPI()
@@ -298,7 +308,7 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
     if 'ig' in requested_social_media:
         # if not ig_authenticated:
         #     authenticate('ig')
-        responses['ig'] = call_ig_api(ig_api, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
+        responses['ig'] = call_ig_api(ig_access, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
     
     if 'ln' in requested_social_media:
         # if not ln_authenticated:
@@ -416,6 +426,32 @@ def home():
     response.json = {'Hello': 'Welcome to General API for Social Networks! Check out documentation on /docs, /redoc or on Github https://github.com/sintakticniSladkorcek/generalAPIForSocialNetworks.'}
     return (response)
 
+@app.get('/ig_auth')
+def get_ig_code(code: str, error_reason: str=None, error_description: str=None):
+    try:
+        global ig_access
+        print(code)
+        ig_access = ig_auth_2(code, file_with_ig_credentials)
+        ig_authenticated = True
+        response = 'Success'
+    except:
+        response = 'Error'
+        if error_reason and error_description:
+            response = 'Error: ' + error_reason + ', ' + error_description
+    
+    return response
+
+@app.get('/ln_auth') # 3) LinkedIn te po loginu preusmeri sem, pokličemo auth_part_2()
+def get_ln_code(code: str):
+    try:
+        global ln_access
+        ln_access = ln_auth_2(code, file_with_ln_credentials)
+        ln_authenticated = True
+        response = 'Success'
+    except:
+        response = 'Error'
+        # redirectaj nazaj na /auth? in preverjaj še booleane. Če so true, potem ne delaj na novo avtentikacije ampak sam vrni Success. Je pa pol vprašanje, ali se ta zadeva zacikla, če LinkedInova avtentikacija faila. Lahka shandlamo tk, da se ne, v primeru da je linkedin ni pa boolean true, sam vrnemo error. Ne sam to ne gre, ker pol se tud prvič ne izvede. Razen če mamo nek count ki potem to shandla in se resetira po uspehu.
+    return response
 
 @app.get('/auth')
 def authenticate(sm: str):
@@ -438,6 +474,7 @@ def authenticate(sm: str):
         try:
             global ig_access
             ig_access = ig_auth(file_with_ig_credentials)
+            print(ig_access)
             ig_authenticated = True
             response['Instagram'] = 'Success'
         except:
@@ -446,7 +483,7 @@ def authenticate(sm: str):
     if 'ln' in requested_social_media:
         try:
             global ln_access
-            ln_access = ln_auth(file_with_ln_credentials)
+            ln_access = ln_auth(file_with_ln_credentials) # 1) pokliče auth()
             ln_authenticated = True
             response['LinkedIn'] = 'Success'
         except:
@@ -464,6 +501,15 @@ def authenticate(sm: str):
         response['Twitter'] = 'Success'
 
     return response
+
+@app.get('/ig_deauth')
+@app.get('/ig_delete_data')
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
 
 # fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
 @app.get('/albums/{album_id}')
@@ -1187,6 +1233,8 @@ def delete_video(video_id: str, sm: str):
 # TODO: Add LinkedIn endpoints and mappings
 # TODO: Add Instagram endpoints and mappings
 
+# Put instead of Post for updating stuff
+
 # FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
 # FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
@@ -1197,13 +1245,13 @@ def delete_video(video_id: str, sm: str):
 # FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
 # FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
 
-
 # QUICK TEST
-authenticate('fb')
-# print(get_data_about_me(sm='fb',fields='id,first_name,last_name,birthday'))
+# print(authenticate('ig'))
+print(get_data_about_me(sm='ig'))
+# ,fields='id,first_name,last_name,birthday'
 
 # print(get_data_about_group(group_id='2998732937039201', sm='fb'))
-print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test3', description='lalala'))
+# print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='My first album', description='Testing for spaces'))
 # print(get_data_abut_album(album_id='379274703677170', sm='fb'))
 # print(get_data_about_user('10215963448399509', 'fb', 'name,id,birthday'))
 # print(get_data_about_event(event_id='845071692823639', sm='fb'))
@@ -1217,3 +1265,5 @@ print(create_album_in_group(group_id= '2998732937039201', sm='fb', name='test3',
 # album with 1 photo and 1 comment: 379274703677170
 # comment on album in a group: 3000284600217368
 # event in group: 845071692823639
+
+asyncio.run(serve(app, hypercorn_config))

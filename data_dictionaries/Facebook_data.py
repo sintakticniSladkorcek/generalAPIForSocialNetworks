@@ -401,7 +401,7 @@ class Facebook_data():
             'me': {
                 'endpoint': 'me',
                 'get_fields': {
-                    'pages_with_roles':'accounts',
+                    'account_type': None,
                     'ad_studies':'ad_studies',
                     'adaccounts':'adaccounts',
                     'age_range':'age_range',
@@ -436,11 +436,13 @@ class Facebook_data():
                     'live_encoders':'live_encoders',
                     'live_videos':'live_videos',
                     'location':'location',
+                    'media_count': None,
                     'meeting_for':'meeting_for',
                     'middle_name':'middle_name',
                     'music':'music',
                     'name':'name',
                     'name_format':'name_format',
+                    'pages_with_roles':'accounts',
                     'payment_pricepoints':'payment_pricepoints',
                     'permissions':'permissions',
                     'personal_ad_accounts':'personal_ad_accounts',
@@ -454,6 +456,7 @@ class Facebook_data():
                     'significant_other':'significant_other',
                     'sports':'sports',
                     'supports_donate_button_in_live_video':'supports_donate_button_in_live_video',
+                    'username': None,
                     'video_upload_limits':'video_upload_limits',
                     'videos':'videos'
                 }

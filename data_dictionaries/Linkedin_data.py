@@ -3,16 +3,16 @@ class Linkedin_data():
         'name': 'Linkedin',
         'base_url': 'https://api.linkedin.com/v2/',
         'endpoint_mapping': {
-            'album': {
+            'albums': {
                 'endpoint': None
             },
-            'comment': {
+            'events': {
                 'endpoint': None
             },
-            'event': {
+            'groups': {
                 'endpoint': None
             },
-            'group': {
+            'links': {
                 'endpoint': None
             },
             'live_video': {
@@ -21,6 +21,7 @@ class Linkedin_data():
             'me': {
                 'endpoint': 'me',
                 'get_fields': {
+                    'account_type': None,
                     'accounts': None,
                     'ad_studies': None,
                     'adaccounts': None,
@@ -51,16 +52,18 @@ class Linkedin_data():
                     'languages': None,
                     'last_name':'localizedLastName',
                     'last_name_by_location': 'lastName',
-                    'likes': None,
+                    'liked_pages': None,
                     'link': None,
                     'live_encoders': None,
                     'live_videos': None,
                     'location': None,
+                    'media_count': None,
                     'meeting_for': None,
                     'middle_name': None,
                     'music': None,
-                    'name':'firstName',
+                    'name':'firstName,lastName', # collate first and last name
                     'name_format': None,
+                    'pages_with_roles': None,
                     'payment_pricepoints': None,
                     'permissions': None,
                     'personal_ad_accounts': None,
@@ -74,17 +77,21 @@ class Linkedin_data():
                     'significant_other': None,
                     'sports': None,
                     'supports_donate_button_in_live_video': None,
+                    'username': None,
                     'video_upload_limits': None,
                     'videos': None
                 }
             },
-            'page': {
+            'photos': {
                 'endpoint': None
             },
-            'post': {
+            'posts': {
                 'endpoint': None
             },
-            'user': {
+            'users': {
+                'endpoint': None
+            },
+            'videos': {
                 'endpoint': None
             }
         }

@@ -5,7 +5,7 @@ General API for Social Networks is an API that connects to different social medi
 <a name="currently_supported_apis"></a>Currently supported APIs:
 
 - [Facebook Graph API v12.0](https://developers.facebook.com/docs/graph-api)
-- [Instagram Basic Display API v11.0](https://developers.facebook.com/docs/instagram-basic-display-api/)
+- [Instagram Basic Display API v12.0](https://developers.facebook.com/docs/instagram-basic-display-api/)
 - [LinkedIn Consumer Solutions Platform v2](https://docs.microsoft.com/en-us/linkedin/consumer/)
 - [Twitter API v2](https://developer.twitter.com/en/docs/twitter-api)
 
@@ -117,6 +117,15 @@ Install all required packages by running the following command.
 pip install -r requirements.txt
 ```
 <!-- TODO: pip freeze > requirements.txt -->
+Now let's create certificate for HTTPS. For this, you need to have [Chocolatey](https://chocolatey.org/) installed. Run the following command:
+
+```cmd
+choco install mkcert
+mkcert -install
+mkcert localhost 127.0.0.1 ::1
+```
+
+Rename `localhost+2.pem` to `cert.pem` and `localhost+2-key.pem` to `key.pem`.
 
 ## Prepare credentials
 
@@ -142,7 +151,18 @@ The *app token* does not expire. The *user token*, howewer, expires in 2 hours.
 
 ### Instagram
 
-<!-- TODO -->
+To use Instagrams API, you'll need an app on Facebook for Developers platform, steps are described above in the first 3 steps of the instructions for obtaining Facebook credentials. Then, you will need `client_id` and `redirect_uri`.
+
+1) Follow the steps 1) - 3) from the list above.
+2) In the Dashbord, find card Instagram Basic Display and click *Set Up*.
+3) You will be taken to Basic Display section, where you'll see a warning in red saying to update your settings. Click on the blue button below that, that says *Create New App*.
+4) Set the name for your app and click *Create App*.
+5) You will be redirected to Basic Display section again, where you can now find `client_id` as *Instagram App ID* and `client_secret` as *Instagram App Secret*. Paste both into file `ig_credentials.json`.
+6) Scroling down a bit, find section *Client OAuth Settings* and set up value for `redirect_uri` to `https://127.0.0.1:443/ig_auth`. Paste the same link to `ig_credentials.json`.
+7) Go to Roles and add your Instgram handle as the Instgaram Tester.
+8) Go to https://www.instagram.com/accounts/manage_access/, click *Tester Invites* and accept an invite. Without completing steps 7) and 8), authentication fails with error `{"error_type": "OAuthException", "code": 400, "error_message": "Insufficient developer role"}`.
+
+<!-- https://www.instagram.com/accounts/login/?force_authentication=1&enable_fb_login=1&next=/oauth/authorize%3Fclient_id%3D216293130482337%26redirect_uri%3Dhttps%3A//127.0.0.1%3A443/ig_auth%26scope%3Duser_profile%2Cuser_media%26response_type%3Dcode -->
 
 ### LinkedIn
 
@@ -152,7 +172,7 @@ For LinkedIn authentication we will be using [3-legged OAuth authorization code 
 2) Verify your app in the *Settings* tab by clicking the blue *Verify* button.
 3) Head over to *Auth* tab and copy your credentials: `client ID` and `client secret`. Paste them into file `ln_credentials.json`.
 4) In the *Products* tab, enable *Sign in with LinkedIn* by clicking the blue *Select* button next to it.
-5) Go back to the *Auth* tab to the *OAuth 2.0 settings* section and add a redirect url under *Authorized redirect URLs for your app*. This can also be a postman link (https://oauth.pstmn.io/v1/callback) or a localhost link (http://127.0.0.1:8000). Copy the url you added and paste it into file `ln_credentials.json` as it has to match in both locations in order for authentication to go through.
+5) Go back to the *Auth* tab to the *OAuth 2.0 settings* section and add a redirect url `https://127.0.0.1:443/ln_auth` under *Authorized redirect URLs for your app*. Copy the url you added and paste it into file `ln_credentials.json` as it has to match in both locations in order for authentication to go through.
 
 ### Twitter
 
@@ -173,9 +193,9 @@ To run the General API for Social Networks, run the following command:
 hypercorn main:app --reload
 ```
 
-After that, the API can be accessed at [http://127.0.0.1:8000](http://127.0.0.1:8000). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [http://127.0.0.1:8000/auth](http://127.0.0.1:8000/auth) and setting the value of [`sm` parameter](#sm).
+After that, the API can be accessed at [https://127.0.0.1:443](https://127.0.0.1:443). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [https://127.0.0.1:443/auth](https://127.0.0.1:443/auth) and setting the value of [`sm` parameter](#sm).
 
-<a name="auth_example"></a>For example, to authenticate only with Facebook and LinkedIn, you would send a GET request to `http://127.0.0.1:8000/auth?sm=fb,ln`.
+<a name="auth_example"></a>For example, to authenticate only with Facebook and LinkedIn, you would send a GET request to `https://127.0.0.1:443/auth?sm=fb,ln`.
 
 ## Usage
 
@@ -326,7 +346,7 @@ Example:
 ### Request
 
 <!-- get, post, delete, ... -->
-All requests consist of a base url `http://127.0.0.1:8000`, slash `/`, an endpoint `<some_endpoint>`, question mark `?` and the required field `sm=<short_social_media_names_separated_by_comma>`. If we put this together, we get `http://127.0.0.1:8000/<some_endpoint>?sm=<short_social_media_names_separated_by_comma>`.
+All requests consist of a base url `https://127.0.0.1:443`, slash `/`, an endpoint `<some_endpoint>`, question mark `?` and the required field `sm=<short_social_media_names_separated_by_comma>`. If we put this together, we get `https://127.0.0.1:443/<some_endpoint>?sm=<short_social_media_names_separated_by_comma>`.
 
 If additional fields are specified, for GET requests append an amperstand `&` and the fields `fields=<field_names_separated_by_comma>`.
 For POST requests, also append an amperstand `&` and then all of the field names and their values you want to append, separated by amperstands, like so `&<field1>=<value1>&<field2>=<value2>&<field3>=<value3> ...`.
@@ -336,19 +356,19 @@ DELETE requests don't have any fields so no additions are necessary.
 Example GET request url:
 
 ```url
-http://127.0.0.1:8000/me?sm=fb,ln
+https://127.0.0.1:443/me?sm=fb,ln
 ```
 
 Example POST request url:
 
 ```url
-http://127.0.0.1:8000/group/12345678901234/album?sm=fb&name=My Album&description=This is my first album
+https://127.0.0.1:443/group/12345678901234/album?sm=fb&name=My Album&description=This is my first album
 ```
 
 Example DELETE request url:
 
 ```url
-http://127.0.0.1:8000//videos/12345678901234?sm=fb
+https://127.0.0.1:443//videos/12345678901234?sm=fb
 ```
 
 <!-- TODO: Check how is it with spaces and special characters in strings -->
@@ -409,7 +429,7 @@ Endpoints for GET requests
 |`/photos/{photo_id}`|Facebook||
 |`/users/{user_id}`|Facebook||
 |`/videos/{video_id}`|Facebook||
-|`/me`|Facebook, LinkedIn|Returns data about the user who is logged in.|
+|`/me`|Facebook, Instagram, LinkedIn|Returns data about the user who is logged in.|
 
 <!-- Add required permissions? -->
 /album/{album_id}: if on user - user_photos, if on page - pages_read_engagement, if on group - you have to be admin
