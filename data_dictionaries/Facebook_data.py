@@ -470,9 +470,11 @@ class Facebook_data():
                     'can_backdate': 'can_backdate',
                     'can_delete': 'can_delete',
                     'can_tag': 'can_tag',
+                    'content_category': None,
                     'created_time': 'created_time',
                     'dated': 'backdated_time',
                     'dated_accuracy': 'backdated_time_granularity',
+                    'description': None,
                     'display_icon': 'icon',
                     'event': 'event',
                     'height': 'height',
@@ -488,6 +490,7 @@ class Facebook_data():
                     'tagged_names': 'name_tags',
                     'target': 'target',
                     'updated_time': 'updated_time',
+                    'url_to_image_file': 'link',
                     'width': 'width'
                 }
             },

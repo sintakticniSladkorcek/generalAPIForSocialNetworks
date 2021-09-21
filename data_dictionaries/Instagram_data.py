@@ -82,7 +82,38 @@ class Instagram_data():
                 }
             },
             'photos': {
-                'endpoint': None
+                'endpoint': '',
+                'get_fields': {
+                    'album': None,
+                    'alt_text': None,
+                    'alt_text_custom': None,
+                    'author': 'username',
+                    'can_backdate': None,
+                    'can_delete': None,
+                    'can_tag': None,
+                    'content_category': 'media_type',
+                    'created_time': 'timestamp',
+                    'dated': None,
+                    'dated_accuracy': None,
+                    'description': 'caption',
+                    'display_icon': None,
+                    'event': None,
+                    'height': None,
+                    'id': 'id',
+                    'image_representations': None,
+                    'image_url': 'permalink',
+                    'image_webp_representations': None,
+                    'likes': None,
+                    'location': None,
+                    'name': None,
+                    'page_story_id': None,
+                    'sponsor_tags': None,
+                    'tagged_names': None,
+                    'target': None,
+                    'updated_time': None,
+                    'url_to_image_file': 'media_url',
+                    'width': None
+                }
             },
             'posts': {
                 'endpoint': None #maybe this one as well
