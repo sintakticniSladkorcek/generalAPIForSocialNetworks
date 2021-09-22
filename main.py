@@ -199,8 +199,10 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                 else:
                     merged_response['errors'][platform_name] = {}
                     merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
-                    merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
-
+                    try:
+                        merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
+                    except:
+                        merged_response['errors'][platform_name]['json_response'] = responses[platform]
     # Merge responses for POST method and DELETE method
     elif method == 'post' or method == 'delete':
         for platform in responses:
@@ -268,7 +270,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         requested_social_media_data.append(data_dictionary[social_media])
 
     # contains list of selected fields corresponding to platforms from selected_social_media
-    mapped_fields = []
+    mapped_fields = {}
 
     # contains list of selected fields (not mapped)
     unified_fields = prepared_fields
@@ -302,7 +304,6 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             temp_fields = []
 
             if fields == None:
-
                 # Collate all possible fields
                 for field in field_mappings[type_of_fields]:
                     if field_mappings[type_of_fields][field] != None:
@@ -325,7 +326,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
                         temp_fields.append(field_mappings[type_of_fields][field])
                 
             # Add mapped fields to the list
-            mapped_fields.append(temp_fields)
+            mapped_fields[social_media['name']] = temp_fields
 
         # Map for POST method
         elif method == 'post':
@@ -335,7 +336,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
                     temp_fields[field_mappings[type_of_fields][field]] = fields[field]
             
             # Add mapped fields to the list
-            mapped_fields.append(temp_fields)
+            mapped_fields = [social_media['name']] = temp_fields
 
     return unified_fields, mapped_fields
 
@@ -411,28 +412,28 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
 
     # call social media APIs
     if 'fb' in requested_social_media:
-        if 'fb' not in mapped_fields:
+        if 'Facebook' not in mapped_fields:
             responses['fb'] = prepare_endpoint_error_response('Facebook', url)
         else:
-            responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, path, mapped_fields[requested_social_media.index('fb')], id)
+            responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, path, mapped_fields[data_dictionary['fb']['name']], id)
     
     if 'ig' in requested_social_media:
-        if 'ig' not in mapped_fields:
+        if 'Instagram' not in mapped_fields:
             responses['ig'] = prepare_endpoint_error_response('Instagram', url)
         else:
-            responses['ig'] = call_ig_api(ig_access, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id)
+            responses['ig'] = call_ig_api(ig_access, data_dictionary['ig'], method, endpoint, path, mapped_fields[data_dictionary['ig']['name']], id)
     
     if 'ln' in requested_social_media:
-        if 'ln' not in mapped_fields:
+        if 'LinkedIn' not in mapped_fields:
             responses['ln'] = prepare_endpoint_error_response('LinkedIn', url)
         else:
-            responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, path, mapped_fields[requested_social_media.index('ln')], id)
+            responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, path, mapped_fields[data_dictionary['ln']['name']], id)
 
     if 'tw' in requested_social_media:
-        if 'tw' not in mapped_fields:
+        if 'Twitter' not in mapped_fields:
             responses['tw'] = prepare_endpoint_error_response('Twitter', url)
         else:
-            responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
+            responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[data_dictionary['tw']['name']], id)
 
     # merge responses into one json object
     response = merge_responses(method, endpoint, unified_fields, responses, limit)
@@ -614,7 +615,8 @@ def authenticate(sm: str):
 ##################################################################################################
 ##################################################################################################
 
-# fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
+# fb, ig
+# Facebook: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
 @app.get('/albums/{album_id}')
 def get_data_abut_album(album_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the album with given album_id specified by parameter `fields`'''
@@ -625,7 +627,7 @@ def get_data_abut_album(album_id: str, sm: str, fields: str = None, limit: str =
     return response
 
 
-# fb:
+# fb
 # Facebook: Access to Events on Users and Pages is only available to Facebook Marketing Partners.
 @app.get('/events/{event_id}')
 def get_data_about_event(event_id: str, sm: str, fields: str = None, limit: str = None):
@@ -683,7 +685,7 @@ def get_data_about_me(sm: str, fields: str = None, limit: str = None):
     return response
     
 
-# fb
+# fb, ig
 @app.get('/photos/{photo_id}')
 def get_data_about_photo(photo_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the photo with given photo_id specified by parameter `fields`'''
@@ -706,7 +708,7 @@ def get_data_about_post(post_id: str, sm: str, fields: str = None, limit: str = 
 
 
 # TO BE TESTED
-# fb
+# fb, ig
 @app.get('/users/{user_id}')
 def get_data_about_user(user_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the user with given user_id specified by parameter `fields`'''
@@ -717,7 +719,7 @@ def get_data_about_user(user_id: str, sm: str, fields: str = None, limit: str = 
     return response
 
 
-# fb
+# fb, ig
 @app.get('/videos/{video_id}')
 def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the video with given video_id specified by parameter `fields`'''
@@ -729,14 +731,6 @@ def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str 
 
 
 # POST requests
-
-# TODO: setup mappings
-# Privacy levels (enum, fb name, our name)
-# * level 0 ==>only me (me)
-# * level 1==>friend only (connections)
-# * level 2==>public (public)
-# * level >2 ==>error
-
 
 # TO BE TESTED
 # fb
@@ -998,7 +992,7 @@ def create_post_in_group(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # fb
 @actual_kwargs()
 @app.post('/groups/{group_id}/videos')
@@ -1053,7 +1047,7 @@ def create_video_in_group(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # Not sure if fields are ok, since two documentation pages about this have different fields listed. To be tested.
 # fb
 @actual_kwargs()
@@ -1127,7 +1121,7 @@ def update_user_profile(
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # fb
 @actual_kwargs()
 @app.post('/users/{user_id}/live_videos')
@@ -1166,7 +1160,7 @@ def create_live_video_on_user(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # ln
 @actual_kwargs()
 @app.post('/users/{user_id}/posts')
@@ -1191,7 +1185,7 @@ def create_post_on_user(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # fb
 @actual_kwargs()
 @app.post('/users/{user_id}/videos')
@@ -1252,7 +1246,7 @@ def create_video_on_user(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
     return response
 
-
+# TO BE TESTED
 # fb
 @actual_kwargs()
 @app.post('/videos/{video_id}')
