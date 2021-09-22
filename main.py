@@ -20,12 +20,12 @@ from fastapi import FastAPI, HTTPException, Query
 import facebook # TODO: Do we need this library?
 import tweepy # TODO: Do we need this library?
 import json
-import requests
 import inspect
-from hypercorn.config import Config
 import asyncio
-from hypercorn.asyncio import serve
+import requests
 from requests import Response
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -34,10 +34,10 @@ from data_dictionaries.Twitter_data import Twitter_data as twd
 
 from authentication.fb_authentication import auth as fb_auth
 from authentication.ig_authentication import auth as ig_auth
-from authentication.ig_authentication import auth_part_2 as ig_auth_2
 from authentication.ln_authentication import auth as ln_auth
-from authentication.ln_authentication import auth_part_2 as ln_auth_2
 from authentication.tw_authentication import auth as tw_auth
+from authentication.ig_authentication import auth_part_2 as ig_auth_2
+from authentication.ln_authentication import auth_part_2 as ln_auth_2
 
 from social_media_api_calls.facebook_api_calls import call_api as call_fb_api
 from social_media_api_calls.instagram_api_calls import call_api as call_ig_api
@@ -165,24 +165,26 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                                 all_data = resolve_pagination(field_data)
                                 field_data['data'] = all_data
                         
-                        try:
-                            limit = json.loads(limit)
-                            limit_exists = limit != None
-                            field_matches = field in limit    # limit['field'] == field
-                            count_ok = limit[field] > 0     # limit['count'] > 0
-                            if limit_exists and field_matches and count_ok:
-                                field_data['data'] = field_data['data'][:int(limit[field])]
-                        except:
-                            print('in except')
-                            error = {
-                                'Error': {
-                                    'HTTPstatus': 400,
-                                    'error_code': 3,
-                                    'message': limit + ' is not a valid value. limit[\'<name_of_the_field>\'] must be an integer. Please use the following format for the \'limit\' parameter: {"<name_of_the_field>":<integer>}'
+                        limit_exists = limit != None
+                        if limit_exists:
+                            try:
+                                limit = json.loads(limit)
+                                
+                                field_matches = field in limit    # limit['field'] == field
+                                count_ok = limit[field] > 0     # limit['count'] > 0
+                                if limit_exists and field_matches and count_ok:
+                                    field_data['data'] = field_data['data'][:int(limit[field])]
+                            except:
+                                print('in except')
+                                error = {
+                                    'Error': {
+                                        'HTTPstatus': 400,
+                                        'error_code': 3,
+                                        'message': limit + ' is not a valid value. limit[\'<name_of_the_field>\'] must be an integer. Please use the following format for the \'limit\' parameter: {"<name_of_the_field>":<integer>}'
+                                    }
                                 }
-                            }
-                            raise HTTPException(status_code=400, detail=error)
-                            
+                                raise HTTPException(status_code=400, detail=error)
+                                
                         temp_dict[specific_field_name] = field_data    
                         merged_response[field].append(temp_dict)
                     except HTTPException:
@@ -543,8 +545,8 @@ def authenticate(sm: str):
 
     return response
 
-@app.get('/ig_deauth')
-@app.get('/ig_delete_data')
+# @app.get('/ig_deauth')
+# @app.get('/ig_delete_data')
 
 ##################################################################################################
 ##################################################################################################
@@ -1236,10 +1238,17 @@ def delete_video(video_id: str, sm: str):
 # TODO: Add LinkedIn endpoints and mappings
 # TODO: Add Twitter endpoints and mappings
 # TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
+# Docs for limit: either it's on you to limit responses, we return all, or everything is limited by default and we don't have pagination
+# Docs for visible_to
+# Example use
+
+# POST parameters in body?
+
+# Limit default value
+# Apply limit while paging
+
 
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
-# TODO: Add restrictions/errors for functionalities that are only applicable to some social media APIs: each function has list of supported social media? And later we change to some more elaborate solution? Nah. Make it so that if endpoint translates to None, the call doesn't happen. And response could say "oh, and just so you know, this social media you called, doesn't have this endpoint." WHICH???
-# TODO: include HTTP status codes in merged response YES/NO???
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: fb authentication
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
