@@ -24,11 +24,18 @@ def auth(file_with_credentials):
         creds.update({'user_access_token_secret':auth.access_token_secret})
         ut.save_token(file_with_credentials, creds)
         return auth, None
-
-    except tweepy.TweepError as e:
-
+    
+    except Exception as e:
         response = Response()
-        response.status_code = e.reason[31:34]
-        response.json = json.loads(e.reason[50:-2])
+        response.status_code = 400
+        message = 'Something went wrong during the process of authenticating with Twiter. ' + str(e)
+        error = {
+                    'Error': {
+                        'HTTPstatus': 400,
+                        'error_code': 4,
+                        'message': message
+                    }
+                }
+        response.json = json.loads(json.dumps(error))
         return None, response
     

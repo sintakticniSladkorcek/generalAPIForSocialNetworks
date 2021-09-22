@@ -94,6 +94,7 @@ def resolve_pagination(items):
             break
     return all_items
 
+
 def error_response(responses):
     ''' Checks if any of responses are error responses and if so, separates them from the others. 
     
@@ -536,9 +537,7 @@ def authenticate(sm: str):
         if tw_error != None:
             global tw_access
             tw_access = tw_creds
-            print(tw_error, tw_error.json)
-            response['Twitter'] = 'Error'
-            # TODO: raise Exception or somehow include tw_error in a merged response
+            response['Twitter'] = tw_error
         tw_authenticated = True
         response['Twitter'] = 'Success'
 
@@ -1235,7 +1234,6 @@ def delete_video(video_id: str, sm: str):
 
 
 # TODO: Add LinkedIn endpoints and mappings
-# TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: Add Twitter endpoints and mappings
 # TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
 
@@ -1249,7 +1247,6 @@ def delete_video(video_id: str, sm: str):
 # data deletion for fb and ig
 # deauth for ig
 
-# FURTHER DEVELOPMENT: limit parameter (how many items do you want returned)
 # FURTHER DEVELOPMENT: Put instead of Post for updating stuff
 # FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
 # FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
