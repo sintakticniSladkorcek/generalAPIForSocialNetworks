@@ -36,12 +36,13 @@ Functionality:
       - [Response from POST or DELETE request](#response-from-post-or-delete-request)
     - [Request](#request)
     - [Important Query String Parameters](#important-query-string-parameters)
-      - [sm](#sm)
-      - [limit](#limit)
-      - [visible_to](#visible_to)
+      - [sm (required)](#sm-required)
+      - [limit (optional)](#limit-optional)
+      - [visible_to (optional)](#visible_to-optional)
     - [Endpoints](#endpoints)
       - [/docs or /redoc](#docs-or-redoc)
       - [/auth](#auth)
+      - [/ig_auth and /ln_auth](#ig_auth-and-ln_auth)
       - [Table of endpoints](#table-of-endpoints)
     - [Errors](#errors)
       - [Errors returned by General API for Social Networks](#errors-returned-by-general-api-for-social-networks)
@@ -374,7 +375,7 @@ https://127.0.0.1:443//videos/12345678901234?sm=fb
 
 ### Important Query String Parameters
 
-#### sm
+#### sm (required)
 
 <a name="sm"></a>
 This parameter specifies, which social media platforms do we want to include in the request. For most requests, this is a **required parameter** and at least 1 of the options has to be choosen. To choose more than 1 option, separate the values with a comma like so `sm=fb,ig`.
@@ -387,12 +388,12 @@ Currently available values are:
 - `ln` (representing LinkedIn),
 - `tw` (representing Twitter).
 
-#### limit
+#### limit (optional)
 
 This parameter is avilable for all `GET` requests and limits the number of results in the response for specific field. The `limit` parameter should be passed in the following format.
 
 
-```json
+```txt
 limit={
   "{name_of_the_field}":{integer},
   "{name_of_another_field}":{integer}
@@ -415,16 +416,20 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 }
 ```
 
-#### visible_to
+#### visible_to (optional)
+
+This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. It must be provided in the following format.
 
 Yet to be implemented.
 <!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
-Available values: `me`, `connections`, `public`, `custom`(?)
+Available values: `me`, `connections`, `public`, `custom`(?) they depend on social media APIs so maybe better not to unify them but just have sm:value pairs and list the options for each sm.
 
 ### Endpoints
 
 <a name="endpoints"></a>
-Below is a table of all of the available endpoints and paths that you can use for your requests. Each of the endpoints/path is additionally described in its own section. Apart from the listed endpoints, there are also some others important ones, well look at them first.
+Below is a table of all of the available endpoints and paths that you can use for your requests. Each of the endpoints is additionally described in its own section. To see, which fields can be set in the `fields` parameter or as part of the `POST` request, check the fields for each endpoint in dictionaries in folder `data_dictionaries`.  
+
+Apart from the listed endpoints, there are also some others important ones, we'll take a look at them first.
 
 #### /docs or /redoc
 
@@ -433,6 +438,10 @@ These are the endpoints leading to auto-generated documentation. `/docs` leads t
 #### /auth
 
 This endpoint is the one you should call first. It takes care of the authentication with all of the social media APIs so you can then perform other requests. Unless authenticated, you will not be able to perform other requests. To specify which social media APIs you want to authetnicate with, use parameter `sm`. See example [here](#auth_example).
+
+#### /ig_auth and /ln_auth
+
+These endpoints are used internally in the proces of authenticating with Instagram and LinkedIn, respectively. They should not be called directly by your application.
 
 #### Table of endpoints
 
@@ -482,85 +491,7 @@ Endpoints for DELETE requests
 |`/photos/{photo_id}`|Facebook||
 |`/videos/{video_id}`|Facebook||
 
-Some functionalities from the Facebook Graph API are not included in General API for Social Networks. These are (by endpoint):
-
-- App Request
-- Application
-- Async Session
-- Atlas Ad Set
-- Atlas Campaign
-- Atlas FBConversion Event
-- Atlas Publisher
-- Atlas Report
-- Atlas Report Run
-- Atlas Report Schedule
-- Atlas Tracking Connection
-- Business Unit
-- CPASAdvertiser Partnership Recommendation
-- CPASCollaboration Request
-- CTCert Domain
-- Canvas
-- Canvas Button
-- Canvas Carousel
-- Canvas Footer
-- Canvas Header
-- Canvas Photo
-- Canvas Product List
-- Canvas Product Set
-- Canvas Store Locator
-- Canvas Text
-- Canvas Video
-- Collaborative Ads Directory
-- Commerce Merchant Settings
-- Commerce Order
-- Conversation (Facebook message between person and a page)
-- Destination
-- Doc ******* might add later
-- Flight
-- Friend List (deprecated)
-- Group Doc (only available through Workplace)
-- Group Message
-- Image Copyright ******** might add later
-- Instagram Oembed
-- Lead Gen Data
-- Live Encoder ******** might add later
-- Live Video Input Stream ******** might add later
-- Mailing Address ******** might add later
-- Media Fingerprint
-- Message (requires page access)
-- Milestone (requires page access)
-- Native Offer ******** might add later
-- Object Comments (GET included in other endpoints, other stuff needs page access token)
-- Object Likes (GET included in other endpoints, other stuff needs page access token)
-- Object Private Replies (deprecated, functionality moved to Messenger API which is not part of our API)
-- Object Reactions (included in other endpoints)
-- Object Sharedposts (included in other endpoints)
-- Oembed Page (data to display this on some website, not part of the scope)
-- Oembed Post (data to display this on some website, not part of the scope)
-- Oembed Video (data to display this on some website, not part of the scope)
-- Offline Conversion Data Set (something to do with the ads, we don't have permission)
-- Offline Conversion Data Set Upload (something to do with the ads, we don't have permission)
-- Page (requires page access token) ******** might add later
-- Page Call To Action
-- Page Post
-- Page Upcoming Change
-- Page/insights
-- Payment
-- Place Topic (requires pages_read_engagement)
-- Profile (just name for group of other endpoints)
-- RTBDynamic Post (something for ads)
-- Request (not in scope, related to apprequest)
-- Store Catalog Settings (not in scope)
-- Test User (not relevant)
-- Thread (only accessible for users that are developers of the app making the request)
-- Video Copyright ******** might add later
-- Video Copyright Rule ******** might add later
-- Video List (page video playlist)
-- Video Poll ******** might add later
-- Video Poll Option ******** might add later
-- Whats App Business Account (not relevant)
-- Whats App Business Account To Number Current Status (not relevant)
-- Whats App Business HSM (not relevant)
+Note that some functionalities from the Facebook Graph API are not included in General API for Social Networks.
 
 ### Errors
 
@@ -584,6 +515,7 @@ See all errors returned by General API for Social Networks in the following tabl
 |---|---|---|---|
 |400|1|Too many requested platforms|Specify only one requested social media platform in the `sm` parameter|
 |400|2|Invalid value for `sm`|Choose values for social media only among the [valid ones](#sm)|
+|400|3|Invalid value for `limit`|Set the value following the scheme [described here](#limit-optional).|
 
 #### Errors returned by social media APIs
 
