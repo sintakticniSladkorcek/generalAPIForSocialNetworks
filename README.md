@@ -446,9 +446,15 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 
 #### visible_to (optional)
 
-This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. For possible values, see their documentation:
+This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. 
 
-- Facebook: https://developers.facebook.com/docs/graph-api/reference/privacy/
+Possible values:
+- Facebook: `SELF`, `NETWORKS_FRIENDS`, `FRIENDS_OF_FRIENDS`, `ALL_FRIENDS`, `EVERYONE`, `CUSTOM`
+- LinkedIn: `CONNECTIONS`, `PUBLIC`
+
+For more, see their documentation:
+
+- Facebook: https://developers.facebook.com/docs/graph-api/reference/privacy/, also this StackOverflow answer explains it well https://stackoverflow.com/a/37330630 
 - LinkedIn: https://docs.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin?context=linkedin/consumer/context#request-body-schema
 
 Yet to be implemented.
@@ -486,11 +492,13 @@ Endpoints for GET requests
 |`/groups/{group_id}`|Facebook||
 |`/links/{link_id}`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
-|`/locations/{location_id}`|Facebook||
+<!-- |`/locations/{location_id}`|Facebook|| -->
+|`/me`|Facebook, Instagram, LinkedIn|Returns data about the user who is logged in.|
 |`/photos/{photo_id}`|Facebook, Instagram|Returns data about photo.|
+|`/posts/{post_id}`|Facebook|Returns data about a post.|
 |`/users/{user_id}`|Facebook, Instagram|Returns data about user with given `{user_id}`.|
 |`/videos/{video_id}`|Facebook, Instagram|Returns data about video.|
-|`/me`|Facebook, Instagram, LinkedIn|Returns data about the user who is logged in.|
+
 
 <!-- Add required permissions? -->
 /album/{album_id}: if on user - user_photos, if on page - pages_read_engagement, if on group - you have to be admin
