@@ -13,7 +13,8 @@ Functionality:
 
 - for Facebook:
   - retrieve data about users, posts, links, photos, videos, live videos, albums, events, groups
-  - post in events, groups and on user's profile
+  - create posts in group
+  - post photos, videos and live videos in events, groups and on user's profile
   - modify user's profile, video and live video
   - delete user's photos, videos and live videos
 - for Instagram:
@@ -499,17 +500,18 @@ Endpoints for POST requests
 
 |endpoint/path|supported social media|description|
 |---|---|---|
-|`groups/{group_id}/albums`|Facebook||
-|`/events/{event_id}/live_videos`|Facebook||
-|`/groups/{group_id}/live_videos`|Facebook||
 |`/albums/{album_id}/photos`|Facebook||
+|`/events/{event_id}/live_videos`|Facebook||
+|`/groups/{group_id}/albums`|Facebook||
+|`/groups/{group_id}/posts`|Facebook|Create a post in group|
+|`/groups/{group_id}/live_videos`|Facebook||
 |`/groups/{group_id}/photos`|Facebook||
+|`/groups/{group_id}/videos`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
-|`/users/{user_id}/live_videos`|Facebook||
 |`/users/{user_id}`|Facebook||
+|`/users/{user_id}/live_videos`|Facebook||
+|`/users/{user_id}/videos`|Facebook||
 |`/videos/{video_id}`|Facebook||
-|`/{group_id}/videos`|Facebook||
-|`/{user_id}/videos`|Facebook||
 
 Endpoints for DELETE requests
 

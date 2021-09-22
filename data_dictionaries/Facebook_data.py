@@ -1,7 +1,7 @@
 class Facebook_data():
     dict = {
         'name': 'Facebook',
-        'base_url': 'https://graph.facebook.com/v11.0/',
+        'base_url': 'https://graph.facebook.com/v12.0/',
         'endpoint_mapping': {
             'albums': {
                 'endpoint': '',
@@ -27,7 +27,7 @@ class Facebook_data():
                     'photos': 'photos',
                     'updated_time': 'updated_time',
                     'url_to_album': 'link',
-                    'visible_to': 'privacy' #
+                    'visible_to_fb': 'privacy' #
                 },
                 'paths': {
                     'photos': {
@@ -77,7 +77,7 @@ class Facebook_data():
                             'unpublished_content_type': 'unpublished_content_type',
                             'user_selected_tags': 'user_selected_tags',
                             'vault_image_id': 'vault_image_id',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     }
                 }
@@ -149,7 +149,7 @@ class Facebook_data():
                             'stereoscopic_mode': 'stereoscopic_mode',
                             'stop_on_delete_stream': 'stop_on_delete_stream',
                             'video_title': 'title',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     }
                 }
@@ -195,7 +195,7 @@ class Facebook_data():
                             'location_by_name': 'location',
                             'make_shared_album': 'make_shared_album',
                             'name': 'name',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     },
                     'live_videos': {
@@ -223,7 +223,7 @@ class Facebook_data():
                             'stereoscopic_mode': 'stereoscopic_mode',
                             'stop_on_delete_stream': 'stop_on_delete_stream',
                             'video_title': 'title',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     },
                     'photos': {
@@ -273,9 +273,16 @@ class Facebook_data():
                             'unpublished_content_type': 'unpublished_content_type',
                             'user_selected_tags': 'user_selected_tags',
                             'vault_image_id': 'vault_image_id',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     },
+                    'posts': {
+                        'path': 'feed',
+                        'post_fields': {
+                            'message': 'message',
+                            'link': 'link'
+                        }
+                    }
                     'videos': {
                         'path': 'videos',
                         'post_fields': {
@@ -397,7 +404,7 @@ class Facebook_data():
                     'tagged_users': 'tags',
                     'targeting': 'targeting',
                     'video_title': 'title',
-                    'visible_to': 'privacy'
+                    'visible_to_fb': 'privacy'
                 }
             },
             'me': {
@@ -563,7 +570,7 @@ class Facebook_data():
                     'updated_time': 'updated_time',
                     'url_to_video_file': 'source',
                     'video_buying_eligibility': 'video_buying_eligibility',
-                    'visible_to': 'privacy'
+                    'visible_to_fb': 'privacy'
                 }
             },
             'users': {
@@ -659,7 +666,7 @@ class Facebook_data():
                             'stereoscopic_mode': 'stereoscopic_mode',
                             'stop_on_delete_stream': 'stop_on_delete_stream',
                             'video_title': 'title',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     },
                     'videos': {
@@ -704,7 +711,7 @@ class Facebook_data():
                             'video_file_chunk': 'video_file_chunk', # required during transfer upload phasr
                             'video_id_original': 'video_id_original',
                             'video_id_to_replace': 'replace_video_id',
-                            'visible_to': 'privacy'
+                            'visible_to_fb': 'privacy'
                         }
                     }
                 }
@@ -757,7 +764,7 @@ class Facebook_data():
                     'video_title': 'title',
                     'video_url': 'permalink_url',
                     'views_count': 'views',
-                    'visible_to': 'privacy'
+                    'visible_to_fb': 'privacy'
                 },
                 'post_fields': {
                     'ad_breaks': 'ad_breaks',
@@ -787,7 +794,7 @@ class Facebook_data():
                     'target_video_id': 'target',
                     'universal_video_id': 'universal_video_id',
                     'video_title': 'name',
-                    'visible_to': 'privacy'
+                    'visible_to_fb': 'privacy'
                 }
             }
         }

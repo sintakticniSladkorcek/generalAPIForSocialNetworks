@@ -775,7 +775,7 @@ def create_photo_in_album(
     open_graph_set_profile_badge: bool=False,
     open_graph_suggestion_mechanism: str=None,
     location_by_id: str=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     proxied_app_id: str=None,
     is_published: bool=True,
     photos_waterfall_id: str=None,
@@ -822,7 +822,7 @@ def create_live_video_in_event(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
     spatial_audio_format: int=None,
@@ -848,7 +848,7 @@ def create_live_video_in_event(
 # fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
 @actual_kwargs()
 @app.post('groups/{group_id}/albums')
-def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to: str='connections', make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to_fb: str=None, make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
     ''' Creates a new album in a group specified by group_id '''
 
     endpoint = 'groups'
@@ -885,7 +885,7 @@ def create_live_video_in_group(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
     save_vod: bool=True,
@@ -946,7 +946,7 @@ def create_photo_in_group(
     open_graph_set_profile_badge: bool=False,
     open_graph_suggestion_mechanism: str=None,
     location_by_id: str=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     proxied_app_id: str=None,
     is_published: bool=True,
     photos_waterfall_id: str=None,
@@ -969,6 +969,29 @@ def create_photo_in_group(
     method = 'post'
 
     fields = create_photo_in_group.actual_kwargs
+    del fields['group_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    return response
+
+
+# fb
+@actual_kwargs()
+@app.post('/groups/{group_id}/posts')
+def create_post_in_group(
+    group_id: str, 
+    sm: str,
+    message: str=None,
+    link: str=None
+    ):
+    '''Creates a post in group with given group_id.'''
+
+    endpoint = 'groups'
+    path = 'posts'
+    method = 'post'
+
+    fields = create_post_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -1055,7 +1078,7 @@ def update_live_video(
     master_ingest_stream_id: str=None,
     location: str=None,
     planned_start_time: int=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
     custom_background_image_for_schedule: str=None,
@@ -1121,7 +1144,7 @@ def create_live_video_on_user(
     is_360: bool=False, 
     live_encoders: list=None, 
     original_fov: int=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     projection: str='eqirectangular',
     custom_image_for_schedule: str=None,
     spatial_audio_format: int=None,
@@ -1172,7 +1195,7 @@ def create_video_on_user(
     original_fov: int=None,
     original_projection_type_for_360: str='eqirectangular',
     posting_to_redspace: bool=None,
-    visible_to: str='connections',
+    visible_to_fb: str=None,
     prompt_id: str=None,
     prompt_tracking_string: str=None,
     react_mode_metadata: str=None,
@@ -1228,7 +1251,7 @@ def update_video(
     increment_play_count: bool=None,
     video_title: str=None,
     preferred_thumbnail_id: str=None,
-    visible_to: str='connectinos',
+    visible_to_fb: str=None,
     publish_to_news_feed: bool=None,
     publish_to_videos_tab_only: bool=None,
     is_published: bool=None,
