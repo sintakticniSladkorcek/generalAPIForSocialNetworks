@@ -521,6 +521,8 @@ Endpoints for POST requests
 |`/groups/{group_id}/photos`|Facebook||
 |`/groups/{group_id}/videos`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
+|`/posts/{post_id}/comments`|LinkedIn||
+|`/posts/{post_id}/likes`|LinkedIn||
 |`/users/{user_id}`|Facebook||
 |`/users/{user_id}/live_videos`|Facebook||
 |`/users/{user_id}/posts`|LinkedIn|Create a post on user's profile|
