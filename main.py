@@ -217,12 +217,15 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                     merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
                 except:
                     merged_response['errors'][platform_name]['json_response'] = responses[platform]
-                
-    print(error_responses, responses)
+
+    response = merged_response 
+
+    # If all platforms returned error, don't return a 200 response!         
     if len(error_responses) == len(responses):
-        # Set status to 400
-        pass
-    response = merged_response
+        response = Response()
+        response.status_code = 400
+        response.json = merged_response
+    
     return response
 
 
