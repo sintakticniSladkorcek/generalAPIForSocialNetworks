@@ -213,7 +213,10 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
             else:
                 merged_response['errors'][platform_name] = {}
                 merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
-                merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
+                try:
+                    merged_response['errors'][platform_name]['json_response'] = responses[platform].json()
+                except:
+                    merged_response['errors'][platform_name]['json_response'] = responses[platform]
                 
     # Convert dictionary merged_responses to json string
     response = merged_response
@@ -260,7 +263,10 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
 
     # prepare fields for processing for the POST method
     elif method=='post':
-        prepared_fields = fields.keys()
+        if fields != None:
+            prepared_fields = fields.keys()
+        else:
+            prepared_fields = None
 
     # contains data dictionaries of selected social media platforms
     requested_social_media_data = [] 
@@ -278,11 +284,14 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     # set location of field mappings for unified_fields depending on presence of path parameter
     ''' Could be improved'''
     unified_field_mappings = requested_social_media_data[0]['endpoint_mapping'][endpoint]
+    test_for_none = unified_field_mappings['endpoint']
     if path != None:
         unified_field_mappings = unified_field_mappings['paths'][path]
+        test_for_none = unified_field_mappings['path']
     
+    print
     # If no fields are selected, return all possible data
-    if unified_field_mappings['endpoint'] != None and fields == None:
+    if test_for_none != None and fields == None:
         unified_fields = unified_field_mappings[type_of_fields].keys()
     
     # Map fields for similar parameter for each platform
@@ -295,7 +304,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             field_mappings = field_mappings['paths'][path]
 
         # skip social media if endpoint does not exist for it
-        if field_mappings['endpoint'] == None:
+        if test_for_none == None:
             mapped_fields = None
             continue
 
@@ -336,7 +345,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
                     temp_fields[field_mappings[type_of_fields][field]] = fields[field]
             
             # Add mapped fields to the list
-            mapped_fields = [social_media['name']] = temp_fields
+            mapped_fields[social_media['name']] = temp_fields
 
     return unified_fields, mapped_fields
 
@@ -515,19 +524,8 @@ def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None, 
     return response
 
 
-def actual_kwargs():
-    """
-    Decorator that provides the wrapped function with an attribute 'actual_kwargs'
-    containing just those keyword arguments actually passed in to the function. Copied from https://stackoverflow.com/a/1409284.
-    """
-    def decorator(function):
-        def inner(*args, **kwargs):
-            inner.actual_kwargs = kwargs
-            return function(*args, **kwargs)
-        return inner
-    return decorator
 
-
+# https://127.0.0.1:443/users/{user_id}/posts?sm=ln&author=cAnJ0yFHOX&state=PUBLISHED&visible_to_ln=CONNECTIONS&content={"shareCommentary":"Testni tekst","shareMediaCategory":"NONE"}
 ########################
 # Endpoint definitions #
 ########################
@@ -734,7 +732,6 @@ def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str 
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/albums/{album_id}/photos')
 def create_photo_in_album(
     album_id: str, 
@@ -787,11 +784,12 @@ def create_photo_in_album(
     ):
     '''Creates a photo in album with given album_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'albums'
     path = 'photos'
     method = 'post'
 
-    fields = create_photo_in_album.actual_kwargs
     del fields['album_id']
     del fields['sm']
 
@@ -801,7 +799,6 @@ def create_photo_in_album(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/events/{event_id}/live_videos')
 def create_live_video_in_event(
     event_id: str, 
@@ -827,11 +824,12 @@ def create_live_video_in_event(
     ):
     '''Creates a live video in event with given event_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'events'
     path = 'live_videos'
     method = 'post'
 
-    fields = create_live_video_in_event.actual_kwargs
     del fields['event_id']
     del fields['sm']
 
@@ -840,16 +838,16 @@ def create_live_video_in_event(
 
 
 # fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
-@actual_kwargs()
-@app.post('groups/{group_id}/albums')
-def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to_fb: str=None, make_shared_album: bool=False, contributors: list=None, location_by_page_id: str=None, location_by_name: str=None):
+@app.post('/groups/{group_id}/albums')
+def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to_fb: str=None, make_shared_album: bool=False, contributors: list=None, location_by_id: str=None, location_by_name: str=None):
     ''' Creates a new album in a group specified by group_id '''
+
+    fields = locals().copy()
 
     endpoint = 'groups'
     path = 'albums'
     method = 'post'
 
-    fields = create_album_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -860,7 +858,6 @@ def create_album_in_group(group_id:str, sm:str, name: str, description: str=None
 # TO BE TESTED
 # video_title: str=Query('None', max_length=254)
 # fb
-@actual_kwargs()
 @app.post('/groups/{group_id}/live_videos')
 def create_live_video_in_group(
     group_id: str, 
@@ -891,11 +888,12 @@ def create_live_video_in_group(
     ):
     '''Creates a live video in group with given group_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'groups'
     path = 'live_videos'
     method = 'post'
 
-    fields = create_live_video_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -905,7 +903,6 @@ def create_live_video_in_group(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/groups/{group_id}/photos')
 def create_photo_in_group(
     group_id: str, 
@@ -958,11 +955,12 @@ def create_photo_in_group(
     ):
     '''Creates a photo in group with given group_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'groups'
     path = 'photos'
     method = 'post'
 
-    fields = create_photo_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -971,7 +969,6 @@ def create_photo_in_group(
 
 
 # fb
-@actual_kwargs()
 @app.post('/groups/{group_id}/posts')
 def create_post_in_group(
     group_id: str, 
@@ -981,11 +978,12 @@ def create_post_in_group(
     ):
     '''Creates a post in group with given group_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'groups'
     path = 'posts'
     method = 'post'
 
-    fields = create_post_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -994,7 +992,6 @@ def create_post_in_group(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/groups/{group_id}/videos')
 def create_video_in_group(
     group_id: str, 
@@ -1036,11 +1033,12 @@ def create_video_in_group(
     ):
     '''Creates a video in group with given group_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'groups'
     path = 'videos'
     method = 'post'
 
-    fields = create_video_in_group.actual_kwargs
     del fields['group_id']
     del fields['sm']
 
@@ -1050,7 +1048,6 @@ def create_video_in_group(
 # TO BE TESTED
 # Not sure if fields are ok, since two documentation pages about this have different fields listed. To be tested.
 # fb
-@actual_kwargs()
 @app.post('/live_videos/{video_id}')
 def update_live_video(
     video_id: str, 
@@ -1086,10 +1083,11 @@ def update_live_video(
     ):
     '''Updates a live video with given video_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'live_videos'
     method = 'post'
 
-    fields = update_live_video.actual_kwargs
     del fields['video_id']
     del fields['sm']
 
@@ -1098,7 +1096,6 @@ def update_live_video(
 
 
 # fb
-@actual_kwargs()
 @app.post('/users/{user_id}')
 def update_user_profile(
     user_id: str, 
@@ -1111,10 +1108,11 @@ def update_user_profile(
     ):
     '''Updates a user profile with given user_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'users'
     method = 'post'
 
-    fields = update_user_profile.actual_kwargs
     del fields['user_id']
     del fields['sm']
 
@@ -1123,7 +1121,6 @@ def update_user_profile(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/users/{user_id}/live_videos')
 def create_live_video_on_user(
     user_id: str, 
@@ -1149,11 +1146,12 @@ def create_live_video_on_user(
     ):
     '''Creates a live video on users profile with given user_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'users'
     path = 'live_videos'
     method = 'post'
 
-    fields = create_live_video_on_user.actual_kwargs
     del fields['user_id']
     del fields['sm']
 
@@ -1162,7 +1160,6 @@ def create_live_video_on_user(
 
 # TO BE TESTED
 # ln
-@actual_kwargs()
 @app.post('/users/{user_id}/posts')
 def create_post_on_user(
     user_id: str, 
@@ -1174,11 +1171,12 @@ def create_post_on_user(
     ):
     '''Creates a post on users profile with given user_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'users'
     path = 'posts'
     method = 'post'
 
-    fields = create_post_on_user.actual_kwargs
     del fields['user_id']
     del fields['sm']
 
@@ -1187,7 +1185,6 @@ def create_post_on_user(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/users/{user_id}/videos')
 def create_video_on_user(
     user_id: str, 
@@ -1235,11 +1232,12 @@ def create_video_on_user(
     ):
     '''Creates a video on users profile with given user_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'users'
     path = 'videos'
     method = 'post'
 
-    fields = create_video_on_user.actual_kwargs
     del fields['user_id']
     del fields['sm']
 
@@ -1248,7 +1246,6 @@ def create_video_on_user(
 
 # TO BE TESTED
 # fb
-@actual_kwargs()
 @app.post('/videos/{video_id}')
 def update_video(
     user_id: str, 
@@ -1284,10 +1281,11 @@ def update_video(
     ):
     '''Updates a video with given video_id.'''
 
+    fields = locals().copy()
+
     endpoint = 'videos'
     method = 'post'
 
-    fields = update_video.actual_kwargs
     del fields['video_id']
     del fields['sm']
 
@@ -1403,3 +1401,9 @@ The function parameters will be recognized as follows:
 # event in group: 845071692823639
 
 asyncio.run(serve(app, hypercorn_config))
+
+
+# https://127.0.0.1:443/groups/2998732937039201/albums?sm=fb&name=Test&description=Nanana
+# param contributors must be an array
+
+# https://127.0.0.1:443/users/cAnJ0yFHOX/posts?sm=ln&author=cAnJ0yFHOX&state=PUBLISHED&visible_to_ln=CONNECTIONS&content={"shareCommentary":"Testni tekst","shareMediaCategory":"NONE"}
