@@ -9,6 +9,7 @@ import json
 import random
 import requests
 import string
+import webbrowser
 from .utility import Utility as ut
 
 '''
@@ -39,17 +40,6 @@ def auth_part_2(auth_code, file_with_credentials):
     access_token = refresh_token(auth_code, *args)
     return access_token
 
-def create_header(access_token):
-    '''
-    Make the headers to attach to the API call.
-    '''
-    headers = {
-    'Authorization': f'Bearer {access_token}',
-    'cache-control': 'no-cache',
-    'X-Restli-Protocol-Version': '2.0.0'
-    }
-    return headers
-
 def create_CSRF_token():
     '''
     This function generate a random string of letters.
@@ -61,13 +51,6 @@ def create_CSRF_token():
     token = ''.join(random.choice(letters) for i in range(20))
     return token
 
-def open_url(url):
-    '''
-    Function to Open URL.
-    Used to open the authorization link
-    '''
-    import webbrowser
-    webbrowser.open(url)
 
 def authorize(api_url,client_id,client_secret,redirect_uri):
     # Request authentication URL
@@ -80,8 +63,8 @@ def authorize(api_url,client_id,client_secret,redirect_uri):
         'scope': 'r_liteprofile,r_emailaddress,w_member_social'
         }
 
-    response = requests.get(f'{api_url}/authorization',params=params)
-    open_url(response.url)
+    response = requests.get(f'{api_url}/authorization',params=params)    
+    webbrowser.open(response.url)
 
 def refresh_token(auth_code,client_id,client_secret,redirect_uri):
     '''
@@ -101,7 +84,3 @@ def refresh_token(auth_code,client_id,client_secret,redirect_uri):
     response = response.json()
     access_token = response['access_token']
     return access_token
-
-if __name__ == '__main__':
-    credentials = 'credentials.json'
-    access_token = auth(credentials)
