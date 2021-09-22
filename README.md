@@ -426,6 +426,8 @@ limit={
   }
 ```
 
+Note that if `limit` is not provided, all data will be returned, which may take a while. Use of the `limit` parameter is therefore strongly recommended.
+
 If the `{name_of_the_field}` won't match any of the fields specified in parameter `fields` the `limit` will not take effect. If parameter `fields` isn't provided, parameter `limit` can still be used as our API fetches all fields in case of parameter `fields` not being provided.  
 
 If the value of `count` isn't a positive integer, the `limit` parameter won't take an effect.  
@@ -510,6 +512,7 @@ Endpoints for POST requests
 |`/live_videos/{video_id}`|Facebook||
 |`/users/{user_id}`|Facebook||
 |`/users/{user_id}/live_videos`|Facebook||
+|`/users/{user_id}/posts`|LinkedIn|Create a post on user's profile|
 |`/users/{user_id}/videos`|Facebook||
 |`/videos/{video_id}`|Facebook||
 
@@ -521,7 +524,7 @@ Endpoints for DELETE requests
 |`/photos/{photo_id}`|Facebook||
 |`/videos/{video_id}`|Facebook||
 
-Note that some functionalities from the Facebook Graph API are not included in General API for Social Networks.
+Note that some of the available functionalities from the Facebook Graph API are not included in General API for Social Networks.
 
 Upon a call to an unavaileble endpoint for specific social media, en error response will be returned for this social media as part of the API response.
 

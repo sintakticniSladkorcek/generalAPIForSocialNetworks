@@ -1167,6 +1167,31 @@ def create_live_video_on_user(
     return response
 
 
+# ln
+@actual_kwargs()
+@app.post('/users/{user_id}/posts')
+def create_post_on_user(
+    user_id: str, 
+    sm: str,
+    author: str,
+    content: str,
+    state: str,
+    visible_to_ln: str
+    ):
+    '''Creates a post on users profile with given user_id.'''
+
+    endpoint = 'users'
+    path = 'posts'
+    method = 'post'
+
+    fields = create_post_on_user.actual_kwargs
+    del fields['user_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
+    return response
+
+
 # fb
 @actual_kwargs()
 @app.post('/users/{user_id}/videos')
@@ -1325,10 +1350,19 @@ def delete_video(video_id: str, sm: str):
 # Docs for visible_to
 # Example use
 
-# POST parameters in body?
+# POST parameters in body? Yes, if we implement Models, otherwise they are expected as query parameters. See https://fastapi.tiangolo.com/tutorial/body/
+'''
+The function parameters will be recognized as follows:
+
+- If the parameter is also declared in the path, it will be used as a path parameter.
+- If the parameter is of a singular type (like int, float, str, bool, etc) it will be interpreted as a query parameter.
+- If the parameter is declared to be of the type of a Pydantic model, it will be interpreted as a request body.
+'''
 
 # Limit default value
 # Apply limit while paging
+
+# Error handling for nonexistent paths (it's fine, there is no interval server error but still, error message doens't tell you much)
 
 
 # TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name

@@ -88,7 +88,18 @@ class Linkedin_data():
                 'endpoint': None
             },
             'users': {
-                'endpoint': None
+                'endpoint': '',
+                'paths': {
+                    'posts': {
+                        'path': 'ugcPosts',
+                        'post_fields': {
+                            'author': 'author',
+                            'content': 'specificContent',
+                            'state': 'lifecycleState',
+                            'visible_to_ln': 'visibility'
+                        }
+                    }
+                }
             },
             'videos': {
                 'endpoint': None
