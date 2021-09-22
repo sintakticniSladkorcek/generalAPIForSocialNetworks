@@ -27,7 +27,7 @@ class Instagram_data():
                     'photos':  None,
                     'updated_time':  None,
                     'url_to_album': 'media_url',
-                    'visible_to': None
+                    'visible_to_fb_fb_fb': None
                 },
             },
             'events': {
@@ -57,6 +57,7 @@ class Instagram_data():
                     'birthday': None,
                     'business_users': None,
                     'businesses': None,
+                    'connections': None,
                     'email': None,
                     'events': None,
                     'first_name_by_location': None,
@@ -64,7 +65,6 @@ class Instagram_data():
                     'favorite_teams': None,
                     'feed': None,
                     'first_name': None,
-                    'connections': None,
                     'gender': None,
                     'groups': None,
                     'hometown': None,
@@ -256,7 +256,7 @@ class Instagram_data():
                     'video_title': None,
                     'video_url': 'permalink',
                     'views_count': None,
-                    'visible_to': None
+                    'visible_to_fb_fb_fb': None
                 }
             }
         }        
