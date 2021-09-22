@@ -306,6 +306,16 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             else:
                 # Collate requested fields
                 for field in unified_fields:
+                    if field not in field_mappings[type_of_fields]:
+                        error = {
+                            'Error': {
+                                'HTTPstatus': 400,
+                                'error_code': 4,
+                                'message': f'Field {field} is not a valid field. See data dictionaries for all available fields.'
+                            }
+                        }
+                        raise HTTPException(status_code=400, detail=error)
+
                     if field_mappings[type_of_fields][field] != None:
                         temp_fields.append(field_mappings[type_of_fields][field])
                 
@@ -351,7 +361,14 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
     check_if_valid_platforms_requested(requested_social_media, list(data_dictionary.keys()))
 
     # map fields
-    unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields)
+    try:
+        unified_fields, mapped_fields = map_fields(method, requested_social_media, endpoint, path, fields)
+    except HTTPException as e:
+        response = Response()
+        response.status_code = e.status_code
+        response.reason = e.detail
+        response.json = e.detail
+        return response
 
     # call social media APIs
     if 'fb' in requested_social_media:

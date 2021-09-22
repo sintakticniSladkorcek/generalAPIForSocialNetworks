@@ -37,6 +37,7 @@ Functionality:
     - [Request](#request)
     - [Important Query String Parameters](#important-query-string-parameters)
       - [sm (required)](#sm-required)
+      - [fields (optional)](#fields-optional)
       - [limit (optional)](#limit-optional)
       - [visible_to (optional)](#visible_to-optional)
     - [Endpoints](#endpoints)
@@ -388,6 +389,20 @@ Currently available values are:
 - `ln` (representing LinkedIn),
 - `tw` (representing Twitter).
 
+#### fields (optional)
+
+This parameter specifies, which fields do we want in API's response. It can be used with `GET` and `POST` requests, but is usually mor useful with `GET` requests. The parameter should be given in the following format `fields=<field_names_separated_by_comma>`, where field names are the keys form data dictionaries.
+
+If an invalid field is requested, an error will be returned.
+
+```json
+{
+  "HTTPstatus": 400,
+  "error_code": 4,
+  "message": "Field <field_name> is not a valid field. See data dictionaries for all available fields."
+}
+```
+
 #### limit (optional)
 
 This parameter is avilable for all `GET` requests and limits the number of results in the response for specific field. The `limit` parameter should be passed in the following format.
@@ -418,7 +433,10 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 
 #### visible_to (optional)
 
-This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. It must be provided in the following format.
+This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. For possible values, see their documentation:
+
+- Facebook: https://developers.facebook.com/docs/graph-api/reference/privacy/
+- LinkedIn: 
 
 Yet to be implemented.
 <!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
@@ -516,6 +534,7 @@ See all errors returned by General API for Social Networks in the following tabl
 |400|1|Too many requested platforms|Specify only one requested social media platform in the `sm` parameter|
 |400|2|Invalid value for `sm`|Choose values for social media only among the [valid ones](#sm)|
 |400|3|Invalid value for `limit`|Set the value following the scheme [described here](#limit-optional).|
+|400|4|Invalid field in `fields`|Check for correct field names in data dictionaries.|
 
 #### Errors returned by social media APIs
 
