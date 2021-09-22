@@ -390,10 +390,10 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
         return response
     
     url = '/' + endpoint
-        if id != None:
-            url += '/' + id
-        if path != None:
-            url += '/' + path
+    if id != None:
+        url += '/' + id
+    if path != None:
+        url += '/' + path
 
     if mapped_fields == None:
         error = {
@@ -432,7 +432,7 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
         if 'tw' not in mapped_fields:
             responses['tw'] = prepare_endpoint_error_response('Twitter', url)
         else:
-        responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
+            responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
     response = merge_responses(method, endpoint, unified_fields, responses, limit)

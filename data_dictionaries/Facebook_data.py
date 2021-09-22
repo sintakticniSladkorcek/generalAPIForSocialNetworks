@@ -282,7 +282,7 @@ class Facebook_data():
                             'message': 'message',
                             'link': 'link'
                         }
-                    }
+                    },
                     'videos': {
                         'path': 'videos',
                         'post_fields': {
