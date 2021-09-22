@@ -521,6 +521,20 @@ Endpoints for DELETE requests
 
 Note that some functionalities from the Facebook Graph API are not included in General API for Social Networks.
 
+Upon a call to an unavaileble endpoint for specific social media, en error response will be returned for this social media as part of the API response.
+
+If a nonexisting endpoint is called or none of the requested social media platforms support it, an error will be returned.
+
+```json
+{
+  "Error": {
+      "HTTPstatus": 400,
+      "error_code": 5,
+      "message": "None of the selected social media APIs are supported for the endpoint: <enpoint>."
+  }
+}
+```
+
 ### Errors
 
 #### Errors returned by General API for Social Networks
