@@ -175,7 +175,6 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                                 if limit_exists and field_matches and count_ok:
                                     field_data['data'] = field_data['data'][:int(limit[field])]
                             except:
-                                print('in except')
                                 error = {
                                     'Error': {
                                         'HTTPstatus': 400,
@@ -275,22 +274,28 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     unified_fields = prepared_fields
 
     # set location of field mappings for unified_fields depending on presence of path parameter
+    ''' Could be improved'''
     unified_field_mappings = requested_social_media_data[0]['endpoint_mapping'][endpoint]
     if path != None:
         unified_field_mappings = unified_field_mappings['paths'][path]
-
+    
     # If no fields are selected, return all possible data
-    if fields == None:
+    if unified_field_mappings['endpoint'] != None and fields == None:
         unified_fields = unified_field_mappings[type_of_fields].keys()
-
     
     # Map fields for similar parameter for each platform
     for social_media in requested_social_media_data:
 
         # set location of field mappings depending on presence of path parameter
         field_mappings = social_media['endpoint_mapping'][endpoint]
+
         if path != None:
             field_mappings = field_mappings['paths'][path]
+
+        # skip social media if endpoint does not exist for it
+        if field_mappings['endpoint'] == None:
+            mapped_fields = None
+            continue
 
         # Map for GET method
         if method == 'get':
@@ -335,6 +340,20 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     return unified_fields, mapped_fields
 
 
+def prepare_endpoint_error_response(sm_platform, url):
+    error = {
+        'Error': {
+            'HTTPstatus': 400,
+            'error_code': 6,
+            'message': f'Endpoint: {url} is not supported for {sm_platform}.'
+        }
+    }
+    response = Response()
+    response.status_code = 400
+    response.reason = error
+    response.json = error
+    return response
+
 def call_social_media_APIs(method, requested_social_media, endpoint, path=None, id=None, fields=None, limit=None):
     ''' Calls socaila media APIs. 
     
@@ -369,26 +388,50 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
         response.reason = e.detail
         response.json = e.detail
         return response
+    
+    url = '/' + endpoint
+        if id != None:
+            url += '/' + id
+        if path != None:
+            url += '/' + path
+
+    if mapped_fields == None:
+        error = {
+            'Error': {
+                'HTTPstatus': 400,
+                'error_code': 5,
+                'message': f'None of the selected social media APIs are supported for the endpoint: {url}.'
+            }
+        }
+        response = Response()
+        response.status_code = 400
+        response.reason = error
+        response.json = error
+        return response
 
     # call social media APIs
     if 'fb' in requested_social_media:
-        # if not fb_authenticated:
-        #     authenticate('fb')
-        responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, path, mapped_fields[requested_social_media.index('fb')], id) # fb_api or fb_access
+        if 'fb' not in mapped_fields:
+            responses['fb'] = prepare_endpoint_error_response('Facebook', url)
+        else:
+            responses['fb'] = call_fb_api(fb_access, data_dictionary['fb'], method, endpoint, path, mapped_fields[requested_social_media.index('fb')], id)
     
     if 'ig' in requested_social_media:
-        # if not ig_authenticated:
-        #     authenticate('ig')
-        responses['ig'] = call_ig_api(ig_access, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id) # ig_api or ig_access
+        if 'ig' not in mapped_fields:
+            responses['ig'] = prepare_endpoint_error_response('Instagram', url)
+        else:
+            responses['ig'] = call_ig_api(ig_access, data_dictionary['ig'], method, endpoint, path, mapped_fields[requested_social_media.index('ig')], id)
     
     if 'ln' in requested_social_media:
-        # if not ln_authenticated:
-        #     authenticate('ln')
-        responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, path, mapped_fields[requested_social_media.index('ln')], id)
+        if 'ln' not in mapped_fields:
+            responses['ln'] = prepare_endpoint_error_response('LinkedIn', url)
+        else:
+            responses['ln'] = call_ln_api(ln_access, data_dictionary['ln'], method, endpoint, path, mapped_fields[requested_social_media.index('ln')], id)
 
     if 'tw' in requested_social_media:
-        # if not tw_authenticated:
-        #     authenticate('tw')
+        if 'tw' not in mapped_fields:
+            responses['tw'] = prepare_endpoint_error_response('Twitter', url)
+        else:
         responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object

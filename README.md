@@ -19,8 +19,7 @@ Functionality:
 - for Instagram:
   - retrieve authenticated user's profile, photos, videos and carousels (as `albums`)
 - for LinkedIn:
-  - retrieve authenticated member's name, headline, and photo
-  - retrieve authenticated member's primary email address
+  - retrieve authenticated member's name, primary email address, and photo
   - post, comment and like posts on behalf of an authenticated member
 - for Twitter:
   - TODO
@@ -447,7 +446,7 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. For possible values, see their documentation:
 
 - Facebook: https://developers.facebook.com/docs/graph-api/reference/privacy/
-- LinkedIn: 
+- LinkedIn: https://docs.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin?context=linkedin/consumer/context#request-body-schema
 
 Yet to be implemented.
 <!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
@@ -546,6 +545,8 @@ See all errors returned by General API for Social Networks in the following tabl
 |400|2|Invalid value for `sm`|Choose values for social media only among the [valid ones](#sm)|
 |400|3|Invalid value for `limit`|Set the value following the scheme [described here](#limit-optional).|
 |400|4|Invalid field in `fields`|Check for correct field names in data dictionaries.|
+|400|5|`endpoint` not supported for any of the selected social networks|Check which endpoints are supported in data dictionaries.|
+|400|6|`endpoint` not supported for a social media network|Check which endpoints are supported in data dictionaries.|
 
 #### Errors returned by social media APIs
 
