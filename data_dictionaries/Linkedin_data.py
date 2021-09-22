@@ -1,6 +1,6 @@
 class Linkedin_data():
     dict = {
-        'name': 'Linkedin',
+        'name': 'LinkedIn',
         'base_url': 'https://api.linkedin.com/v2/',
         'endpoint_mapping': {
             'albums': {
@@ -88,10 +88,10 @@ class Linkedin_data():
                 'endpoint': None
             },
             'users': {
-                'endpoint': '',
+                'endpoint': 'ugcPosts',
                 'paths': {
                     'posts': {
-                        'path': 'ugcPosts',
+                        'path': '',
                         'post_fields': {
                             'author': 'author',
                             'content': 'specificContent',

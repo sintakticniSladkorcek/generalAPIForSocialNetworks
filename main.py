@@ -342,7 +342,10 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
             temp_fields = {}
             for field in unified_fields:
                 if field_mappings[type_of_fields][field] != None:
-                    temp_fields[field_mappings[type_of_fields][field]] = fields[field]
+                    try:
+                        temp_fields[field_mappings[type_of_fields][field]] = json.loads(fields[field])
+                    except:
+                        temp_fields[field_mappings[type_of_fields][field]] = fields[field]
             
             # Add mapped fields to the list
             mapped_fields[social_media['name']] = temp_fields
@@ -1158,7 +1161,7 @@ def create_live_video_on_user(
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
     return response
 
-# TO BE TESTED
+
 # ln
 @app.post('/users/{user_id}/posts')
 def create_post_on_user(
@@ -1338,8 +1341,6 @@ def delete_video(video_id: str, sm: str):
 # TODO: Add LinkedIn endpoints and mappings
 # TODO: Add Twitter endpoints and mappings
 # TODO: Add mapping of the privacy values https://developers.facebook.com/docs/graph-api/reference/privacy/
-# Docs for limit: either it's on you to limit responses, we return all, or everything is limited by default and we don't have pagination
-# Docs for visible_to
 # Example use
 
 # POST parameters in body? Yes, if we implement Models, otherwise they are expected as query parameters. See https://fastapi.tiangolo.com/tutorial/body/

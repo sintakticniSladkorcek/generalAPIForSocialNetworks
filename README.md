@@ -20,8 +20,9 @@ Functionality:
 - for Instagram:
   - retrieve authenticated user's profile, photos, videos and carousels (as `albums`)
 - for LinkedIn:
-  - retrieve authenticated member's name, primary email address, and photo
-  - post, comment and like posts on behalf of an authenticated member
+  - retrieve authenticated member's name and profile picture
+  - post on authenticated member's profile
+  - comment and like posts on behalf of an authenticated member
 - for Twitter:
   - TODO
 
@@ -402,7 +403,9 @@ Currently available values are:
 
 #### fields (optional)
 
-This parameter specifies, which fields do we want in API's response. It can be used with `GET` and `POST` requests, but is usually mor useful with `GET` requests. The parameter should be given in the following format `fields=<field_names_separated_by_comma>`, where field names are the keys form data dictionaries.
+This parameter specifies, which fields do we want in API's response. It can be used with `GET` requests to narrow down the data in response. The parameter should be given in the following format `fields=<field_names_separated_by_comma>`, where field names are the keys form data dictionaries.
+
+If `fields` parameter is not provided, all possible fields will be returned.
 
 If an invalid field is requested, an error will be returned.
 
