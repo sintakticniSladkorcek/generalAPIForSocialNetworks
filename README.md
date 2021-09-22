@@ -11,10 +11,21 @@ General API for Social Networks is an API that connects to different social medi
 
 Functionality:
 
-- retrieve data about the users, posts, links, photos, videos, live videos, albums, events, groups
-- post in events, groups and on users profile
-- modify users profile, video and live video
-- delete photos, videos and live videos
+- for Facebook:
+  - retrieve data about users, posts, links, photos, videos, live videos, albums, events, groups
+  - post in events, groups and on user's profile
+  - modify user's profile, video and live video
+  - delete user's photos, videos and live videos
+- for Instagram:
+  - retrieve authenticated user's profile, photos, videos and carousels (as `albums`)
+- for LinkedIn:
+  - retrieve authenticated member's name, headline, and photo
+  - retrieve authenticated member's primary email address
+  - post, comment and like posts on behalf of an authenticated member
+- for Twitter:
+  - TODO
+
+Functionality is currently limited to the functionality platforms offer free of charge and without a review process.
 
 ## Table of contents
 
