@@ -14,11 +14,20 @@ def create_header(access_token):
     return headers    
 
 
-def call_api(access_token, data_dictionary, method, endpoint, path, mapped_fields, id):
-    
-    url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]['endpoint']
-    if id != None:
+def convert_id_to_urn(id, endpoint):
+    if endpoint == 'ugcPosts':
         id = f'urn:li:person:{id}'
+    elif endpoint == 'socialActions':
+        id = f"urn:li:share:{id}"
+    return id
+
+
+def call_api(access_token, data_dictionary, method, endpoint, path, mapped_fields, id):
+    specific_endpoint = data_dictionary['endpoint_mapping'][endpoint]['endpoint']
+
+    url = data_dictionary['base_url'] + specific_endpoint
+    if id != None:
+        id = convert_id_to_urn(id, specific_endpoint)
         url += '/' + id
     if path != None:
         url += '/' + data_dictionary['endpoint_mapping'][endpoint]['paths'][path]['path']
@@ -41,13 +50,32 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
         
     elif method == 'post':
 
-        url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]['endpoint']
+        if specific_endpoint == 'ugcPosts':
+            url = data_dictionary['base_url'] + specific_endpoint
 
         try:
             mapped_fields['author'] = 'urn:li:person:' + mapped_fields['author']
         except:
             pass
+
+        try:
+            mapped_fields['actor'] = "urn:li:person:" + mapped_fields['actor']
+        except:
+            pass
+
+        try:
+            mapped_fields['object'] = "urn:li:share:" + mapped_fields['object']
+        except:
+            pass
         
         # call API
         response = requests.post(f'{url}', headers=headers, json=mapped_fields)
+
     return response
+
+
+# https://api.linkedin.com/v2/socialActions/urn:li:share:6846571668672970753/likes
+# {'actor': 'urn:li:person:cAnJ0yFHOX', 'object': 'urn:li:share:6846571668672970753'}
+
+# https://api.linkedin.com/v2/socialActions/urn:li:share:6846571668672970753/likes
+# {"actor": "urn:li:person:cAnJ0yFHOX", "object": "urn:li:share:6846571668672970753"}

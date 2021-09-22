@@ -85,7 +85,23 @@ class Linkedin_data():
                 'endpoint': None
             },
             'posts': {
-                'endpoint': None
+                'endpoint': 'socialActions',
+                'paths': {
+                    'comments': {
+                        'path': 'comments',
+                        'post_fields': {
+                            'author':'actor',
+                            'message':'message'
+                        }
+                    },
+                    'likes': {
+                        'path': 'likes',
+                        'post_fields': {
+                            'author':'actor',
+                            'post': 'object'
+                        }
+                    }
+                }
             },
             'users': {
                 'endpoint': 'ugcPosts',

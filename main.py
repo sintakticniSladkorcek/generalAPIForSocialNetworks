@@ -218,7 +218,10 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                 except:
                     merged_response['errors'][platform_name]['json_response'] = responses[platform]
                 
-    # Convert dictionary merged_responses to json string
+    print(error_responses, responses)
+    if len(error_responses) == len(responses):
+        # Set status to 400
+        pass
     response = merged_response
     return response
 
@@ -1095,6 +1098,52 @@ def update_live_video(
     del fields['sm']
 
     response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    return response
+
+
+# ln
+@app.post('/posts/{post_id}/comments')
+def like_a_post(
+    post_id: str, 
+    sm: str,
+    author: str,
+    message: str
+    ):
+    '''Comment on a post with given post_id.'''
+
+    fields = locals().copy()
+
+    endpoint = 'posts'
+    path = 'comments'
+    method = 'post'
+
+    del fields['post_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=fields)
+    return response
+
+
+# ln
+@app.post('/posts/{post_id}/likes')
+def like_a_post(
+    post_id: str, 
+    sm: str,
+    author: str,
+    post: str
+    ):
+    '''Like a post with given post_id.'''
+
+    fields = locals().copy()
+
+    endpoint = 'posts'
+    path = 'likes'
+    method = 'post'
+
+    del fields['post_id']
+    del fields['sm']
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=fields)
     return response
 
 
