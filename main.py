@@ -25,6 +25,7 @@ import inspect
 from hypercorn.config import Config
 import asyncio
 from hypercorn.asyncio import serve
+from requests import Response
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -121,7 +122,7 @@ def error_response(responses):
     return error_responses, non_error_responses
 
 
-def merge_responses(method, endpoint, unified_fields, responses):
+def merge_responses(method, endpoint, unified_fields, responses, limit):
     ''' Compiles responses of social media APIs into one json response. 
     
     Parameters
@@ -162,11 +163,37 @@ def merge_responses(method, endpoint, unified_fields, responses):
                             if 'next' in field_data['paging']:
                                 all_data = resolve_pagination(field_data)
                                 field_data['data'] = all_data
-                                
+                        
+                        try:
+                            limit = json.loads(limit)
+                            limit_exists = limit != None
+                            field_matches = field in limit    # limit['field'] == field
+                            count_ok = limit[field] > 0     # limit['count'] > 0
+                            if limit_exists and field_matches and count_ok:
+                                field_data['data'] = field_data['data'][:int(limit[field])]
+                        except:
+                            print('in except')
+                            error = {
+                                'Error': {
+                                    'HTTPstatus': 400,
+                                    'error_code': 3,
+                                    'message': limit + ' is not a valid value. limit[\'<name_of_the_field>\'] must be an integer. Please use the following format for the \'limit\' parameter: {"<name_of_the_field>":<integer>}'
+                                }
+                            }
+                            raise HTTPException(status_code=400, detail=error)
+                            
                         temp_dict[specific_field_name] = field_data    
                         merged_response[field].append(temp_dict)
+                    except HTTPException:
+                        response = Response()
+                        response.status_code = 400
+                        response.reason = error['Error']['message']
+                        response.json = error
+                        return response
                     except:
                         continue
+                    
+
                 else:
                     merged_response['errors'][platform_name] = {}
                     merged_response['errors'][platform_name]['HTTP_status'] = str(responses[platform])
@@ -295,7 +322,7 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
     return unified_fields, mapped_fields
 
 
-def call_social_media_APIs(method, requested_social_media, endpoint, path=None, id=None, fields=None):
+def call_social_media_APIs(method, requested_social_media, endpoint, path=None, id=None, fields=None, limit=None):
     ''' Calls socaila media APIs. 
     
     Parameters
@@ -345,7 +372,7 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
         responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[requested_social_media.index('tw')], id)
 
     # merge responses into one json object
-    response = merge_responses(method, endpoint, unified_fields, responses)
+    response = merge_responses(method, endpoint, unified_fields, responses, limit)
     return response
 
 
@@ -397,7 +424,7 @@ def check_if_too_many_requested_platforms(requested_social_media):
     return
 
 
-def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None):
+def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None, limit=None):
     ''' Calls socaila media APIs. 
     
     Parameters
@@ -420,7 +447,7 @@ def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None):
     requested_social_media = sm.split(',')
     check_if_too_many_requested_platforms(requested_social_media)
 
-    response = call_social_media_APIs(method, requested_social_media, endpoint, path, id=id, fields=fields)
+    response = call_social_media_APIs(method, requested_social_media, endpoint, path, id=id, fields=fields, limit=limit)
     return response
 
 
@@ -528,115 +555,115 @@ def authenticate(sm: str):
 
 # fb: fields, permissions and error codes: https://developers.facebook.com/docs/graph-api/reference/album
 @app.get('/albums/{album_id}')
-def get_data_abut_album(album_id: str, sm: str, fields: str = None):
+def get_data_abut_album(album_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the album with given album_id specified by parameter `fields`'''
 
     endpoint = 'albums'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, album_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, album_id, fields=fields, limit=limit)
     return response
 
 
 # fb:
 # Facebook: Access to Events on Users and Pages is only available to Facebook Marketing Partners.
 @app.get('/events/{event_id}')
-def get_data_about_event(event_id: str, sm: str, fields: str = None):
+def get_data_about_event(event_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the event with given event_id specified by parameter `fields`'''
 
     endpoint = 'events'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, event_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, event_id, fields=fields, limit=limit)
     return response
 
 
 # fb: Fields that return User information will not be included in any responses unless the request is made using an access token of an Admin of the Group.
 @app.get('/groups/{group_id}')
-def get_data_about_group(group_id: str, sm: str, fields: str = None):
+def get_data_about_group(group_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the group with given group_id specified by parameter `fields`'''
 
     endpoint = 'groups'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, group_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, group_id, fields=fields, limit=limit)
     return response
 
 
 # fb
 @app.get('/links/{link_id}')
-def get_data_about_link(link_id: str, sm: str, fields: str = None):
+def get_data_about_link(link_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the link with given link_id specified by parameter `fields`'''
 
     endpoint = 'links'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, groulink_idp_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, groulink_idp_id, fields=fields, limit=limit)
     return response
 # TO BE TESTED
 
 
 # fb
 @app.get('/live_videos/{video_id}')
-def get_data_about_live_video(video_id: str, sm: str, fields: str = None):
+def get_data_about_live_video(video_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the live video with given video_id specified by parameter `fields`'''
 
     endpoint = 'live_videos'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields, limit=limit)
     return response
 
 
 # fb, ln, tw
 @app.get('/me')
-def get_data_about_me(sm: str, fields: str = None):
+def get_data_about_me(sm: str, fields: str = None, limit: str = None):
     '''Returns data about the logged-in user specified by parameter `fields`'''
 
     endpoint = 'me'
     method = 'get'
     requested_social_media = sm.split(',') # Because this endpoint is not id dependent
-    response = call_social_media_APIs(method, requested_social_media, endpoint, None, fields=fields)
+    response = call_social_media_APIs(method, requested_social_media, endpoint, None, fields=fields, limit=limit)
     return response
     
 
 # fb
 @app.get('/photos/{photo_id}')
-def get_data_about_photo(photo_id: str, sm: str, fields: str = None):
+def get_data_about_photo(photo_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the photo with given photo_id specified by parameter `fields`'''
 
     endpoint = 'photos'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, photo_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, photo_id, fields=fields, limit=limit)
     return response
 
 
 # fb
 @app.get('/posts/{post_id}')
-def get_data_about_post(post_id: str, sm: str, fields: str = None):
+def get_data_about_post(post_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the post with given post_id specified by parameter `fields`'''
 
     endpoint = 'posts'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, post_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, post_id, fields=fields, limit=limit)
     return response
 
 
 # TO BE TESTED
 # fb
 @app.get('/users/{user_id}')
-def get_data_about_user(user_id: str, sm: str, fields: str = None):
+def get_data_about_user(user_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the user with given user_id specified by parameter `fields`'''
 
     endpoint = 'users'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields, limit=limit)
     return response
 
 
 # fb
 @app.get('/videos/{video_id}')
-def get_data_about_video(video_id: str, sm: str, fields: str = None):
+def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str = None):
     '''Returns data about the video with given video_id specified by parameter `fields`'''
 
     endpoint = 'videos'
     method = 'get'
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, video_id, fields=fields, limit=limit)
     return response
 
 
@@ -1207,8 +1234,6 @@ def delete_video(video_id: str, sm: str):
     return response
 
 
-# TODO: Facebook pagination
-# TODO: Instagram pagination
 # TODO: Add LinkedIn endpoints and mappings
 # TODO: error handling for twitter authentication failure: raise Exception or somehow include tw_error in a merged response
 # TODO: Add Twitter endpoints and mappings

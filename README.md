@@ -35,7 +35,7 @@ Functionality:
       - [Response from GET request](#response-from-get-request)
       - [Response from POST or DELETE request](#response-from-post-or-delete-request)
     - [Request](#request)
-    - [Important parameters](#important-parameters)
+    - [Important Query String Parameters](#important-query-string-parameters)
       - [sm](#sm)
       - [limit](#limit)
       - [visible_to](#visible_to)
@@ -158,11 +158,10 @@ To use Instagrams API, you'll need an app on Facebook for Developers platform, s
 3) You will be taken to Basic Display section, where you'll see a warning in red saying to update your settings. Click on the blue button below that, that says *Create New App*.
 4) Set the name for your app and click *Create App*.
 5) You will be redirected to Basic Display section again, where you can now find `client_id` as *Instagram App ID* and `client_secret` as *Instagram App Secret*. Paste both into file `ig_credentials.json`.
-6) Scroling down a bit, find section *Client OAuth Settings* and set up value for `redirect_uri` to `https://127.0.0.1:443/ig_auth`. Paste the same link to `ig_credentials.json`.
-7) Go to Roles and add your Instgram handle as the Instgaram Tester.
-8) Go to https://www.instagram.com/accounts/manage_access/, click *Tester Invites* and accept an invite. Without completing steps 7) and 8), authentication fails with error `{"error_type": "OAuthException", "code": 400, "error_message": "Insufficient developer role"}`.
-
-<!-- https://www.instagram.com/accounts/login/?force_authentication=1&enable_fb_login=1&next=/oauth/authorize%3Fclient_id%3D216293130482337%26redirect_uri%3Dhttps%3A//127.0.0.1%3A443/ig_auth%26scope%3Duser_profile%2Cuser_media%26response_type%3Dcode -->
+6) Scroling down a bit, find section *Client OAuth Settings* and set up value for `redirect_uri` to `https://localhost:443/ig_auth`. Paste the same link to `ig_credentials.json`.
+7) Fill in also the fields `Deauthorize Callback URL` and `Data Deletion Request URL` with values `https://localhost:443/ig_deauth` and `https://localhost:443/ig_delete_data` respectively. For now, you can also set it to any other redirect uri as the `/ig_deauth` and `/ig_delete_data` endpoints aren't yet implemented. Either way, you have to fill in these fields so you can then click the button `Save changes` and the `redirect_uri` goes into effect.
+8) Go to Roles and add your Instgram handle as the Instgaram Tester.
+9) Go to https://www.instagram.com/accounts/manage_access/, click *Tester Invites* and accept an invite. Without completing steps 7) and 8), authentication fails with error `{"error_type": "OAuthException", "code": 400, "error_message": "Insufficient developer role"}`.
 
 ### LinkedIn
 
@@ -373,7 +372,7 @@ https://127.0.0.1:443//videos/12345678901234?sm=fb
 
 <!-- TODO: Check how is it with spaces and special characters in strings -->
 
-### Important parameters
+### Important Query String Parameters
 
 #### sm
 
@@ -390,9 +389,31 @@ Currently available values are:
 
 #### limit
 
-Yet to be implemented.
-<!-- TODO: Implement  -->
-Positive integer
+This parameter is avilable for all `GET` requests and limits the number of results in the response for specific field. The `limit` parameter should be passed in the following format.
+
+
+```json
+limit={
+  "{name_of_the_field}":{integer},
+  "{name_of_another_field}":{integer}
+  }
+```
+
+If the `{name_of_the_field}` won't match any of the fields specified in parameter `fields` the `limit` will not take effect. If parameter `fields` isn't provided, parameter `limit` can still be used as our API fetches all fields in case of parameter `fields` not being provided.  
+
+If the value of `count` isn't a positive integer, the `limit` parameter won't take an effect.  
+
+If the value of `count` isn't an integer, or `limit` parameter is otherwise malformed, an error will be returned.
+
+```json
+{
+    "Error": {
+        "HTTPstatus": 400,
+        "error_code": 3,
+        "message": "`{'<name_of_the_field>':<not an integer>}` is not a valid value. limit['<name_of_the_field>'] must be an integer. Please use the following format for the 'limit' parameter: {\"<name_of_the_field>\":<integer>}"
+    }
+}
+```
 
 #### visible_to
 
@@ -419,16 +440,16 @@ Endpoints for GET requests
 
 |endpoint/path|supported social media|description|
 |---|---|---|
-|`/albums/{album_id}`|Facebook||
+|`/albums/{album_id}`|Facebook, Instagram|Returns data about album. For Instagram, album is collection of photos or videos in a post.|
 |`/comments/{comment_id}`|Facebook||
 |`/events/{event_id}`|Facebook||
 |`/groups/{group_id}`|Facebook||
 |`/links/{link_id}`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
 |`/locations/{location_id}`|Facebook||
-|`/photos/{photo_id}`|Facebook||
-|`/users/{user_id}`|Facebook||
-|`/videos/{video_id}`|Facebook||
+|`/photos/{photo_id}`|Facebook, Instagram|Returns data about photo.|
+|`/users/{user_id}`|Facebook, Instagram|Returns data about user with given `{user_id}`.|
+|`/videos/{video_id}`|Facebook, Instagram|Returns data about video.|
 |`/me`|Facebook, Instagram, LinkedIn|Returns data about the user who is logged in.|
 
 <!-- Add required permissions? -->
