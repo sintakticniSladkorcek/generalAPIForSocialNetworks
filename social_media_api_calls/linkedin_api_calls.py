@@ -49,7 +49,7 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
         response = requests.get(f'{url}?{parameters}', headers=headers)
         
     elif method == 'post':
-
+        print('in elif')
         if specific_endpoint == 'ugcPosts':
             url = data_dictionary['base_url'] + specific_endpoint
 
@@ -67,6 +67,8 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
             mapped_fields['object'] = "urn:li:share:" + mapped_fields['object']
         except:
             pass
+        
+        print(mapped_fields)
         
         # call API
         response = requests.post(f'{url}', headers=headers, json=mapped_fields)

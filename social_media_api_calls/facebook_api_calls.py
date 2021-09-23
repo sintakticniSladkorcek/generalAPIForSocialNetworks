@@ -25,14 +25,8 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
         response = requests.get(f'{url}?{parameters}&access_token={access_token}')
 
     elif method == 'post':
-        # concatenate parameters into string
-        parameters = ''
-        for field_name in mapped_fields:
-            parameters += field_name + '=' + str(mapped_fields[field_name]) + '&'
-        parameters = parameters[:-1]
-
         # call API
-        response = requests.post(f'{url}?{parameters}&access_token={access_token}')
+        response = requests.post(f'{url}?access_token={access_token}', json=mapped_fields)
 
     elif method == 'delete':
         # call API

@@ -17,8 +17,8 @@
 # https://www.jcchouinard.com/authenticate-to-linkedin-api-using-oauth2/
 
 from fastapi import FastAPI, HTTPException, Query
-import facebook # TODO: Do we need this library?
-import tweepy # TODO: Do we need this library?
+from typing import List, Optional
+from pydantic import BaseModel
 import json
 import inspect
 import asyncio
@@ -26,6 +26,8 @@ import requests
 from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
+
+from models import GroupPost, PostOnProfile
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -229,6 +231,31 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
     return response
 
 
+
+def map_fields_recursion(social_media, type_of_fields, fields, temp_fields, mapped_fields, unified_fields, field_mappings):
+    for field in fields:
+        print(field)
+        if field_mappings[type_of_fields][field] != None:
+            print(fields[field])
+            if isinstance(fields[field], dict):
+                temp_fields[field_mappings[type_of_fields][field]] = {}
+                map_fields_recursion(social_media, type_of_fields, fields[field], temp_fields[field_mappings[type_of_fields][field]], mapped_fields, unified_fields, field_mappings)
+            else:
+                print('in except')
+                if fields[field] != None:
+                    temp_fields[field_mappings[type_of_fields][field]] = fields[field]
+                    print(temp_fields)
+
+    # Add mapped fields to the list
+    mapped_fields[social_media['name']] = temp_fields
+    return mapped_fields
+
+
+
+
+
+
+
 def map_fields(method, requested_social_media, endpoint, path, fields):
     ''' Compiles responses of social media APIs into one json response. 
     
@@ -346,15 +373,17 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         # Map for POST method
         elif method == 'post':
             temp_fields = {}
-            for field in unified_fields:
-                if field_mappings[type_of_fields][field] != None:
-                    try:
-                        temp_fields[field_mappings[type_of_fields][field]] = json.loads(fields[field])
-                    except:
-                        temp_fields[field_mappings[type_of_fields][field]] = fields[field]
+            print(fields)
+            mapped_fields = map_fields_recursion(social_media, type_of_fields, fields, temp_fields, mapped_fields, unified_fields, field_mappings)
+            # for field in unified_fields:
+            #     if field_mappings[type_of_fields][field] != None:
+            #         try:
+            #             temp_fields[field_mappings[type_of_fields][field]] = json.loads(fields[field])
+            #         except:
+            #             temp_fields[field_mappings[type_of_fields][field]] = fields[field]
             
-            # Add mapped fields to the list
-            mapped_fields[social_media['name']] = temp_fields
+            # # Add mapped fields to the list
+            # mapped_fields[social_media['name']] = temp_fields
 
     return unified_fields, mapped_fields
 
@@ -573,6 +602,12 @@ def get_ln_code(code: str):
         response = 'Error'
     return response
 
+# @app.get('/tw_auth')
+# def get_ig_code(oauth_token: str, oauth_verifier: str):
+#     print(oauth_token, oauth_verifier)
+    
+#     return oauth_token
+
 @app.get('/auth')
 def authenticate(sm: str):
 
@@ -586,28 +621,30 @@ def authenticate(sm: str):
             global fb_access
             fb_access = fb_auth(file_with_fb_credentials)
             fb_authenticated = True
-            response['Facebook'] = 'Success'
+            response['Facebook'] = 'Token successfully read.'
         except:
-            response['Facebook'] = 'Error'
+            response['Facebook'] = 'Something went wrong.'
     
     if 'ig' in requested_social_media:
         try:
             ig_auth(file_with_ig_credentials)
         except:
-            response['Instagram'] = 'Error'
+            response['Instagram'] = 'Something went wrong.'
     
     if 'ln' in requested_social_media:
         try:
             ln_auth(file_with_ln_credentials)
         except:
-            response['LinkedIn'] = 'Error'
+            response['LinkedIn'] = 'Something went wrong.'
 
     if 'tw' in requested_social_media:
         tw_creds, tw_error = tw_auth(file_with_tw_credentials)
+        print(tw_creds)
         if tw_error != None:
             global tw_access
             tw_access = tw_creds
             response['Twitter'] = tw_error
+            return response
         tw_authenticated = True
         response['Twitter'] = 'Success'
 
@@ -615,6 +652,17 @@ def authenticate(sm: str):
 
 # @app.get('/ig_deauth')
 # @app.get('/ig_delete_data')
+
+# @app.get('/logout')
+# def logout(sm: str):
+
+#     requested_social_media = sm.split(',')
+#     if 'fb' in requested_social_media:
+#         global fb_access = None
+#         fb_authenticated = False
+
+
+#     return response
 
 ##################################################################################################
 ##################################################################################################
@@ -982,9 +1030,11 @@ def create_photo_in_group(
 def create_post_in_group(
     group_id: str, 
     sm: str,
-    message: str=None,
-    link: str=None
+    body: GroupPost
     ):
+    # message: str=None,
+    # link: str=None
+    # ):
     '''Creates a post in group with given group_id.'''
 
     fields = locals().copy()
@@ -996,7 +1046,9 @@ def create_post_in_group(
     del fields['group_id']
     del fields['sm']
 
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    fields['body'] = body.dict()
+
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=body.dict())
     return response
 
 # TO BE TESTED
@@ -1132,8 +1184,7 @@ def like_a_post(
 def like_a_post(
     post_id: str, 
     sm: str,
-    author: str,
-    post: str
+    body: PostOnProfile
     ):
     '''Like a post with given post_id.'''
 
@@ -1146,7 +1197,7 @@ def like_a_post(
     del fields['post_id']
     del fields['sm']
 
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=body.dict())
     return response
 
 
@@ -1219,10 +1270,7 @@ def create_live_video_on_user(
 def create_post_on_user(
     user_id: str, 
     sm: str,
-    author: str,
-    content: str,
-    state: str,
-    visible_to_ln: str
+    body: PostOnProfile
     ):
     '''Creates a post on users profile with given user_id.'''
 
@@ -1234,8 +1282,9 @@ def create_post_on_user(
 
     del fields['user_id']
     del fields['sm']
+    print(fields)
 
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=body.dict())
     return response
 
 # TO BE TESTED

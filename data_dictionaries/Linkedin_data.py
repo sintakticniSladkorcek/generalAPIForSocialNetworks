@@ -98,7 +98,7 @@ class Linkedin_data():
                         'path': 'likes',
                         'post_fields': {
                             'author':'actor',
-                            'post': 'object'
+                            'post':'object'
                         }
                     }
                 }
@@ -112,7 +112,14 @@ class Linkedin_data():
                             'author': 'author',
                             'content': 'specificContent',
                             'state': 'lifecycleState',
-                            'visible_to_ln': 'visibility'
+                            'visible_to_ln': 'visibility',
+                            'visibility_value':'com.linkedin.ugc.MemberNetworkVisibility',
+                            'content_value':'com.linkedin.ugc.ShareContent',
+                            'message':'shareCommentary',
+                            'text':'text',
+                            'media_type':'shareMediaCategory',
+                            'media':'media',
+                            'media_status':'status'
                         }
                     }
                 }
