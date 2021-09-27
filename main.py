@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile, PostPhotoInAlbum, AlbumInGroup
+from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -786,7 +786,7 @@ def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str 
 
 # fb
 @app.post('/albums/{album_id}/photos')
-def create_photo_in_album(album_id: str, sm: str, body: PostPhotoInAlbum):
+def create_photo_in_album(album_id: str, sm: str, body: PostPhoto):
     '''Creates a photo in album with given album_id.'''
 
     endpoint = 'albums'
@@ -859,67 +859,14 @@ def create_live_video_in_group(
 # TO BE TESTED
 # fb
 @app.post('/groups/{group_id}/photos')
-def create_photo_in_group(
-    group_id: str, 
-    sm: str,
-    allow_spherical_photo: bool=False,
-    alt_text: str=None,
-    android_key_hash: str=None,
-    itunes_app_id: str=None,
-    attempt: int=0,
-    is_audience_experience: bool=False,
-    dated: str=None,
-    dated_accuracy: str=None,
-    description: str=None,
-    composer_session_id: str=None,
-    sponsor_boost_status: int=None,
-    feed_targeting: str=None,
-    full_res_is_coming_later: bool=False,
-    override_initial_view_heading_degrees: int=None,
-    override_initial_view_pitch_degrees: int=None,
-    override_initial_view_vertical_fov_degrees: int=None,
-    ios_bundle_id: str=None,
-    is_explicit_location: bool=None,
-    is_place_tag: bool=None,
-    is_visual_search: bool=None,
-    manual_privacy: bool=False,
-    no_story: bool=None,
-    offline_id: int=0,
-    open_graph_action_type_id: str=None,
-    open_graph_icon_id: str=None, 
-    open_graph_object_id: str=None,
-    open_graph_phrase: str=None,
-    open_graph_set_profile_badge: bool=False,
-    open_graph_suggestion_mechanism: str=None,
-    location_by_id: str=None,
-    visible_to_fb: str=None,
-    proxied_app_id: str=None,
-    is_published: bool=True,
-    photos_waterfall_id: str=None,
-    scheduled_publish_time: int=None,
-    spherical_metadata: str=None,
-    sponsor_id: str=None,
-    sponsor_relationship: str=None,
-    tagged_users: list=None,
-    targeting: str=None,
-    timedelta_since_dated: int=None,
-    unpublished_content_type: str=None,
-    source_url_of_photo: str=None,
-    user_selected_tags: bool=False,
-    vault_image_id: str=None
-    ):
+def create_photo_in_group(group_id: str, sm: str, body: PostPhoto):
     '''Creates a photo in group with given group_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'groups'
     path = 'photos'
     method = 'post'
 
-    del fields['group_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=body.dict())
     return response
 
 

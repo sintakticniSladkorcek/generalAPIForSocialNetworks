@@ -119,8 +119,8 @@ class TagOnPhoto(BaseModel):
     x: int # x coordinate of each tag, as a percentage offset from the left edge of the picture.
     y: int # y coordinate of each tag, as a percentage offset from the top edge of the picture.
 
-# Fields for body of POST request to /albums/{album_id}/photos
-class PostPhotoInAlbum(BaseModel):
+# Fields for body of POST request to /albums/{album_id}/photos and /groups/{group_id}/photos
+class PostPhoto(BaseModel):
     allow_spherical_photo: Optional[bool] # Indicates that we should allow this photo to be treated as a spherical photo. This will not change the behavior unless the server is able to interpret the photo as spherical, such as via Photosphere XMP metadata. Regular non-spherical photos will still be treated as regular photos even if this parameter is true.
     alt_text: Optional[str]# Accessible alternative description for an image
     android_key_hash: Optional[str]
@@ -174,3 +174,8 @@ class AlbumInGroup(BaseModel):
     contributors: Optional[List[int]] # Contributors to turn this into a shared album
     location_by_id: Optional[str] # The ID of a location page to tag the Album with
     location_by_name: Optional[str] # A text location of the Album for non-page locations
+
+# Fields for body of POST request to /groups/{group_id}/photos
+
+
+
