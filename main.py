@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile
+from models import GroupPost, PostOnProfile, PostPhotoInAlbum
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -252,11 +252,6 @@ def map_fields_recursion(social_media, type_of_fields, fields, temp_fields, mapp
     return mapped_fields
 
 
-
-
-
-
-
 def map_fields(method, requested_social_media, endpoint, path, fields):
     ''' Compiles responses of social media APIs into one json response. 
     
@@ -302,6 +297,8 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         else:
             prepared_fields = None
 
+    print('prepared fields: ', prepared_fields)
+
     # contains data dictionaries of selected social media platforms
     requested_social_media_data = [] 
 
@@ -323,9 +320,8 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         unified_field_mappings = unified_field_mappings['paths'][path]
         test_for_none = unified_field_mappings['path']
     
-    print
     # If no fields are selected, return all possible data
-    if test_for_none != None and fields == None:
+    if method == 'get' and test_for_none != None and fields == None:
         unified_fields = unified_field_mappings[type_of_fields].keys()
     
     # Map fields for similar parameter for each platform
@@ -616,11 +612,6 @@ def get_ln_code(code: str):
         response = 'Error authenticating with LinkedIn.'
     return response
 
-# @app.get('/tw_auth')
-# def get_ig_code(oauth_token: str, oauth_verifier: str):
-#     print(oauth_token, oauth_verifier)
-    
-#     return oauth_token
 
 @app.get('/auth')
 def authenticate(sm: str):
@@ -657,7 +648,7 @@ def authenticate(sm: str):
             response['Twitter'] = tw_error
             return response
         tw_authenticated = True
-        response['Twitter'] = 'Success'
+        response['Twitter'] = 'Successfully authenticated with Twitter.'
 
     return response
 
@@ -801,67 +792,16 @@ def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str 
 # TO BE TESTED
 # fb
 @app.post('/albums/{album_id}/photos')
-def create_photo_in_album(
-    album_id: str, 
-    sm: str,
-    allow_spherical_photo: bool=False,
-    alt_text: str=None,
-    android_key_hash: str=None,
-    itunes_app_id: str=None,
-    attempt: int=0,
-    is_audience_experience: bool=False,
-    dated: str=None,
-    dated_accuracy: str=None,
-    description: str=None,
-    composer_session_id: str=None,
-    sponsor_boost_status: int=None,
-    feed_targeting: str=None,
-    full_res_is_coming_later: bool=False,
-    override_initial_view_heading_degrees: int=None,
-    override_initial_view_pitch_degrees: int=None,
-    override_initial_view_vertical_fov_degrees: int=None,
-    ios_bundle_id: str=None,
-    is_explicit_location: bool=None,
-    is_place_tag: bool=None,
-    is_visual_search: bool=None,
-    manual_privacy: bool=False,
-    no_story: bool=None,
-    offline_id: int=0,
-    open_graph_action_type_id: str=None,
-    open_graph_icon_id: str=None, 
-    open_graph_object_id: str=None,
-    open_graph_phrase: str=None,
-    open_graph_set_profile_badge: bool=False,
-    open_graph_suggestion_mechanism: str=None,
-    location_by_id: str=None,
-    visible_to_fb: str=None,
-    proxied_app_id: str=None,
-    is_published: bool=True,
-    photos_waterfall_id: str=None,
-    scheduled_publish_time: int=None,
-    spherical_metadata: str=None,
-    sponsor_id: str=None,
-    sponsor_relationship: str=None,
-    tagged_users: list=None,
-    targeting: str=None,
-    timedelta_since_dated: int=None,
-    unpublished_content_type: str=None,
-    source_url_of_photo: str=None,
-    user_selected_tags: bool=False,
-    vault_image_id: str=None
-    ):
+def create_photo_in_album(album_id: str, sm: str, body: PostPhotoInAlbum):
     '''Creates a photo in album with given album_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'albums'
     path = 'photos'
     method = 'post'
 
-    del fields['album_id']
-    del fields['sm']
+    print(body.dict())
 
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=body.dict())
     return response
 
 
@@ -1038,26 +978,12 @@ def create_photo_in_group(
 
 # fb
 @app.post('/groups/{group_id}/posts')
-def create_post_in_group(
-    group_id: str, 
-    sm: str,
-    body: GroupPost
-    ):
-    # message: str=None,
-    # link: str=None
-    # ):
+def create_post_in_group(group_id: str, sm: str, body: GroupPost):
     '''Creates a post in group with given group_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'groups'
     path = 'posts'
     method = 'post'
-
-    del fields['group_id']
-    del fields['sm']
-
-    fields['body'] = body.dict()
 
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=body.dict())
     return response
@@ -1478,6 +1404,7 @@ The function parameters will be recognized as follows:
 # data deletion for fb and ig
 # deauth for ig
 # TODO: check for error http status code in authentication
+# TODO: gracefull shutdown
 
 # FURTHER DEVELOPMENT: Put instead of Post for updating stuff
 # FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
