@@ -51,9 +51,6 @@ class Album(BaseModel):
 class Text(BaseModel):
     text: str
 
-class GroupPost(BaseModel):
-    message: Optional[str]
-    link: Optional[str]
 
 class VisibleToLn(BaseModel):
     visibility_value: str
@@ -174,6 +171,13 @@ class AlbumInGroup(BaseModel):
     contributors: Optional[List[int]] # Contributors to turn this into a shared album
     location_by_id: Optional[str] # The ID of a location page to tag the Album with
     location_by_name: Optional[str] # A text location of the Album for non-page locations
+
+# Fields for body of POST request to /groups/{group_id}/photos
+class GroupPost(BaseModel):
+    message: Optional[str] # The main body of the post, otherwise called the status message. Either link or message must be supplied.
+    link: Optional[str] # The URL of a link to attach to the post. Either link or message must be supplied. Additional fields associated with link are shown below.
+
+
 
 # Fields for body of POST request to /groups/{group_id}/photos
 
