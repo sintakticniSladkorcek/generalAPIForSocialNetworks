@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup, CommentOnPost, LikePost
+from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup, CommentOnPost, LikePost, UpdateProfile
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -1012,14 +1012,9 @@ def like_a_post(
     ):
     '''Like a post with given post_id.'''
 
-    fields = locals().copy()
-
     endpoint = 'posts'
     path = 'likes'
     method = 'post'
-
-    del fields['post_id']
-    del fields['sm']
 
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=body.dict())
     return response
@@ -1027,26 +1022,13 @@ def like_a_post(
 
 # fb
 @app.post('/users/{user_id}')
-def update_user_profile(
-    user_id: str, 
-    sm: str, 
-    dismiss_local_news_megaphone: bool=None,
-    emoji_color_pref: int=None,
-    first_name: str=None,
-    last_name: str=None,
-    set_local_news_notifications: bool=None
-    ):
+def update_user_profile(user_id: str, sm: str, body: UpdateProfile):
     '''Updates a user profile with given user_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'users'
     method = 'post'
 
-    del fields['user_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, None, user_id, fields=body.dict())
     return response
 
 # TO BE TESTED

@@ -189,3 +189,11 @@ class CommentOnPost(BaseModel):
 # Fields for body of POST request to /posts/{post_id}/likes
 class LikePost(BaseModel):
     author: str # Used to specify the entity performing the action. It should be represented by a urn:li:person:{id} or urn:li:organization:{id} URN.
+
+# Fields for body of POST request to /users/{user_id}
+class UpdateProfile(BaseModel):
+    dismiss_local_news_megaphone: Optional[str] # Dismisses local news megaphone. One of YES, NO.
+    emoji_color_pref: Optional[int] # emoji color preference
+    first_name: Optional[str] # This person's first name
+    last_name: Optional[str] # This person's last name
+    set_local_news_notifications: Optional[str] # Preference for setting local news notifications. One of STATUS_ON, STATUS_OFF.
