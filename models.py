@@ -1,80 +1,26 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-class Album(BaseModel):
-    allow_spherical_photo: bool=False
-    alt_text: str=None
-    android_key_hash: str=None
-    itunes_app_id: str=None
-    attempt: int=0
-    is_audience_experience: bool=False
-    dated: str=None
-    dated_accuracy: str=None
-    description: str=None
-    composer_session_id: str=None
-    sponsor_boost_status: int=None
-    feed_targeting: str=None
-    full_res_is_coming_later: bool=False
-    override_initial_view_heading_degrees: int=None
-    override_initial_view_pitch_degrees: int=None
-    override_initial_view_vertical_fov_degrees: int=None
-    ios_bundle_id: str=None
-    is_explicit_location: bool=None
-    is_place_tag: bool=None
-    is_visual_search: bool=None
-    manual_privacy: bool=False
-    no_story: bool=None
-    offline_id: int=0
-    open_graph_action_type_id: str=None
-    open_graph_icon_id: str=None 
-    open_graph_object_id: str=None
-    open_graph_phrase: str=None
-    open_graph_set_profile_badge: bool=False
-    open_graph_suggestion_mechanism: str=None
-    location_by_id: str=None
-    visible_to_fb: str=None
-    proxied_app_id: str=None
-    is_published: bool=True
-    photos_waterfall_id: str=None
-    scheduled_publish_time: int=None
-    spherical_metadata: str=None
-    sponsor_id: str=None
-    sponsor_relationship: str=None
-    tagged_users: list=None
-    targeting: str=None
-    timedelta_since_dated: int=None
-    unpublished_content_type: str=None
-    source_url_of_photo: str=None
-    user_selected_tags: bool=False
-    vault_image_id: str=None
-
 class Text(BaseModel):
-    text: str
-
+    text: str # The text content that may be attributed. Defaults to "". NOTE: The maximum length of the text of a UGC Post is 3000 characters.
+    # attributes: Optional[List[Attribute]] # User generated attributes in the text.
+    inferred_locale: Optional[str] # The locale that may have be inferred for this text.
+# There is more!
 
 class VisibleToLn(BaseModel):
-    visibility_value: str
+    visibility_value: str # One of CONNECTIONS, PUBLIC, LOGGED_IN, CONTAINER.
 
-# "status": "READY",
-# "description": {
-#     "text": message
-# },
-# "originalUrl": link,
-# "title": {
-#     "text": link_text
-# }
 class Media(BaseModel):
-    media_status: str
-    description: Text
-    media_url: str
-    title: Text
-    #finish this
-
+    media_status: str # The status of the availability of this media. Can be the following values: PROCESSING, READY, FAILED.
+    description: Text # The description of this media.
+    media_url: str # URL whose content is summarized; content may not have a corresponding url for some entities. Maximum length is 8192 characters.
+    title: Text # The title of this media.
+# There is more! https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api?tabs=http#sharemedia
 
 class PostOnProfileContentInside(BaseModel):
-    message: Text
-    media_type: str
-    media: Optional[Media]
+    message: Text # The message content of this share.
+    media_type: str # The type of media contained within the media field of this object. Can be the following enum values: ARTICLE, IMAGE, NONE, RICH, VIDEO, LEARNING_COURSE, JOB, QUESTION, ANSWER, CAROUSEL, TOPIC, NATIVE_DOCUMENT, URN_REFERENCE, LIVE_VIDEO.
+    media: Optional[List[Media]] # The media shared in this share. Can be videos, images, or articles.
 
 class PostOnProfileContent(BaseModel):
     content_value: PostOnProfileContentInside
@@ -202,8 +148,8 @@ class UpdateProfile(BaseModel):
 
 # Fields for body of POST request to /users/{user_id}/videos
 class VideoOnProfile(BaseModel):
-    video_encoded_as_form_data: str, # The video, encoded as form data. This field is required.
-    video_file_chunk: Optional[str], # The video file chunk, encoded as form data. This field is required during transfer upload phase.
+    video_encoded_as_form_data: Optional[str] # The video, encoded as form data. This field is required if file_url is not provided.
+    video_file_chunk: Optional[str] # The video file chunk, encoded as form data. This field is required during transfer upload phase.
     audio_story_wave_animation_handle: Optional[str] # Everstore handle of wave animation used to burn audio story video
     content_category: Optional[str] # Content category of this video. One of BEAUTY_FASHION, BUSINESS, CARS_TRUCKS, COMEDY, CUTE_ANIMALS, ENTERTAINMENT, FAMILY, FOOD_HEALTH, HOME, LIFESTYLE, MUSIC, NEWS, POLITICS, SCIENCE, SPORTS, TECHNOLOGY, VIDEO_GAMING, OTHER
     description: Optional[str] # The text describing a post that may be shown in a story about it. It may include rich text information, such as entities and emojis
@@ -245,8 +191,8 @@ class VideoOnProfile(BaseModel):
 
 # Fields for body of POST request to /groups/{group_id}/videos
 class VideoInGroup(BaseModel):
-    video_encoded_as_form_data: str, # The video, encoded as form data. This field is required.
-    video_file_chunk: Optional[str], # The video file chunk, encoded as form data. This field is required during transfer upload phase.
+    video_encoded_as_form_data: Optional[str] # The video, encoded as form data. This field is required if file_url is not provided.
+    video_file_chunk: Optional[str] # The video file chunk, encoded as form data. This field is required during transfer upload phase.
     audio_story_wave_animation_handle: Optional[str] # Everstore handle of wave animation used to burn audio story video
     content_category: Optional[str] # Content category of this video. One of BEAUTY_FASHION, BUSINESS, CARS_TRUCKS, COMEDY, CUTE_ANIMALS, ENTERTAINMENT, FAMILY, FOOD_HEALTH, HOME, LIFESTYLE, MUSIC, NEWS, POLITICS, SCIENCE, SPORTS, TECHNOLOGY, VIDEO_GAMING, OTHER
     description: Optional[str] # The text describing a post that may be shown in a story about it. It may include rich text information, such as entities and emojis
@@ -280,11 +226,12 @@ class VideoInGroup(BaseModel):
     upload_phase: Optional[str] # Type of chunked upload request. One of start, transfer, finish, cancel.
     upload_session_id: Optional[str] # ID of the chunked upload session.
 
-
+# Fields for body of POST request to /posts/{post_id}/posts
+# Using https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/ugc-post-api?tabs=http
 class PostOnProfile(BaseModel):
-    author: str
-    content: PostOnProfileContent
-    state: str
-    visible_to_ln: VisibleToLn
+    author: str # id to associate the share with an organization or authenticated member
+    content: PostOnProfileContent # Represents type-specific content of this object. For a share this is the share text and media, and for an article it is the article contents.
+    state: str # One of DRAFT, PUBLISHED, PROCESSING, PROCESSING_FAILED, DELETED, PUBLISHED_EDITED, ARCHIVED.
+    visible_to_ln: VisibleToLn # Visibility restrictions on content
 
 

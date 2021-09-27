@@ -93,6 +93,7 @@ class Linkedin_data():
                             'author':'actor',
                             'message':'message',
                             'text': 'text',
+                            'inferred_locale': 'inferredLocale'
                         }
                     },
                     'likes': {
@@ -120,7 +121,8 @@ class Linkedin_data():
                             'text':'text',
                             'media_type':'shareMediaCategory',
                             'media':'media',
-                            'media_status':'status'
+                            'media_status':'status',
+                            'inferred_locale': 'inferredLocale'
                         }
                     }
                 }
