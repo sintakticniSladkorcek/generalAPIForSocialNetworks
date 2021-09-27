@@ -12,7 +12,8 @@ General API for Social Networks is an API that connects to different social medi
 Functionality:
 
 - for Facebook:
-  - retrieve data about users, posts, links, photos, videos, live videos, albums, events, groups
+  - retrieve data about athenticated user
+  - retrieve authenticated user's posts, links, photos, videos, live videos, albums, events, groups
   - create posts in group
   - post photos, videos and live videos in events, groups and on user's profile
   - modify user's profile, video and live video
@@ -24,7 +25,9 @@ Functionality:
   - post on authenticated member's profile
   - comment and like posts on behalf of an authenticated member
 - for Twitter:
-  - TODO
+  - retrieve data about users
+  - retrieve tweets
+  - like and retweet tweets on behalf of an authenticated user
 
 Functionality is currently limited to the functionality platforms offer free of charge and without a review process.
 
@@ -51,7 +54,7 @@ Functionality is currently limited to the functionality platforms offer free of 
       - [sm (required)](#sm-required)
       - [fields (optional)](#fields-optional)
       - [limit (optional)](#limit-optional)
-      - [visible_to (optional)](#visible_to-optional)
+      - [visible_to](#visible_to)
     - [Endpoints](#endpoints)
       - [/docs or /redoc](#docs-or-redoc)
       - [/auth](#auth)
@@ -149,23 +152,17 @@ In order to use this API you'll need to provide the same credentials as you woul
 
 ### Facebook credentials
 
-You will need an `app token` and a `user token` for Facebook API. To be able to get them, you'll need a Facebook account first, then Facebook Developer account and finnaly an app on Facebook for Developers platform.
-<!-- TODO: Do we also need the app token? -->
+You will need an `app token`, `app secret`, `redirect uri` and a `app display name` for Facebook API. To be able to get them, you'll need a Facebook account first, then Facebook Developer account and finnaly, an app on Facebook for Developers platform.
 
 1) To create Facebook developer account, follow [this guide from Facebook](https://developers.facebook.com/docs/development/register/).
 2) To create an app, follow [this guide from Facebook](https://developers.facebook.com/docs/development/create-an-app).
-3) Go to https://developers.facebook.com/tools/explorer, login to your Facebook account if prompted and choose your app in the *Facebook App* dropdown.
-4) To get an `app token`, choose *Get App Token* in *User or Page* dropdown. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
-5) To get a `user token`, choose *Get User Token* in *User or Page* dropdown. In the dropdown at the bottom, choose which permissions do you want to grant. You can read more abour permissions in `TODO` chapter. Click the blue *Generate Access Token* button anc copy the token that appears in the field above the button. Paste the token into file `fb_credentials.json`.
-<!-- TODO: add link to chapter for permissions -->
-<!-- fb permissions: https://developers.facebook.com/docs/permissions/reference -->
+3) Staying in the App Dashboard, go to *Settings*. In the section *Basic*, you can find `App ID`, `App Secret` and `Display Name`. Copy them into file `fb_credentials.json`.
+4) In the field *App Domains*, set the value to `localhost` and set the `redirect_uri` value in `fb_credentials.json` to `https://localhost:443`.
 
-The *app token* does not expire. The *user token*, howewer, expires in 2 hours.
-<!-- TODO extend and change or does our API refresh? Finish the text above based on the answer. -->
 
 ### Instagram
 
-To use Instagrams API, you'll need an app on Facebook for Developers platform, steps are described above in the first 3 steps of the instructions for obtaining Facebook credentials. Then, you will need `client_id` and `redirect_uri`.
+To use Instagrams API, you'll need an app on Facebook for Developers platform, steps are described above in the first 3 steps of the instructions for obtaining Facebook credentials. Then, you will need `client_id`, `client_secret` and `redirect_uri`.
 
 1) Follow the steps 1) - 3) from the list above.
 2) In the Dashbord, find card Instagram Basic Display and click *Set Up*.
@@ -203,7 +200,7 @@ For Twitter authentication you will need `consumer key`, `consumer secret key` a
 To run the General API for Social Networks, run the following command:
 
 ```cmd
-hypercorn main:app --reload
+python main.py
 ```
 
 After that, the API can be accessed at [https://127.0.0.1:443](https://127.0.0.1:443). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [https://127.0.0.1:443/auth](https://127.0.0.1:443/auth) and setting the value of [`sm` parameter](#sm).
@@ -447,7 +444,7 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 }
 ```
 
-#### visible_to (optional)
+#### visible_to
 
 This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. 
 
@@ -460,9 +457,6 @@ For more, see their documentation:
 - Facebook: https://developers.facebook.com/docs/graph-api/reference/privacy/, also this StackOverflow answer explains it well https://stackoverflow.com/a/37330630 
 - LinkedIn: https://docs.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin?context=linkedin/consumer/context#request-body-schema
 
-Yet to be implemented.
-<!-- TODO: Implement and add mappings (what is equivalent for each social media) -->
-Available values: `me`, `connections`, `public`, `custom`(?) they depend on social media APIs so maybe better not to unify them but just have sm:value pairs and list the options for each sm.
 
 ### Endpoints
 
@@ -490,16 +484,15 @@ Endpoints for GET requests
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`/albums/{album_id}`|Facebook, Instagram|Returns data about album. For Instagram, album is collection of photos or videos in a post.|
-|`/comments/{comment_id}`|Facebook||
 |`/events/{event_id}`|Facebook||
 |`/groups/{group_id}`|Facebook||
 |`/links/{link_id}`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
 <!-- |`/locations/{location_id}`|Facebook|| -->
-|`/me`|Facebook, Instagram, LinkedIn|Returns data about the user who is logged in.|
+|`/me`|Facebook, Instagram, LinkedIn, Twitter|Returns data about the user who is logged in.|
 |`/photos/{photo_id}`|Facebook, Instagram|Returns data about photo.|
-|`/posts/{post_id}`|Facebook|Returns data about a post.|
-|`/users/{user_id}`|Facebook, Instagram|Returns data about user with given `{user_id}`.|
+|`/posts/{post_id}`|Facebook, Twitter|Returns data about a post.|
+|`/users/{user_id}`|Facebook, Instagram, Twitter|Returns data about user with given `{user_id}`.|
 |`/videos/{video_id}`|Facebook, Instagram|Returns data about video.|
 
 
@@ -522,10 +515,10 @@ Endpoints for POST requests
 |`/groups/{group_id}/videos`|Facebook||
 |`/live_videos/{video_id}`|Facebook||
 |`/posts/{post_id}/comments`|LinkedIn||
-|`/posts/{post_id}/likes`|LinkedIn||
+|`/posts/{post_id}/likes`|LinkedIn, Twitter||
 |`/users/{user_id}`|Facebook||
 |`/users/{user_id}/live_videos`|Facebook||
-|`/users/{user_id}/posts`|LinkedIn|Create a post on user's profile|
+|`/users/{user_id}/posts`|LinkedIn, Twitter|Create a post on user's profile|
 |`/users/{user_id}/videos`|Facebook||
 |`/videos/{video_id}`|Facebook||
 
@@ -716,3 +709,17 @@ In the `README.md` file, add to the sections [Currently supported APIs](#current
 - Add Facebook's edges also as endpoints, not just as fields
 - Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
 - fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that. -->
+
+
+<!-- # FURTHER DEVELOPMENT: Put instead of Post for updating stuff
+# FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
+# FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
+# FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
+# FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
+# FURTHER DEVELOPMENT: Add suggestions on how to resolve the error in the merged response. Either from the docs of social media APIs or from us if it's something with this api.
+# FURTHER DEVELOPMENT: expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
+# FURTHER DEVELOPMENT: Add Facebook's edges also as endpoints, not just as fields
+# FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
+# FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
+# FURTHER DEVELOPMENT: If no fields are provided in get request, use not all of them but all that are non None value for requested sm.
+# FURTHER DEVELOPMENT: Add this type (fb): /search?type=adinterest&q=TEDx -->

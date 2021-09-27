@@ -38,6 +38,7 @@ from authentication.fb_authentication import auth as fb_auth
 from authentication.ig_authentication import auth as ig_auth
 from authentication.ln_authentication import auth as ln_auth
 from authentication.tw_authentication import auth as tw_auth
+from authentication.fb_authentication import auth_part_2 as fb_auth_2
 from authentication.ig_authentication import auth_part_2 as ig_auth_2
 from authentication.ln_authentication import auth_part_2 as ln_auth_2
 
@@ -570,6 +571,18 @@ def call_social_media_APIs_with_id(method, sm, endpoint, path, id, fields=None, 
 
 # GET requests
 
+@app.get('/')
+def get_fb_code(code:str):
+    try:
+        global fb_access
+        fb_access = fb_auth_2(code, file_with_fb_credentials)
+        fb_authenticated = True
+        response = 'Successfully authenticated with Facebook.'
+    except:
+        response = 'Error authenticating with Facebook.'
+
+    return response
+
 @app.get('/') 
 def home():
     response = requests.Response()
@@ -577,15 +590,16 @@ def home():
     response.json = {'Hello': 'Welcome to General API for Social Networks! Check out documentation on /docs, /redoc or on Github https://github.com/sintakticniSladkorcek/generalAPIForSocialNetworks.'}
     return (response)
 
+
 @app.get('/ig_auth')
 def get_ig_code(code: str, error_reason: str=None, error_description: str=None):
     try:
         global ig_access
         ig_access = ig_auth_2(code, file_with_ig_credentials).json()['access_token']
         ig_authenticated = True
-        response = 'Success'
+        response = 'Successfully authenticated with Instagram.'
     except:
-        response = 'Error'
+        response = 'Error authenticating with Instagram.'
         if error_reason and error_description:
             response = 'Error: ' + error_reason + ', ' + error_description
     
@@ -597,9 +611,9 @@ def get_ln_code(code: str):
         global ln_access
         ln_access = ln_auth_2(code, file_with_ln_credentials)
         ln_authenticated = True
-        response = 'Success'
+        response = 'Successfully authenticated with LinkedIn.'
     except:
-        response = 'Error'
+        response = 'Error authenticating with LinkedIn.'
     return response
 
 # @app.get('/tw_auth')
@@ -618,12 +632,9 @@ def authenticate(sm: str):
     # authenticate with social media APIs
     if 'fb' in requested_social_media:
         try:
-            global fb_access
-            fb_access = fb_auth(file_with_fb_credentials)
-            fb_authenticated = True
-            response['Facebook'] = 'Token successfully read.'
+            fb_auth(file_with_fb_credentials)
         except:
-            response['Facebook'] = 'Something went wrong.'
+             response['Facebook'] = 'Something went wrong.'
     
     if 'ig' in requested_social_media:
         try:
@@ -1158,7 +1169,7 @@ def update_live_video(
 
 # ln
 @app.post('/posts/{post_id}/comments')
-def like_a_post(
+def comment_on_a_post(
     post_id: str, 
     sm: str,
     author: str,
@@ -1459,13 +1470,14 @@ The function parameters will be recognized as follows:
 # Error handling for nonexistent paths (it's fine, there is no interval server error but still, error message doens't tell you much)
 
 
-# TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name
+# TODO: create method for authentication that checks validity of all credentials, maybe /authenticate and/or /authenticate/sm_name (https://gist.github.com/pavittarx/15b46b08e779c2113864e9db399f35ac)
 # TODO: twitter authentication (maybe even offer login with bearer token in addition to user login)
 # TODO: fb authentication
 # TODO: For the fb app to make it usable to non-authors, we need to implement Facebook Data Deletion Callback: https://developers.facebook.com/docs/development/build-and-test
 # TODO: Refresh Facebook user access token (otherwise it my expire in 2 hours)
 # data deletion for fb and ig
 # deauth for ig
+# TODO: check for error http status code in authentication
 
 # FURTHER DEVELOPMENT: Put instead of Post for updating stuff
 # FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
