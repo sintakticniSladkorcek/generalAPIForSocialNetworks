@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile, PostPhotoInAlbum
+from models import GroupPost, PostOnProfile, PostPhotoInAlbum, AlbumInGroup
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -232,20 +232,15 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
     return response
 
 
-
 def map_fields_recursion(social_media, type_of_fields, fields, temp_fields, mapped_fields, unified_fields, field_mappings):
     for field in fields:
-        print(field)
         if field_mappings[type_of_fields][field] != None:
-            print(fields[field])
             if isinstance(fields[field], dict):
                 temp_fields[field_mappings[type_of_fields][field]] = {}
                 map_fields_recursion(social_media, type_of_fields, fields[field], temp_fields[field_mappings[type_of_fields][field]], mapped_fields, unified_fields, field_mappings)
             else:
-                print('in except')
                 if fields[field] != None:
                     temp_fields[field_mappings[type_of_fields][field]] = fields[field]
-                    print(temp_fields)
 
     # Add mapped fields to the list
     mapped_fields[social_media['name']] = temp_fields
@@ -297,7 +292,6 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
         else:
             prepared_fields = None
 
-    print('prepared fields: ', prepared_fields)
 
     # contains data dictionaries of selected social media platforms
     requested_social_media_data = [] 
@@ -369,8 +363,10 @@ def map_fields(method, requested_social_media, endpoint, path, fields):
 
         # Map for POST method
         elif method == 'post':
+            if fields == None:
+                mapped_fields[social_media['name']] = None
+                continue
             temp_fields = {}
-            print(fields)
             mapped_fields = map_fields_recursion(social_media, type_of_fields, fields, temp_fields, mapped_fields, unified_fields, field_mappings)
             # for field in unified_fields:
             #     if field_mappings[type_of_fields][field] != None:
@@ -641,7 +637,6 @@ def authenticate(sm: str):
 
     if 'tw' in requested_social_media:
         tw_creds, tw_error = tw_auth(file_with_tw_credentials)
-        print(tw_creds)
         if tw_error != None:
             global tw_access
             tw_access = tw_creds
@@ -789,7 +784,6 @@ def get_data_about_video(video_id: str, sm: str, fields: str = None, limit: str 
 
 # POST requests
 
-# TO BE TESTED
 # fb
 @app.post('/albums/{album_id}/photos')
 def create_photo_in_album(album_id: str, sm: str, body: PostPhotoInAlbum):
@@ -799,65 +793,18 @@ def create_photo_in_album(album_id: str, sm: str, body: PostPhotoInAlbum):
     path = 'photos'
     method = 'post'
 
-    print(body.dict())
-
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, album_id, fields=body.dict())
-    return response
-
-
-# TO BE TESTED
-# fb
-@app.post('/events/{event_id}/live_videos')
-def create_live_video_in_event(
-    event_id: str, 
-    sm: str, 
-    app_id: str=None, 
-    content_tags: list=None, 
-    description: str=None, 
-    enable_backup_ingest: bool=False, 
-    encoding_settings_identifier: str=None, 
-    fisheye_video_cropped: bool=None, 
-    front_z_rotation: float=None, 
-    is_360: bool=False, 
-    live_encoders: list=None, 
-    original_fov: int=None,
-    visible_to_fb: str=None,
-    projection: str='eqirectangular',
-    custom_image_for_schedule: str=None,
-    spatial_audio_format: int=None,
-    status: str='unpublished',
-    stereoscopic_mode: str='mono',
-    stop_on_delete_stream: bool=False,
-    video_title: str=Query(None, max_length=254)
-    ):
-    '''Creates a live video in event with given event_id.'''
-
-    fields = locals().copy()
-
-    endpoint = 'events'
-    path = 'live_videos'
-    method = 'post'
-
-    del fields['event_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, event_id, fields=fields)
     return response
 
 
 # fb: fields:https://developers.facebook.com/docs/graph-api/reference/album
 @app.post('/groups/{group_id}/albums')
-def create_album_in_group(group_id:str, sm:str, name: str, description: str=None, visible_to_fb: str=None, make_shared_album: bool=False, contributors: list=None, location_by_id: str=None, location_by_name: str=None):
+def create_album_in_group(group_id:str, sm:str, body:AlbumInGroup):
     ''' Creates a new album in a group specified by group_id '''
-
-    fields = locals().copy()
 
     endpoint = 'groups'
     path = 'albums'
     method = 'post'
-
-    del fields['group_id']
-    del fields['sm']
 
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
     return response
@@ -1204,22 +1151,12 @@ def create_live_video_on_user(
 
 # ln
 @app.post('/users/{user_id}/posts')
-def create_post_on_user(
-    user_id: str, 
-    sm: str,
-    body: PostOnProfile
-    ):
+def create_post_on_user(user_id: str, sm: str, body: PostOnProfile):
     '''Creates a post on users profile with given user_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'users'
     path = 'posts'
     method = 'post'
-
-    del fields['user_id']
-    del fields['sm']
-    print(fields)
 
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=body.dict())
     return response

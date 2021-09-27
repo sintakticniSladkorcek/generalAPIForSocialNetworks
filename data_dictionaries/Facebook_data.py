@@ -151,31 +151,6 @@ class Facebook_data():
                     'type': 'type', # If you remember a better name, update. This parameter tells if event is private, public, group, community or friends. who_can_attend, for_who, audience
                     'updated_time': 'updated_time',
                     'videos': 'videos'
-                },
-                'paths': {
-                    'live_videos': {
-                        'path': 'live_videos',
-                        'post_fields': {
-                            'app_id': 'attribution_app_id',
-                            'content_tags': 'content_tags',
-                            'custom_image_for_schedule': 'schedule_custom_profile_image',
-                            'description': 'description',
-                            'enable_backup_ingest': 'enable_backup_ingest',
-                            'encoding_settings_identifier': 'encoding_settings',
-                            'fisheye_video_cropped': 'fisheye_video_cropped',
-                            'front_z_rotation': 'front_z_rotation',
-                            'is_360': 'is_spherical',
-                            'live_encoders': 'live_encoders',
-                            'original_fov': 'original_fov',
-                            'projection': 'projection',
-                            'spatial_audio_format': 'spatial_audio_format',
-                            'status': 'status',
-                            'stereoscopic_mode': 'stereoscopic_mode',
-                            'stop_on_delete_stream': 'stop_on_delete_stream',
-                            'video_title': 'title',
-                            'visible_to_fb': 'privacy'
-                        }
-                    }
                 }
             },
             'groups': {
@@ -219,7 +194,13 @@ class Facebook_data():
                             'location_by_name': 'location',
                             'make_shared_album': 'make_shared_album',
                             'name': 'name',
-                            'visible_to_fb': 'privacy'
+                            'visible_to_fb': 'privacy',
+                            'allow_for': 'allow',
+                            'deny_for': 'deny',
+                            'custom_settings': 'description',
+                            'allow_for_category': 'friends',
+                            'allow_for_network': 'networks',
+                            'privacy_value': 'value'
                         }
                     },
                     'live_videos': {

@@ -165,3 +165,12 @@ class PostPhotoInAlbum(BaseModel):
     user_selected_tags: Optional[bool]
     vault_image_id: Optional[str] # A vault image ID to use for a photo. You can use only one of url or vault_image_id
 
+# Fields for body of POST request to /groups/{group_id}/albums
+class AlbumInGroup(BaseModel): 
+    name: str # The title of the Album
+    description: Optional[str] # The Album's caption. This appears below the title of the album in the Album view
+    visible_to_fb: Optional[PrivacyFB] # The privacy of the Album
+    make_shared_album: Optional[bool] # Ensures the created Album is a shared Album. Default value is False.
+    contributors: Optional[List[int]] # Contributors to turn this into a shared album
+    location_by_id: Optional[str] # The ID of a location page to tag the Album with
+    location_by_name: Optional[str] # A text location of the Album for non-page locations

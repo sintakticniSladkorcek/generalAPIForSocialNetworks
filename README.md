@@ -60,6 +60,32 @@ Functionality is currently limited to the functionality platforms offer free of 
       - [/auth](#auth)
       - [/ig_auth and /ln_auth](#ig_auth-and-ln_auth)
       - [Table of endpoints](#table-of-endpoints)
+      - [GET /albums/{album_id}](#get-albumsalbum_id)
+      - [GET /events/{event_id}](#get-eventsevent_id)
+      - [GET /groups/{group_id}](#get-groupsgroup_id)
+      - [GET /links/{link_id}](#get-linkslink_id)
+      - [GET /live_videos/{video_id}](#get-live_videosvideo_id)
+      - [GET /me](#get-me)
+      - [GET /photos/{photo_id}](#get-photosphoto_id)
+      - [GET /posts/{post_id}](#get-postspost_id)
+      - [GET /users/{user_id}](#get-usersuser_id)
+      - [GET /videos/{video_id}](#get-videosvideo_id)
+      - [POST /albums/{album_id}/photos](#post-albumsalbum_idphotos)
+      - [POST /groups/{group_id}/albums](#post-groupsgroup_idalbums)
+      - [POST /groups/{group_id}/live_videos](#post-groupsgroup_idlive_videos)
+      - [POST /groups/{group_id}/photos](#post-groupsgroup_idphotos)
+      - [POST /groups/{group_id}/videos](#post-groupsgroup_idvideos)
+      - [POST /live_videos/{video_id}](#post-live_videosvideo_id)
+      - [POST /posts/{post_id}/comments](#post-postspost_idcomments)
+      - [POST /posts/{post_id}/likes](#post-postspost_idlikes)
+      - [POST /users/{user_id}](#post-usersuser_id)
+      - [POST /users/{user_id}/live_videos](#post-usersuser_idlive_videos)
+      - [POST /users/{user_id}/posts](#post-usersuser_idposts)
+      - [POST /users/{user_id}/videos](#post-usersuser_idvideos)
+      - [POST /videos/{video_id}](#post-videosvideo_id)
+      - [DELETE /live_videos/{video_id}](#delete-live_videosvideo_id)
+      - [DELETE /photos/{photo_id}](#delete-photosphoto_id)
+      - [DELETE /videos/{video_id}](#delete-videosvideo_id)
     - [Errors](#errors)
       - [Errors returned by General API for Social Networks](#errors-returned-by-general-api-for-social-networks)
       - [Errors returned by social media APIs](#errors-returned-by-social-media-apis)
@@ -203,7 +229,7 @@ To run the General API for Social Networks, run the following command:
 python main.py
 ```
 
-After that, the API can be accessed at [https://127.0.0.1:443](https://127.0.0.1:443). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [https://127.0.0.1:443/auth](https://127.0.0.1:443/auth) and setting the value of [`sm` parameter](#sm).
+After that, the API can be accessed at [https://127.0.0.1:443](https://127.0.0.1:443) or [https://localhost:443](https://localhost:443). Before perfornming any calls, you'll have to authenticate with the social media with which you want to communicate. You can do this by calling GET [https://127.0.0.1:443/auth](https://127.0.0.1:443/auth) and setting the value of [`sm` parameter](#sm).
 
 <a name="auth_example"></a>For example, to authenticate only with Facebook and LinkedIn, you would send a GET request to `https://127.0.0.1:443/auth?sm=fb,ln`.
 
@@ -507,7 +533,6 @@ Endpoints for POST requests
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`/albums/{album_id}/photos`|Facebook||
-|`/events/{event_id}/live_videos`|Facebook||
 |`/groups/{group_id}/albums`|Facebook||
 |`/groups/{group_id}/posts`|Facebook|Create a post in group|
 |`/groups/{group_id}/live_videos`|Facebook||
@@ -545,6 +570,51 @@ If a nonexisting endpoint is called or none of the requested social media platfo
   }
 }
 ```
+
+#### GET /albums/{album_id}
+#### GET /events/{event_id}
+#### GET /groups/{group_id}
+#### GET /links/{link_id}
+#### GET /live_videos/{video_id}
+#### GET /me
+#### GET /photos/{photo_id}
+#### GET /posts/{post_id}
+#### GET /users/{user_id}
+#### GET /videos/{video_id}
+#### POST /albums/{album_id}/photos
+
+What does it do
+
+Any limitations
+
+What fields can be used in the request body
+|field|data type|avaliable for|description|
+|---|---|---|---|
+|||||
+|||||
+|||||
+|||||
+|||||
+|||||
+
+
+
+#### POST /groups/{group_id}/albums
+#### POST /groups/{group_id}/live_videos
+#### POST /groups/{group_id}/photos
+#### POST /groups/{group_id}/videos
+#### POST /live_videos/{video_id}
+#### POST /posts/{post_id}/comments
+#### POST /posts/{post_id}/likes
+#### POST /users/{user_id}
+#### POST /users/{user_id}/live_videos
+#### POST /users/{user_id}/posts
+#### POST /users/{user_id}/videos
+#### POST /videos/{video_id}
+#### DELETE /live_videos/{video_id}
+#### DELETE /photos/{photo_id}
+#### DELETE /videos/{video_id}
+
 
 ### Errors
 
