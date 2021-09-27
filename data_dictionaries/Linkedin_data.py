@@ -61,7 +61,7 @@ class Linkedin_data():
                     'meeting_for': None,
                     'middle_name': None,
                     'music': None,
-                    'name': None,
+                    'name': 'firstName',
                     'name_format': None,
                     'pages_with_roles': None,
                     'payment_pricepoints': None,
@@ -91,7 +91,8 @@ class Linkedin_data():
                         'path': 'comments',
                         'post_fields': {
                             'author':'actor',
-                            'message':'message'
+                            'message':'message',
+                            'text': 'text',
                         }
                     },
                     'likes': {

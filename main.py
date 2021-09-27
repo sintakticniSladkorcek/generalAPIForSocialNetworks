@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup
+from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup, CommentOnPost, LikePost
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -856,7 +856,6 @@ def create_live_video_in_group(
     return response
 
 
-# TO BE TESTED
 # fb
 @app.post('/groups/{group_id}/photos')
 def create_photo_in_group(group_id: str, sm: str, body: PostPhoto):
@@ -882,7 +881,7 @@ def create_post_in_group(group_id: str, sm: str, body: GroupPost):
     response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=body.dict())
     return response
 
-# TO BE TESTED
+# TO BE TESTED, supposedly deprecated https://developers.facebook.com/docs/graph-api/reference/v12.0/group/videos
 # fb
 @app.post('/groups/{group_id}/videos')
 def create_video_in_group(
@@ -992,21 +991,15 @@ def update_live_video(
 def comment_on_a_post(
     post_id: str, 
     sm: str,
-    author: str,
-    message: str
+    body: CommentOnPost
     ):
     '''Comment on a post with given post_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'posts'
     path = 'comments'
     method = 'post'
 
-    del fields['post_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, post_id, fields=body.dict())
     return response
 
 
@@ -1015,7 +1008,7 @@ def comment_on_a_post(
 def like_a_post(
     post_id: str, 
     sm: str,
-    body: PostOnProfile
+    body: LikePost
     ):
     '''Like a post with given post_id.'''
 

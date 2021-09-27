@@ -67,11 +67,20 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
             mapped_fields['object'] = "urn:li:share:" + mapped_fields['object']
         except:
             pass
+
+        if specific_endpoint == 'socialActions':
+            mapped_fields['object'] = id
+            headers = {
+            'Authorization': f'Bearer {access_token}',
+            'cache-control': 'no-cache'
+            }
+            response = requests.post(f'{url}', headers=headers, json=mapped_fields)
+        else:
         
-        print(mapped_fields)
-        
-        # call API
-        response = requests.post(f'{url}', headers=headers, json=mapped_fields)
+            print(mapped_fields)
+            
+            # call API
+            response = requests.post(f'{url}', headers=headers, json=mapped_fields)
 
     return response
 

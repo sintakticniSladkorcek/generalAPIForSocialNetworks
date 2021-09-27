@@ -65,6 +65,10 @@ class VisibleToLn(BaseModel):
 # }
 class Media(BaseModel):
     media_status: str
+    description: Text
+    media_url: str
+    title: Text
+    #finish this
 
 
 class PostOnProfileContentInside(BaseModel):
@@ -177,9 +181,11 @@ class GroupPost(BaseModel):
     message: Optional[str] # The main body of the post, otherwise called the status message. Either link or message must be supplied.
     link: Optional[str] # The URL of a link to attach to the post. Either link or message must be supplied. Additional fields associated with link are shown below.
 
+# Fields for body of POST request to /posts/{post_id}/comments
+class CommentOnPost(BaseModel):
+    author: str # id of entity which authored the comment
+    message: Text # Text of the comment. May contain attributes such as links to people and organizations.
 
-
-# Fields for body of POST request to /groups/{group_id}/photos
-
-
-
+# Fields for body of POST request to /posts/{post_id}/likes
+class LikePost(BaseModel):
+    author: str # Used to specify the entity performing the action. It should be represented by a urn:li:person:{id} or urn:li:organization:{id} URN.
