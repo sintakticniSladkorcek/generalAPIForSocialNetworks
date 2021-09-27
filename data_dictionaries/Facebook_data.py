@@ -20,7 +20,6 @@ class Facebook_data():
                     'description': 'description',
                     'event_on_location': 'event', #
                     'id': 'id',
-                    'likes': 'likes',
                     'location_by_id': 'place', #
                     'location_by_name': 'location', #
                     'name': 'name',
@@ -146,7 +145,6 @@ class Facebook_data():
                     'ticket_uri_start_sales_time': 'ticket_uri_start_sales_time',
                     'ticketing_privacy_policy': 'ticketing_privacy_uri',
                     'ticketing_terms': 'ticketing_terms_uri',
-                    'ticket_tiers': 'ticket_tiers',
                     'timezone': 'timezone',
                     'type': 'type', # If you remember a better name, update. This parameter tells if event is private, public, group, community or friends. who_can_attend, for_who, audience
                     'updated_time': 'updated_time',
@@ -222,7 +220,6 @@ class Facebook_data():
                             'live_encoders': 'live_encoders',
                             'original_fov': 'original_fov',
                             'projection': 'projection',
-                            'save_vod': 'save_vod',
                             'spatial_audio_format': 'spatial_audio_format',
                             'status': 'status',
                             'stereoscopic_mode': 'stereoscopic_mode',
@@ -350,7 +347,12 @@ class Facebook_data():
                             'video_encoded_as_form_data': 'source', # required
                             'video_file_chunk': 'video_file_chunk', # required during transfer upload phasr
                             'video_id_to_replace': 'replace_video_id',
-                            'video_title': 'title'
+                            'video_title': 'title',
+                            'images_urls': 'images_urls',
+                            'duration_ms': 'duration_ms',
+                            'transition_ms': 'transition_ms',
+                            'reordering_opt_in': 'reordering_opt_in',
+                            'music_variations_opt_in': 'music_variations_opt_in'
                         }
                     }
                 }
@@ -368,7 +370,6 @@ class Facebook_data():
                     'link_icon_url': 'icon',
                     'message': 'message',
                     'name': 'name',
-                    'reactions': 'reactions',
                     'thumbnail_url': 'picture'
                 }
             },
@@ -395,7 +396,6 @@ class Facebook_data():
                     'live_views_count': 'live_views',
                     'live_video_url': 'permalink_url',
                     'overlay_url': 'overlay_url',
-                    'planned_start_time': 'planned_start_time',
                     'polls': 'polls',
                     'seconds_left': 'seconds_left',
                     'secure_stream_url': 'secure_stream_url',
@@ -424,7 +424,6 @@ class Facebook_data():
                     'location': 'place',
                     'master_ingest_stream_id': 'master_ingest_stream_id',
                     'persistent_stream_key_status': 'persistent_stream_key_status',
-                    'planned_start_time': 'planned_start_time',
                     'projection': 'projection',
                     'sponsor_id': 'sponsor_id',
                     'sponsor_boost_status': 'direct_share_status',
@@ -443,7 +442,6 @@ class Facebook_data():
                 'get_fields': {
                     'account_type': None,
                     'ad_studies':'ad_studies',
-                    'adaccounts':'adaccounts',
                     'age_range':'age_range',
                     'albums':'albums',
                     'apprequestformerrecipients':'apprequestformerrecipients',
@@ -485,7 +483,6 @@ class Facebook_data():
                     'pages_with_roles':'accounts',
                     'payment_pricepoints':'payment_pricepoints',
                     'permissions':'permissions',
-                    'personal_ad_accounts':'personal_ad_accounts',
                     'photos':'photos',
                     'profile_picture':'picture',
                     'posts':'posts',
@@ -602,18 +599,16 @@ class Facebook_data():
                     'url_to_video_file': 'source',
                     'video_buying_eligibility': 'video_buying_eligibility',
                     'visible_to_fb': 'privacy'
-                }
+                },
             },
             'users': {
                 'endpoint': '',
                 'get_fields': {
                     'account_type': None,
                     'ad_studies': 'ad_studies',
-                    'adaccounts': 'adaccounts',
                     'age_range': 'age_range',
                     'albums': 'albums',
                     'apprequests': 'apprequests',
-                    'assigned_ad_accounts': 'assigned_ad_accounts',
                     'assigned_business_asset_groups': 'assigned_business_asset_groups',
                     'assigned_pages': 'assigned_pages',
                     'assigned_product_catalogs': 'assigned_product_catalogs',
@@ -654,7 +649,6 @@ class Facebook_data():
                     'payment_pricepoints': 'payment_pricepoints',
                     'payment.subscriptions': 'payment.subscriptions',
                     'permissions': 'permissions',
-                    'personal_ad_accounts': 'personal_ad_accounts',
                     'photos': 'photos',
                     'posts': 'feed',
                     'profile_pic_url': 'profile_pic',
@@ -742,7 +736,18 @@ class Facebook_data():
                             'video_file_chunk': 'video_file_chunk', # required during transfer upload phasr
                             'video_id_original': 'video_id_original',
                             'video_id_to_replace': 'replace_video_id',
-                            'visible_to_fb': 'privacy'
+                            'visible_to_fb': 'privacy',
+                            'allow_for': 'allow',
+                            'deny_for': 'deny',
+                            'custom_settings': 'description',
+                            'allow_for_category': 'friends',
+                            'allow_for_network': 'networks',
+                            'privacy_value': 'value',
+                            'images_urls': 'images_urls',
+                            'duration_ms': 'duration_ms',
+                            'transition_ms': 'transition_ms',
+                            'reordering_opt_in': 'reordering_opt_in',
+                            'music_variations_opt_in': 'music_variations_opt_in'
                         }
                     }
                 }

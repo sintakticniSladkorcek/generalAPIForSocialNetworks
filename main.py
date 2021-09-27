@@ -27,7 +27,7 @@ from requests import Response
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
-from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup, CommentOnPost, LikePost, UpdateProfile
+from models import GroupPost, PostOnProfile, PostPhoto, AlbumInGroup, CommentOnPost, LikePost, UpdateProfile, VideoInGroup, VideoOnProfile
 
 from data_dictionaries.Facebook_data import Facebook_data as fbd
 from data_dictionaries.Instagram_data import Instagram_data as igd
@@ -884,56 +884,14 @@ def create_post_in_group(group_id: str, sm: str, body: GroupPost):
 # TO BE TESTED, supposedly deprecated https://developers.facebook.com/docs/graph-api/reference/v12.0/group/videos
 # fb
 @app.post('/groups/{group_id}/videos')
-def create_video_in_group(
-    group_id: str, 
-    sm: str, 
-    video_encoded_as_form_data: str,
-    video_file_chunk: str,
-    audio_story_wave_animation_handle: str=None,
-    content_category: str=None,
-    description: str=None,
-    embeddable: bool=None,
-    end_offset: int=None,
-    file_size_in_bytes: int=None,
-    file_url: str=None,
-    fisheye_video_cropped: bool=None,
-    vertical_fov_for_360: int=None,
-    front_z_rotation: float=None,
-    guide_keyframes_data_for_360: list=None,
-    guide_enabled_for_360: bool=None,
-    initial_heading_for_360: int=None,
-    initial_pitch_for_360: int=None,
-    original_fov: int=None,
-    original_projection_type_for_360: str='eqirectangular',
-    prompt_id: str=None,
-    prompt_tracking_string: str=None,
-    react_mode_metadata: str=None,
-    referenced_sticker_id: str=None,
-    video_id_to_replace: str=None,
-    scheduled_publish_time: int=None,
-    slideshow_spec: str=None,
-    source_instagram_media_id: str=None,
-    is_360: bool=False,
-    start_offset: int=None,
-    swap_mode: str=None,
-    video_title: str=None,
-    transcode_setting_properties: str=None,
-    unpublished_content_type: str=None,
-    upload_phase: str=None,
-    upload_session_id: str=None,
-    ):
+def create_video_in_group(group_id: str, sm: str, body: VideoInGroup):
     '''Creates a video in group with given group_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'groups'
     path = 'videos'
     method = 'post'
 
-    del fields['group_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, group_id, fields=body.dict())
     return response
 
 # TO BE TESTED
@@ -1086,62 +1044,14 @@ def create_post_on_user(user_id: str, sm: str, body: PostOnProfile):
 # TO BE TESTED
 # fb
 @app.post('/users/{user_id}/videos')
-def create_video_on_user(
-    user_id: str, 
-    sm: str, 
-    video_encoded_as_form_data: str,
-    video_file_chunk: str,
-    audio_story_wave_animation_handle: str=None,
-    content_category: str=None,
-    description: str=None,
-    sponsor_boost_status: int=None,
-    embeddable: bool=None,
-    end_offset: int=None,
-    file_size_in_bytes: int=None,
-    file_url: str=None,
-    fisheye_video_cropped: bool=None,
-    vertical_fov_for_360: int=None,
-    front_z_rotation: float=None,
-    guide_keyframes_data_for_360: list=None,
-    guide_enabled_for_360: bool=None,
-    initial_heading_for_360: int=None,
-    initial_pitch_for_360: int=None,
-    is_voice_clip: bool=None,
-    no_story: bool=False,
-    original_fov: int=None,
-    original_projection_type_for_360: str='eqirectangular',
-    posting_to_redspace: bool=None,
-    visible_to_fb: str=None,
-    prompt_id: str=None,
-    prompt_tracking_string: str=None,
-    react_mode_metadata: str=None,
-    referenced_sticker_id: str=None,
-    video_id_to_replace: str=None,
-    slideshow_spec: str=None,
-    source_instagram_media_id: str=None,
-    is_360: bool=False,
-    sponsor_id: str=None,
-    start_offset: int=None,
-    swap_mode: str=None,
-    video_title: str=None,
-    transcode_setting_properties: str=None,
-    unpublished_content_type: str=None,
-    upload_phase: str=None,
-    upload_session_id: str=None,
-    video_id_original: str=None
-    ):
+def create_video_on_user(user_id: str, sm: str, body: VideoOnProfile):
     '''Creates a video on users profile with given user_id.'''
-
-    fields = locals().copy()
 
     endpoint = 'users'
     path = 'videos'
     method = 'post'
 
-    del fields['user_id']
-    del fields['sm']
-
-    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=fields)
+    response = call_social_media_APIs_with_id(method, sm, endpoint, path, user_id, fields=body.dict())
     return response
 
 # TO BE TESTED

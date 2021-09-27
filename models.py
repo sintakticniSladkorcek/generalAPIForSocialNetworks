@@ -79,11 +79,13 @@ class PostOnProfileContentInside(BaseModel):
 class PostOnProfileContent(BaseModel):
     content_value: PostOnProfileContentInside
 
-class PostOnProfile(BaseModel):
-    author: str
-    content: PostOnProfileContent
-    state: str
-    visible_to_ln: VisibleToLn
+# Specification of a list of images that are used to generate video.
+class SlideshowSpec(BaseModel):
+    images_urls: List[str] # A 3-7 element array of the URLs of the images. Required.
+    duration_ms: Optional[int] # The duration in milliseconds of each image. Default value is 1000.
+    transition_ms: Optional[int] # The duration in milliseconds of the crossfade transition between images. Default value is 1000.
+    reordering_opt_in: Optional[bool] # Default value is False.
+    music_variations_opt_in: Optional[bool] # Default value is False.
 
 # Determines the privacy settings of the photo. If not supplied, this defaults to the privacy level granted to the app in the Login dialog. This field cannot be used to set a more open privacy setting than the one granted
 class PrivacyFB(BaseModel):
@@ -197,3 +199,92 @@ class UpdateProfile(BaseModel):
     first_name: Optional[str] # This person's first name
     last_name: Optional[str] # This person's last name
     set_local_news_notifications: Optional[str] # Preference for setting local news notifications. One of STATUS_ON, STATUS_OFF.
+
+# Fields for body of POST request to /users/{user_id}/videos
+class VideoOnProfile(BaseModel):
+    video_encoded_as_form_data: str, # The video, encoded as form data. This field is required.
+    video_file_chunk: Optional[str], # The video file chunk, encoded as form data. This field is required during transfer upload phase.
+    audio_story_wave_animation_handle: Optional[str] # Everstore handle of wave animation used to burn audio story video
+    content_category: Optional[str] # Content category of this video. One of BEAUTY_FASHION, BUSINESS, CARS_TRUCKS, COMEDY, CUTE_ANIMALS, ENTERTAINMENT, FAMILY, FOOD_HEALTH, HOME, LIFESTYLE, MUSIC, NEWS, POLITICS, SCIENCE, SPORTS, TECHNOLOGY, VIDEO_GAMING, OTHER
+    description: Optional[str] # The text describing a post that may be shown in a story about it. It may include rich text information, such as entities and emojis
+    sponsor_boost_status: Optional[int] # The status to allow sponsor directly boost the post.
+    embeddable: Optional[bool] # Whether the video is embeddable.
+    end_offset: Optional[int]
+    file_size_in_bytes: Optional[int] # The size of the entire video file in bytes.
+    file_url: Optional[str] # Accessible URL of a video file. Cannot be used with upload_phase.
+    fisheye_video_cropped: Optional[bool] # Whether the single fisheye video is cropped or not
+    vertical_fov_for_360: Optional[int] # 360 video only: Vertical field of view
+    front_z_rotation: Optional[float] # The front z rotation in degrees on the single fisheye video
+    guide_keyframes_data_for_360: Optional[List[List[int]]] # 360 video only: Guide keyframes data. An array of keyframes, each of which is an array of 3 or 4 elements in the following order: [video timestamp (seconds), pitch (degrees, -90 ~ 90), yaw (degrees, -180 ~ 180), field of view (degrees, 40 ~ 90, optional)], ordered by video timestamp in strictly ascending order.
+    guide_enabled_for_360: Optional[bool] # 360 video only: Whether Guide is active.
+    initial_heading_for_360: Optional[int] # 360 video only: Horizontal camera perspective to display when the video begins.
+    initial_pitch_for_360: Optional[int] # 360 video only: Vertical camera perspective to display when the video begins.
+    is_voice_clip: Optional[bool] # used to indicate that if a video is used as audio record
+    no_story: Optional[bool] # If set to true, this will suppress feed and timeline story. Default value False.
+    original_fov: Optional[int] # Original field of view of the source camera
+    original_projection_type_for_360: Optional[str] # 360 video only: The original projection type of the 360 video being uploaded. One of equirectangular, cubemap, half_equirectangular.
+    posting_to_redspace: Optional[str] # Whether the post should appear in RedSpace. One of enabled, disabled.
+    visible_to_fb: Optional[PrivacyFB] # Determines the privacy settings of the video. If not supplied, this defaults to the privacy level granted to the app in the Login Dialog. This field cannot be used to set a more open privacy setting than the one granted.
+    prompt_id: Optional[str] # The prompt id in prompts or purple rain that generated this post
+    prompt_tracking_string: Optional[str] # The prompt tracking string associated with this video post
+    react_mode_metadata: Optional[str] # This metadata is required for clip reacts feature
+    referenced_sticker_id: Optional[str] # Sticker id of the sticker in the post
+    video_id_to_replace: Optional[str] # The video id your uploaded video about to replace
+    slideshow_spec: Optional[SlideshowSpec] # Specification of a list of images that are used to generate video.
+    source_instagram_media_id: Optional[str]
+    is_360: Optional[bool] # Set if the video was recorded in 360 format. Default value is False.
+    sponsor_id: Optional[str] # Facebook Page id that is tagged as sponsor in the video post
+    start_offset: Optional[int] # Start byte position of the file chunk.
+    swap_mode: Optional[str] # Type of replacing video request. Must have value "replace".
+    video_title: Optional[str] # The title of the video
+    transcode_setting_properties: Optional[str] # Properties used in computing transcode settings for the video
+    unpublished_content_type: Optional[str] # Type of unpublished content, such as scheduled, draft or ads_post. One of SCHEDULED, SCHEDULED_RECURRING, DRAFT, ADS_POST, INLINE_CREATED, PUBLISHED, REVIEWABLE_BRANDED_CONTENT 
+    upload_phase: Optional[str] # Type of chunked upload request. One of start, transfer, finish, cancel.
+    upload_session_id: Optional[str] # ID of the chunked upload session.
+    video_id_original: Optional[str] 
+
+# Fields for body of POST request to /groups/{group_id}/videos
+class VideoInGroup(BaseModel):
+    video_encoded_as_form_data: str, # The video, encoded as form data. This field is required.
+    video_file_chunk: Optional[str], # The video file chunk, encoded as form data. This field is required during transfer upload phase.
+    audio_story_wave_animation_handle: Optional[str] # Everstore handle of wave animation used to burn audio story video
+    content_category: Optional[str] # Content category of this video. One of BEAUTY_FASHION, BUSINESS, CARS_TRUCKS, COMEDY, CUTE_ANIMALS, ENTERTAINMENT, FAMILY, FOOD_HEALTH, HOME, LIFESTYLE, MUSIC, NEWS, POLITICS, SCIENCE, SPORTS, TECHNOLOGY, VIDEO_GAMING, OTHER
+    description: Optional[str] # The text describing a post that may be shown in a story about it. It may include rich text information, such as entities and emojis
+    embeddable: Optional[bool] # Whether the video is embeddable.
+    end_offset: Optional[int]
+    file_size_in_bytes: Optional[int] # The size of the entire video file in bytes.
+    file_url: Optional[str] # Accessible URL of a video file. Cannot be used with upload_phase.
+    fisheye_video_cropped: Optional[bool] # Whether the single fisheye video is cropped or not
+    vertical_fov_for_360: Optional[int] # 360 video only: Vertical field of view
+    front_z_rotation: Optional[float] # The front z rotation in degrees on the single fisheye video
+    guide_keyframes_data_for_360: Optional[List[List[int]]] # 360 video only: Guide keyframes data. An array of keyframes, each of which is an array of 3 or 4 elements in the following order: [video timestamp (seconds), pitch (degrees, -90 ~ 90), yaw (degrees, -180 ~ 180), field of view (degrees, 40 ~ 90, optional)], ordered by video timestamp in strictly ascending order.
+    guide_enabled_for_360: Optional[bool] # 360 video only: Whether Guide is active.
+    initial_heading_for_360: Optional[int] # 360 video only: Horizontal camera perspective to display when the video begins.
+    initial_pitch_for_360: Optional[int] # 360 video only: Vertical camera perspective to display when the video begins.
+    original_fov: Optional[int] # Original field of view of the source camera
+    original_projection_type_for_360: Optional[str] # 360 video only: The original projection type of the 360 video being uploaded. One of equirectangular, cubemap, half_equirectangular.
+    prompt_id: Optional[str] # The prompt id in prompts or purple rain that generated this post
+    prompt_tracking_string: Optional[str] # The prompt tracking string associated with this video post
+    react_mode_metadata: Optional[str] # This metadata is required for clip reacts feature
+    referenced_sticker_id: Optional[str] # Sticker id of the sticker in the post
+    video_id_to_replace: Optional[str] # The video id your uploaded video about to replace
+    scheduled_publish_time: Optional[int] # Scheduled publish time for group posts.
+    slideshow_spec: Optional[SlideshowSpec] # Specification of a list of images that are used to generate video.
+    source_instagram_media_id: Optional[str]
+    is_360: Optional[bool] # Set if the video was recorded in 360 format. Default value is False.
+    start_offset: Optional[int] # Start byte position of the file chunk.
+    swap_mode: Optional[str] # Type of replacing video request. Must have value "replace".
+    video_title: Optional[str] # The title of the video
+    transcode_setting_properties: Optional[str] # Properties used in computing transcode settings for the video
+    unpublished_content_type: Optional[str] # Type of unpublished content, such as scheduled, draft or ads_post. One of SCHEDULED, SCHEDULED_RECURRING, DRAFT, ADS_POST, INLINE_CREATED, PUBLISHED, REVIEWABLE_BRANDED_CONTENT 
+    upload_phase: Optional[str] # Type of chunked upload request. One of start, transfer, finish, cancel.
+    upload_session_id: Optional[str] # ID of the chunked upload session.
+
+
+class PostOnProfile(BaseModel):
+    author: str
+    content: PostOnProfileContent
+    state: str
+    visible_to_ln: VisibleToLn
+
+
