@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+# HELPER MODELS FOR TOP-LEVEL MODELS:
+
 class Text(BaseModel):
     text: str # The text content that may be attributed. Defaults to "". NOTE: The maximum length of the text of a UGC Post is 3000 characters.
     # attributes: Optional[List[Attribute]] # User generated attributes in the text.
@@ -67,6 +69,10 @@ class TagOnPhoto(BaseModel):
     tag_text: Optional[str] # A text string to tag. Either this or tag_uid are required.
     x: int # x coordinate of each tag, as a percentage offset from the left edge of the picture.
     y: int # y coordinate of each tag, as a percentage offset from the top edge of the picture.
+
+
+# _____________________________________
+# TOP-LEVEL MODELS FOR POST REQUESTS:
 
 # Fields for body of POST request to /albums/{album_id}/photos and /groups/{group_id}/photos
 class PostPhoto(BaseModel):
