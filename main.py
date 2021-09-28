@@ -162,7 +162,10 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                         continue
                     temp_dict['provider'] = platform_name
                     try:
-                        field_data = responses[platform].json()[specific_field_name]
+                        if platform_name == 'Twitter' and endpoint != 'me': # TEMP SOLUTION
+                            field_data = responses[platform].json()['data'][0][specific_field_name]
+                        else:
+                            field_data = responses[platform].json()[specific_field_name]
                         if 'paging' in field_data:
                             if 'next' in field_data['paging']:
                                 all_data = resolve_pagination(field_data)
@@ -473,7 +476,7 @@ def call_social_media_APIs(method, requested_social_media, endpoint, path=None, 
         if 'Twitter' not in mapped_fields:
             responses['tw'] = prepare_endpoint_error_response('Twitter', url)
         else:
-            responses['tw'] = call_tw_api(tw_api, data_dictionary['tw'], method, endpoint, path, mapped_fields[data_dictionary['tw']['name']], id)
+            responses['tw'] = call_tw_api(tw_access, data_dictionary['tw'], method, endpoint, path, mapped_fields[data_dictionary['tw']['name']], id)
 
     # merge responses into one json object
     response = merge_responses(method, endpoint, unified_fields, responses, limit)
@@ -637,9 +640,9 @@ def authenticate(sm: str):
 
     if 'tw' in requested_social_media:
         tw_creds, tw_error = tw_auth(file_with_tw_credentials)
+        global tw_access
+        tw_access = tw_creds
         if tw_error != None:
-            global tw_access
-            tw_access = tw_creds
             response['Twitter'] = tw_error
             return response
         tw_authenticated = True
