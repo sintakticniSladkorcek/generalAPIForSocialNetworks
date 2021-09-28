@@ -15,7 +15,7 @@ Functionality:
   - retrieve data about athenticated user
   - retrieve authenticated user's posts, links, photos, videos, live videos, albums, events, groups
   - create posts in group
-  - post photos, videos and live videos in events, groups and on user's profile
+  - post photos, videos and live videos in groups and on user's profile
   - modify user's profile, video and live video
   - delete user's photos, videos and live videos
 - for Instagram:
@@ -211,7 +211,6 @@ After that, the API can be accessed at [https://127.0.0.1:443](https://127.0.0.1
 
 ### Response
 
-<!-- Naj bo requests.Response() objekt, kjer je status code odvisen tudi od tega, a je nek api vrnu error al noben -->
 Response format depends on the HTTP method that was used in the request.
 
 #### Response from GET request
@@ -290,6 +289,8 @@ Formal definition of the response format for GET requests would therefore be:
   ]
 }
 ```
+
+If all requested social media APIs return an error, the status code of response will be 400, otherwise status code 200 is to be expected.
 
 #### Response from POST or DELETE request
 
