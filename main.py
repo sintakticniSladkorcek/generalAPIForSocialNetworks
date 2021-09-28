@@ -90,7 +90,13 @@ def resolve_pagination(items):
             for item in items['data']:
                 all_items.append(item)
             # Attempt to make a request to the next page of data, if it exists.
-            items=requests.get(items['paging']['next']).json()
+            if 'facebook' in items['paging']['next']:
+                headers = {'Authorization': f'Bearer {fb_access}'}
+            elif 'instagram' in items['paging']['next']:
+                headers = {'Authorization': f'Bearer {ig_access}'}
+            else:
+                headers = {}
+            items=requests.get(items['paging']['next'], headers=headers).json()
         except KeyError:
             # When there are no more pages (['paging']['next']), break from the
             # loop and end the script.
@@ -174,12 +180,12 @@ def merge_responses(method, endpoint, unified_fields, responses, limit):
                         limit_exists = limit != None
                         if limit_exists:
                             try:
-                                limit = json.loads(limit)
-                                
-                                field_matches = field in limit    # limit['field'] == field
-                                count_ok = limit[field] > 0     # limit['count'] > 0
-                                if limit_exists and field_matches and count_ok:
-                                    field_data['data'] = field_data['data'][:int(limit[field])]
+                                limit_content = json.loads(limit)
+                                field_matches = field in limit_content # limit['field'] == field
+                                if field_matches:
+                                    count_ok = limit_content[field] > 0 # limit['count'] > 0
+                                    if limit_exists and field_matches and count_ok:
+                                        field_data['data'] = field_data['data'][:int(limit_content[field])]
                             except:
                                 error = {
                                     'Error': {
@@ -1213,7 +1219,9 @@ The function parameters will be recognized as follows:
 # comment on album in a group: 3000284600217368
 # event in group: 845071692823639
 
-asyncio.run(serve(app, hypercorn_config))
+run = asyncio.run(serve(app, hypercorn_config), debug=True)
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(asyncio.gather(serve(app, hypercorn_config), return_exceptions=True))
 
 
 # https://127.0.0.1:443/groups/2998732937039201/albums?sm=fb&name=Test&description=Nanana
