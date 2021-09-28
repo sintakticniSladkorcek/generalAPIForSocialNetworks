@@ -354,6 +354,15 @@ Example:
 }
 ```
 
+```json
+{
+  "errors": {},
+  "LinkedIn": {
+      "id": "urn:li:share:6848692000657670144"
+  }
+}
+```
+
 ### Request
 
 <!-- get, post, delete, ... -->
