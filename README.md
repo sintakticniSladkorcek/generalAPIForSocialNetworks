@@ -293,7 +293,7 @@ Formal definition of the response format for GET requests would therefore be:
 
 #### Response from POST or DELETE request
 
-For now, there isn't a specific way in which our API would unify the responses from social media within the returned response. The main structure of a response for POST or DELETE request depends on success of the social media API call.
+POST and DELETE requests can be processed for only one social media platform at a time, so there is no nedd for comiping tg+he responses from different APIs. The main structure of a response for POST or DELETE request depends on success of the social media API call.
 
 If error is present, the following structure is to be expected.
 
@@ -358,8 +358,8 @@ Example:
 <!-- get, post, delete, ... -->
 All requests consist of a base url `https://127.0.0.1:443`, slash `/`, an endpoint `<some_endpoint>`, question mark `?` and the required field `sm=<short_social_media_names_separated_by_comma>`. If we put this together, we get `https://127.0.0.1:443/<some_endpoint>?sm=<short_social_media_names_separated_by_comma>`.
 
-If additional fields are specified, for GET requests append an amperstand `&` and the fields `fields=<field_names_separated_by_comma>`.
-For POST requests, also append an amperstand `&` and then all of the field names and their values you want to append, separated by amperstands, like so `&<field1>=<value1>&<field2>=<value2>&<field3>=<value3> ...`.
+If additional fields are specified, for GET requests append an amperstand `&` and the fields `fields=<field_names_separated_by_comma>`. You csan also add paramete `limit`.
+For POST requests, put all parameters in the body.
 
 DELETE requests don't have any fields so no additions are necessary.
 
@@ -372,7 +372,12 @@ https://127.0.0.1:443/me?sm=fb,ln
 Example POST request url:
 
 ```url
-https://127.0.0.1:443/group/12345678901234/album?sm=fb&name=My Album&description=This is my first album
+https://127.0.0.1:443/group/12345678901234/album?sm=fb
+
+{
+  "name": "My Album",
+  "description": "This is my first album"
+}
 ```
 
 Example DELETE request url:
@@ -380,8 +385,6 @@ Example DELETE request url:
 ```url
 https://127.0.0.1:443//videos/12345678901234?sm=fb
 ```
-
-<!-- TODO: Check how is it with spaces and special characters in strings -->
 
 ### Important Query String Parameters
 
@@ -417,7 +420,6 @@ If an invalid field is requested, an error will be returned.
 #### limit (optional)
 
 This parameter is avilable for all `GET` requests and limits the number of results in the response for specific field. The `limit` parameter should be passed in the following format.
-
 
 ```txt
 limit={
@@ -495,11 +497,11 @@ Endpoints for GET requests
 |`/videos/{video_id}`|Facebook, Instagram|Returns data about video.|
 
 
-<!-- Add required permissions? -->
+<!-- Add required permissions?
 /album/{album_id}: if on user - user_photos, if on page - pages_read_engagement, if on group - you have to be admin
 /comments/{comment_id}: linked to object to which the comment belongs
 /events/{event_id}: if on group-A User access token of an Admin of the Event.
-/groups/{group_id}: groups_access_member_info, publish_to_groups, For Public and Closed Groups-A User access token, For Secret Groups-A User access token for an Admin of the Group
+/groups/{group_id}: groups_access_member_info, publish_to_groups, For Public and Closed Groups-A User access token, For Secret Groups-A User access token for an Admin of the Group -->
 
 Endpoints for POST requests
 
