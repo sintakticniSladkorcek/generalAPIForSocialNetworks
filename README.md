@@ -60,32 +60,6 @@ Functionality is currently limited to the functionality platforms offer free of 
       - [/auth](#auth)
       - [/ig_auth and /ln_auth](#ig_auth-and-ln_auth)
       - [Table of endpoints](#table-of-endpoints)
-      - [GET /albums/{album_id}](#get-albumsalbum_id)
-      - [GET /events/{event_id}](#get-eventsevent_id)
-      - [GET /groups/{group_id}](#get-groupsgroup_id)
-      - [GET /links/{link_id}](#get-linkslink_id)
-      - [GET /live_videos/{video_id}](#get-live_videosvideo_id)
-      - [GET /me](#get-me)
-      - [GET /photos/{photo_id}](#get-photosphoto_id)
-      - [GET /posts/{post_id}](#get-postspost_id)
-      - [GET /users/{user_id}](#get-usersuser_id)
-      - [GET /videos/{video_id}](#get-videosvideo_id)
-      - [POST /albums/{album_id}/photos](#post-albumsalbum_idphotos)
-      - [POST /groups/{group_id}/albums](#post-groupsgroup_idalbums)
-      - [POST /groups/{group_id}/live_videos](#post-groupsgroup_idlive_videos)
-      - [POST /groups/{group_id}/photos](#post-groupsgroup_idphotos)
-      - [POST /groups/{group_id}/videos](#post-groupsgroup_idvideos)
-      - [POST /live_videos/{video_id}](#post-live_videosvideo_id)
-      - [POST /posts/{post_id}/comments](#post-postspost_idcomments)
-      - [POST /posts/{post_id}/likes](#post-postspost_idlikes)
-      - [POST /users/{user_id}](#post-usersuser_id)
-      - [POST /users/{user_id}/live_videos](#post-usersuser_idlive_videos)
-      - [POST /users/{user_id}/posts](#post-usersuser_idposts)
-      - [POST /users/{user_id}/videos](#post-usersuser_idvideos)
-      - [POST /videos/{video_id}](#post-videosvideo_id)
-      - [DELETE /live_videos/{video_id}](#delete-live_videosvideo_id)
-      - [DELETE /photos/{photo_id}](#delete-photosphoto_id)
-      - [DELETE /videos/{video_id}](#delete-videosvideo_id)
     - [Errors](#errors)
       - [Errors returned by General API for Social Networks](#errors-returned-by-general-api-for-social-networks)
       - [Errors returned by social media APIs](#errors-returned-by-social-media-apis)
@@ -426,7 +400,7 @@ Currently available values are:
 
 #### fields (optional)
 
-This parameter specifies, which fields do we want in API's response. It can be used with `GET` requests to narrow down the data in response. The parameter should be given in the following format `fields=<field_names_separated_by_comma>`, where field names are the keys form data dictionaries.
+This parameter specifies, which fields do we want in API's response. It can be used with `GET` requests to narrow down the data in response. The parameter should be given in the following format `fields=<field_names_separated_by_comma>`, where field names are the keys form data dictionaries. All possible fields can be found in file `models.py`.
 
 If `fields` parameter is not provided, all possible fields will be returned.
 
@@ -472,11 +446,11 @@ If the value of `count` isn't an integer, or `limit` parameter is otherwise malf
 
 #### visible_to
 
-This parameter can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn. 
+This field can be used with `POST` requests to set visibility of the object we are creating or updating. Since different social networks have different privacy settings, this parameter is social media specific. Use `visible_to_fb` to set who can see the object on Facebook and `visible_to_ln` for LinkedIn.
 
 Possible values:
 - Facebook: `SELF`, `NETWORKS_FRIENDS`, `FRIENDS_OF_FRIENDS`, `ALL_FRIENDS`, `EVERYONE`, `CUSTOM`
-- LinkedIn: `CONNECTIONS`, `PUBLIC`
+- LinkedIn: `CONNECTIONS`, `PUBLIC`, `LOGGED_IN`, `CONTAINER`
 
 For more, see their documentation:
 
@@ -510,11 +484,10 @@ Endpoints for GET requests
 |endpoint/path|supported social media|description|
 |---|---|---|
 |`/albums/{album_id}`|Facebook, Instagram|Returns data about album. For Instagram, album is collection of photos or videos in a post.|
-|`/events/{event_id}`|Facebook||
-|`/groups/{group_id}`|Facebook||
-|`/links/{link_id}`|Facebook||
-|`/live_videos/{video_id}`|Facebook||
-<!-- |`/locations/{location_id}`|Facebook|| -->
+|`/events/{event_id}`|Facebook|Returns data about event.|
+|`/groups/{group_id}`|Facebook|Returns data about a group.|
+|`/links/{link_id}`|Facebook|Returns data about link.|
+|`/live_videos/{video_id}`|Facebook|Returns data about live video.|
 |`/me`|Facebook, Instagram, LinkedIn, Twitter|Returns data about the user who is logged in.|
 |`/photos/{photo_id}`|Facebook, Instagram|Returns data about photo.|
 |`/posts/{post_id}`|Facebook, Twitter|Returns data about a post.|
@@ -532,30 +505,30 @@ Endpoints for POST requests
 
 |endpoint/path|supported social media|description|
 |---|---|---|
-|`/albums/{album_id}/photos`|Facebook||
-|`/groups/{group_id}/albums`|Facebook||
-|`/groups/{group_id}/posts`|Facebook|Create a post in group|
-|`/groups/{group_id}/live_videos`|Facebook||
-|`/groups/{group_id}/photos`|Facebook||
-|`/groups/{group_id}/videos`|Facebook||
-|`/live_videos/{video_id}`|Facebook||
-|`/posts/{post_id}/comments`|LinkedIn||
-|`/posts/{post_id}/likes`|LinkedIn, Twitter||
-|`/users/{user_id}`|Facebook||
-|`/users/{user_id}/live_videos`|Facebook||
-|`/users/{user_id}/posts`|LinkedIn, Twitter|Create a post on user's profile|
-|`/users/{user_id}/videos`|Facebook||
-|`/videos/{video_id}`|Facebook||
+|`/albums/{album_id}/photos`|Facebook|Adds a photo to specified album.|
+|`/groups/{group_id}/albums`|Facebook|Creates new album in group.|
+|`/groups/{group_id}/posts`|Facebook|Creates a post in group.|
+|`/groups/{group_id}/live_videos`|Facebook|Posts a live video to group.|
+|`/groups/{group_id}/photos`|Facebook|Posts a photo in group.|
+|`/groups/{group_id}/videos`|Facebook|Posts a video in group.|
+|`/live_videos/{video_id}`|Facebook|Updates live video.|
+|`/posts/{post_id}/comments`|LinkedIn|Creates a comment on specified post.|
+|`/posts/{post_id}/likes`|LinkedIn, Twitter|Likes specified post in the name of authenticated user.|
+|`/users/{user_id}`|Facebook|Updates some user ssettings.|
+|`/users/{user_id}/live_videos`|Facebook|Posts a live video to user's profile.|
+|`/users/{user_id}/posts`|LinkedIn, Twitter|Creates a post on user's profile.|
+|`/users/{user_id}/videos`|Facebook|Posts a video to user's profile.|
+|`/videos/{video_id}`|Facebook|Updates a video.|
 
 Endpoints for DELETE requests
 
 |endpoint/path|supported social media|description|
 |---|---|---|
-|`/live_videos/{video_id}`|Facebook||
-|`/photos/{photo_id}`|Facebook||
-|`/videos/{video_id}`|Facebook||
+|`/live_videos/{video_id}`|Facebook|Deletes a live video.|
+|`/photos/{photo_id}`|Facebook|Deletes a photo.|
+|`/videos/{video_id}`|Facebook|Deletes a video.|
 
-Note that some of the available functionalities from the Facebook Graph API are not included in General API for Social Networks.
+Note that some of the available functionalities from the Facebook Graph API and Twitter API are not included in General API for Social Networks.
 
 Upon a call to an unavaileble endpoint for specific social media, en error response will be returned for this social media as part of the API response.
 
@@ -571,7 +544,12 @@ If a nonexisting endpoint is called or none of the requested social media platfo
 }
 ```
 
-#### GET /albums/{album_id}
+<!-- #### GET /albums/{album_id}
+
+Gets data about an album with specified album_id.
+
+This endpoint is supported only by Facebook. The authenticated user must be the owner of the album in order to have permission to see it.
+
 #### GET /events/{event_id}
 #### GET /groups/{group_id}
 #### GET /links/{link_id}
@@ -613,7 +591,7 @@ What fields can be used in the request body
 #### POST /videos/{video_id}
 #### DELETE /live_videos/{video_id}
 #### DELETE /photos/{photo_id}
-#### DELETE /videos/{video_id}
+#### DELETE /videos/{video_id} -->
 
 
 ### Errors
@@ -762,7 +740,7 @@ from social_media_api_calls.linkedin_api_calls import call_api as call_ln_api
 from social_media_api_calls.twitter_api_calls import call_api as call_tw_api
 ```
 
-and also add it to function `call_social_media_APIs`.
+and also add it to function `call_social_media_APIs`. Be sure to update the file `models.py` as well.
 
 #### 5) Update documentation
 
