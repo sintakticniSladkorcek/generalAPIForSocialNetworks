@@ -1,5 +1,15 @@
 import requests
 
+def create_header(access_token):
+    '''
+    Prepare headers to attach to request.
+    '''
+
+    headers = {
+    'Authorization': f'Bearer {access_token}'
+    }
+    return headers
+
 def call_api(access_token, data_dictionary, method, endpoint, path, mapped_fields, id):
     # assemble the url without the parameters
     url = data_dictionary['base_url'] + data_dictionary['endpoint_mapping'][endpoint]['endpoint']
@@ -18,7 +28,9 @@ def call_api(access_token, data_dictionary, method, endpoint, path, mapped_field
     
     parameters = 'fields=' + temp[:-1]
 
+    headers = create_header(access_token)
+
     # call API
-    response = requests.get(f'{url}?{parameters}&access_token={access_token}')
+    response = requests.get(f'{url}?{parameters}', headers=headers)
 
     return response
