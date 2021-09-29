@@ -760,26 +760,19 @@ In the `README.md` file, add to the sections [Currently supported APIs](#current
 
 ### Suggested improvements on the current version
 
-<!-- -  Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
-- If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
-- When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
-- Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
-- Add suggestions on how to resolve the error in the merged response. Either from the docs of social media APIs or from us if it's something with this api.
-- expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
-- Add Facebook's edges also as endpoints, not just as fields
-- Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
-- fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that. -->
+- Turn shortlived Facebook and Instagram tokens nto longlived ones or refresh them when they expire.
+- Implement data deletion callback for Facebook and Instgram
+- Add check whether a request is compatible with selected social media platforms
+- Change HTTP method for updating requests to PUT
+- Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
+- Add field expansion
+- Implement parameter `group_by` which toggles between grouping data in response based on fields and grouping based on social media platforms.
+- Implement gracefull shutdown for server
+- Set default value for limit parameter
+- Use limit parameter in the process of de-paginating responses to save time
+- Add special error for nonexistent paths
+- Implement Titter authentication that doesn't require entering the pin
+- Add deauth endpoints (aka logout)
+- Implement filtering by date via query parameter
+- Add more Facebook or Twitter endpoints
 
-
-<!-- # FURTHER DEVELOPMENT: Put instead of Post for updating stuff
-# FURTHER DEVELOPMENT: Also now all of the data has to be saved in files, maybe it would be better to make it so that all the neccessary data is passed via call to /auth.
-# FURTHER DEVELOPMENT: If too much time, implement parameter "group_by" that allows you to either group by data first or by provider first.
-# FURTHER DEVELOPMENT: When you query, the app checks if all permissions are avaliable and if not it asks you for the permission - aka prompts login and creates access token
-# FURTHER DEVELOPMENT: Beginning with SDK v13.0 for iOS and Android, set to release in early 2022, a Client Token will be required for all calls to the Graph API. https://developers.facebook.com/docs/facebook-login/access-tokens/
-# FURTHER DEVELOPMENT: Add suggestions on how to resolve the error in the merged response. Either from the docs of social media APIs or from us if it's something with this api.
-# FURTHER DEVELOPMENT: expansion/multiple requests in one https://developers.facebook.com/docs/graph-api/field-expansion/
-# FURTHER DEVELOPMENT: Add Facebook's edges also as endpoints, not just as fields
-# FURTHER DEVELOPMENT: Create data dictionaries on the go from csv tables for each endpoint (easier to update/add/remove an endpoint or field)
-# FURTHER DEVELOPMENT: fields=all-sth Make it possible to instead of specifying all e.g. 33 fields out of 35, we just say all but not this and that.
-# FURTHER DEVELOPMENT: If no fields are provided in get request, use not all of them but all that are non None value for requested sm.
-# FURTHER DEVELOPMENT: Add this type (fb): /search?type=adinterest&q=TEDx -->
